@@ -1,3 +1,0 @@
-[submodule "deps/Urho3D"]
-	path = deps/Urho3D
-	url = https://github.com/dprandle/Urho3D.git
