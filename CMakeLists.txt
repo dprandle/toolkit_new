@@ -4,6 +4,8 @@ project(bbtoolkit)
 
 set(EXEC_NAME bbtoolkit)
 
+set(CUSTOM_LIB_DIR $ENV{HOME}/CustomLibs/${CMAKE_BUILD_TYPE})
+
 find_package(Qt5Core)
 find_package(Qt5Widgets)
 find_package(Qt5Gui)
@@ -16,7 +18,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Set the include directory
 set(BBTOOLKIT_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
-set(URHO3D_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/deps/Urho3D/build/${CMAKE_BUILD_TYPE}/include)
+set(URHO3D_INCLUDE_DIR ${CUSTOM_LIB_DIR}/include)
 set(THIRD_PARTY_INCLUDE_DIR ${URHO3D_INCLUDE_DIR}/Urho3D/ThirdParty)
 
 
@@ -44,8 +46,8 @@ qt5_add_resources(SRC_RES_FILE ${CMAKE_SOURCE_DIR}/toolkit.qrc)
 # Set project includes dir
 include_directories(
   "${BBTOOLKIT_INCLUDE_DIR}"
-  "${THIRD_PARTY_INCLUDE_DIR}"
   "${URHO3D_INCLUDE_DIR}"
+  "${THIRD_PARTY_INCLUDE_DIR}"
   )
 
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
@@ -63,6 +65,8 @@ elseif (WIN32)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
 endif()
 
+add_executable(${EXEC_NAME} ${SRC_FILES} ${SRC_MOC_FILES} ${UI_HEADERS} ${SRC_RES_FILE})
+
 # copy all the files in the deploy folder to bin
 add_custom_target(deploy_files ALL
   COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/deploy ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
@@ -75,10 +79,7 @@ add_custom_target(move_compile_commands ALL
   DEPENDS ${TARGET_NAME}
   )
 
-add_executable(${EXEC_NAME} ${SRC_FILES} ${SRC_MOC_FILES} ${UI_HEADERS} ${SRC_RES_FILE})
-
-
-find_library(URHO3D Urho3D PATHS ${CMAKE_SOURCE_DIR}/deps/Urho3D/build/${CMAKE_BUILD_TYPE}/lib)
+find_library(URHO3D Urho3D PATHS ${CUSTOM_LIB_DIR}/lib/Urho3D)
 
 # link with opengl (no debug version)
 find_package(OpenGL REQUIRED)
