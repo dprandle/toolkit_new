@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ObjectView</class>
+ <widget class="QMainWindow" name="ObjectView">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>298</width>
+    <height>406</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="animated">
+   <bool>false</bool>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="mCentralWidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QListWidget" name="mListWidget">
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustIgnored</enum>
+      </property>
+      <property name="dragDropMode">
+       <enum>QAbstractItemView::NoDragDrop</enum>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>64</width>
+        <height>64</height>
+       </size>
+      </property>
+      <property name="movement">
+       <enum>QListView::Static</enum>
+      </property>
+      <property name="flow">
+       <enum>QListView::LeftToRight</enum>
+      </property>
+      <property name="resizeMode">
+       <enum>QListView::Adjust</enum>
+      </property>
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <property name="gridSize">
+       <size>
+        <width>80</width>
+        <height>80</height>
+       </size>
+      </property>
+      <property name="viewMode">
+       <enum>QListView::IconMode</enum>
+      </property>
+      <property name="uniformItemSizes">
+       <bool>true</bool>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="mToolbar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::RightToLeft</enum>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::AllToolBarAreas</set>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>24</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>BottomToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNewObject"/>
+   <addaction name="actionEditObject"/>
+   <addaction name="actionDeleteObject"/>
+  </widget>
+  <action name="actionNewObject">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/New_Map.png</normaloff>:/VecTB/icons/toolbars/New_Map.png</iconset>
+   </property>
+   <property name="text">
+    <string>newObject</string>
+   </property>
+   <property name="toolTip">
+    <string>Add new object</string>
+   </property>
+  </action>
+  <action name="actionEditObject">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Edit.png</normaloff>:/VecTB/icons/toolbars/Edit.png</iconset>
+   </property>
+   <property name="text">
+    <string>editObject</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit object</string>
+   </property>
+  </action>
+  <action name="actionDeleteObject">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Delete.png</normaloff>:/VecTB/icons/toolbars/Delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>deleteObject</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete object</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../toolkit.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionDeleteObject</sender>
+   <signal>triggered()</signal>
+   <receiver>ObjectView</receiver>
+   <slot>onActionDelete()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>148</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEditObject</sender>
+   <signal>triggered()</signal>
+   <receiver>ObjectView</receiver>
+   <slot>onActionEdit()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>148</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNewObject</sender>
+   <signal>triggered()</signal>
+   <receiver>ObjectView</receiver>
+   <slot>onActionNew()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>148</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mListWidget</sender>
+   <signal>itemSelectionChanged()</signal>
+   <receiver>ObjectView</receiver>
+   <slot>onSelectionChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>148</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>148</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onActionEdit()</slot>
+  <slot>onActionNew()</slot>
+  <slot>onActionDelete()</slot>
+  <slot>onItemPressed(QListWidgetItem*)</slot>
+  <slot>onSelectionChanged()</slot>
+ </slots>
+</ui>

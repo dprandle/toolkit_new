@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BrushMenuWidget</class>
+ <widget class="QWidget" name="BrushMenuWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>347</width>
+    <height>258</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Brushes</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QListWidget" name="mBrushedLW">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>64</width>
+       <height>64</height>
+      </size>
+     </property>
+     <property name="viewMode">
+      <enum>QListView::IconMode</enum>
+     </property>
+     <property name="uniformItemSizes">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionEditBrush">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Edit.png</normaloff>:/VecTB/icons/toolbars/Edit.png</iconset>
+   </property>
+   <property name="text">
+    <string>editBrush</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit the selected brush</string>
+   </property>
+  </action>
+  <action name="actionNewBrush">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/New_Map.png</normaloff>:/VecTB/icons/toolbars/New_Map.png</iconset>
+   </property>
+   <property name="text">
+    <string>newBrush</string>
+   </property>
+   <property name="toolTip">
+    <string>Create new brush</string>
+   </property>
+  </action>
+  <action name="actionDeleteBrush">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Delete.png</normaloff>:/VecTB/icons/toolbars/Delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>deleteBrush</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete the selected brush</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../toolkit.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionDeleteBrush</sender>
+   <signal>triggered()</signal>
+   <receiver>BrushMenuWidget</receiver>
+   <slot>onDeleteBrush()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEditBrush</sender>
+   <signal>triggered()</signal>
+   <receiver>BrushMenuWidget</receiver>
+   <slot>onEditBrush()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNewBrush</sender>
+   <signal>triggered()</signal>
+   <receiver>BrushMenuWidget</receiver>
+   <slot>onNewBrush()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mBrushedLW</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>BrushMenuWidget</receiver>
+   <slot>onDoubleClick()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>27</x>
+     <y>141</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>5</x>
+     <y>142</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mBrushedLW</sender>
+   <signal>itemSelectionChanged()</signal>
+   <receiver>BrushMenuWidget</receiver>
+   <slot>onSelectionChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>173</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>173</x>
+     <y>128</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onNewBrush()</slot>
+  <slot>onDeleteBrush()</slot>
+  <slot>onEditBrush()</slot>
+  <slot>onItemChanged(QListWidgetItem*)</slot>
+  <slot>onDoubleClick()</slot>
+  <slot>onSelectionChanged()</slot>
+ </slots>
+</ui>

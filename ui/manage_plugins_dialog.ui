@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ManagePluginsDialog</class>
+ <widget class="QDialog" name="ManagePluginsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>667</width>
+    <height>369</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Manage Plugins</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QGroupBox {
+border: 1px solid rgb(100,100,100);
+border-radius: 5px;
+margin-top: 2ex;
+}
+
+QGroupBox::title {
+subcontrol-origin: margin;
+left: 10px;
+}
+</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
+    <layout class="QFormLayout" name="formLayout_2">
+     <item row="0" column="0">
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>Plugins</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QTreeWidget" name="mPluginsTblW">
+          <property name="autoExpandDelay">
+           <number>-1</number>
+          </property>
+          <property name="indentation">
+           <number>0</number>
+          </property>
+          <property name="rootIsDecorated">
+           <bool>false</bool>
+          </property>
+          <property name="uniformRowHeights">
+           <bool>true</bool>
+          </property>
+          <property name="itemsExpandable">
+           <bool>true</bool>
+          </property>
+          <property name="allColumnsShowFocus">
+           <bool>true</bool>
+          </property>
+          <attribute name="headerMinimumSectionSize">
+           <number>20</number>
+          </attribute>
+          <attribute name="headerStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>Filename</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Resource Count</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QToolButton" name="mAddPluginBtn">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="../toolkit.qrc">
+              <normaloff>:/VecTB/icons/toolbars/New_Map.png</normaloff>
+              <disabledoff>:/VecTB/icons/toolbars/New_Map_Disabled.png</disabledoff>:/VecTB/icons/toolbars/New_Map.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="mEditPluginBtn">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="../toolkit.qrc">
+              <normaloff>:/VecTB/icons/toolbars/Edit.png</normaloff>
+              <disabledoff>:/VecTB/icons/toolbars/Edit_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Edit.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="mDelPluginBtn">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="../toolkit.qrc">
+              <normaloff>:/VecTB/icons/toolbars/Delete.png</normaloff>
+              <disabledoff>:/VecTB/icons/toolbars/Delete_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Delete.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout"/>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Active Plugin:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="mActivePluginLbl">
+            <property name="text">
+             <string>None</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QPushButton" name="mDetailsBtn">
+            <property name="text">
+             <string>Details</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="mActiveBtn">
+            <property name="text">
+             <string>Set Active</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Parents</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QTreeWidget" name="mParentsTW">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="indentation">
+             <number>0</number>
+            </property>
+            <property name="itemsExpandable">
+             <bool>false</bool>
+            </property>
+            <column>
+             <property name="text">
+              <string>Filename</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
+          <string>Description</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <layout class="QFormLayout" name="formLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Creator</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="mCreatorLE">
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Notes</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="mNotesTextEdit">
+            <property name="minimumSize">
+             <size>
+              <width>175</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QFormLayout" name="formLayout_3">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Date Created:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="mDateCreatedLbl">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Date Modified:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="mDateModifiedLbl">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="mOkayBtn">
+       <property name="text">
+        <string>Okay</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="mCancelBtn">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../toolkit.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>mPluginsTblW</sender>
+   <signal>itemSelectionChanged()</signal>
+   <receiver>ManagePluginsDialog</receiver>
+   <slot>onSelectionChange()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>76</x>
+     <y>211</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>17</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mOkayBtn</sender>
+   <signal>pressed()</signal>
+   <receiver>ManagePluginsDialog</receiver>
+   <slot>onOkay()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>575</x>
+     <y>358</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>331</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mCancelBtn</sender>
+   <signal>pressed()</signal>
+   <receiver>ManagePluginsDialog</receiver>
+   <slot>onCancel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>656</x>
+     <y>358</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>628</x>
+     <y>294</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mEditPluginBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>ManagePluginsDialog</receiver>
+   <slot>onEditPlugin()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>237</x>
+     <y>237</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>252</x>
+     <y>335</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mDelPluginBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>ManagePluginsDialog</receiver>
+   <slot>onDeletePlugin()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>269</x>
+     <y>242</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>381</x>
+     <y>343</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mActiveBtn</sender>
+   <signal>pressed()</signal>
+   <receiver>ManagePluginsDialog</receiver>
+   <slot>onSetActive()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>228</x>
+     <y>306</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>215</x>
+     <y>343</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mDetailsBtn</sender>
+   <signal>pressed()</signal>
+   <receiver>ManagePluginsDialog</receiver>
+   <slot>onDetails()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>106</x>
+     <y>308</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>31</x>
+     <y>344</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mAddPluginBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>ManagePluginsDialog</receiver>
+   <slot>onNewPlugin()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>203</x>
+     <y>242</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>287</x>
+     <y>358</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onDetails()</slot>
+  <slot>onSetActive()</slot>
+  <slot>onSelectionChange()</slot>
+  <slot>onNewPlugin()</slot>
+  <slot>onOkay()</slot>
+  <slot>onCancel()</slot>
+  <slot>onEditPlugin()</slot>
+  <slot>onDeletePlugin()</slot>
+ </slots>
+</ui>

@@ -1,0 +1,1151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Toolkit</class>
+ <widget class="QMainWindow" name="Toolkit">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1600</width>
+    <height>900</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Build and Battle Toolkit 1.00.00</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+color: white;
+background-color: rgb(55,55,55);
+}
+
+QComboBox
+{
+background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(97, 97, 97, 255), stop:0.642045 rgba(30, 30, 30, 255), stop:1 rgba(48, 48, 48, 255));
+border: 1px solid rgb(30,30,30);
+border-radius: 5px;
+min-width: 6em;
+padding: 1px 18px 1px 3px;
+}
+
+QStatusBar
+{
+	background-color: rgb(208, 93, 0);
+}
+
+QListView
+{
+background-color: rgb(30,30,30);
+}
+
+QComboBox:hover
+{
+background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(82, 82, 82, 255), stop:0.642045 rgba(14, 14, 14, 255), stop:1 rgba(61, 61, 61, 255));
+border: 1px solid rgb(30,30,30);
+border-radius: 5px;
+min-width: 80px;
+}
+
+ QComboBox:!editable:on, QComboBox::drop-down:editable:on 
+{
+	background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(18, 18, 18, 255), stop:0.642045 rgba(84, 84, 84, 255), stop:0.994318 rgba(14, 14, 14, 255));
+border: 1px solid rgb(30,30,30);
+ }
+
+QComboBox:down-arrow
+{
+background-color: transparent;
+image: url(:/VecTB/icons/toolbars/Down_Arrow.png);
+width: 7px;
+height: 7px;
+}
+
+QComboBox:disabled
+{
+background-color: rgb(100,100,100);
+color: rgb(200,200,200);
+border: 1px solid rgb(100,100,100);
+}
+
+ QComboBox::drop-down 
+{
+     border-left: none; 
+ }
+
+ QComboBox QAbstractItemView 
+{
+selection-background-color:  rgb(90, 90, 90);
+border: 1px solid rgb(100,100,100);
+ }
+
+QGroupBox {
+border: 1px solid rgb(100,100,100);
+border-radius: 5px;
+margin-top: 1ex;
+padding-top: 20px;
+}
+
+QGroupBox::title
+{
+subcontrol-origin: margin;
+}
+
+QLineEdit {
+background-color: rgb(30,30,30);
+border: 1px solid rgb(100,100,100);
+}
+
+QPushButton {
+background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(97, 97, 97, 255), stop:0.642045 rgba(30, 30, 30, 255), stop:1 rgba(48, 48, 48, 255));
+border-radius: 3px;
+border: 1px solid rgb(100,100,100);
+padding: 5px;
+color: white;
+min-width: 80px;
+max-height: 12px;
+}
+
+QPushButton:disabled {
+background-color: rgb(100,100,100);
+color: rgb(200,200,200);
+border: 1px solid rgb(100,100,100);
+min-width: 6em;
+}
+
+QPushButton:hover {
+background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(236, 100, 0, 255), stop:0.625 rgba(255, 118, 18, 255), stop:1 rgba(196, 66, 0, 255));
+}
+
+QPushButton:pressed {
+background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(209, 88, 0, 255), stop:0.625 rgba(118, 55, 8, 255), stop:1 rgba(176, 59, 0, 255));
+border: 1px solid rgb(30,30,30);
+}
+
+QTreeView::branch:has-siblings:!adjoins-item {
+    border-image: url(:/style_items/icons/style_items/tree_vline.png) 0;
+}
+
+QTreeView::branch:has-siblings:adjoins-item {
+    border-image: url(:/style_items/icons/style_items/tree_branch_more.png);
+}
+
+QTreeView::branch:!has-children:!has-siblings:adjoins-item {
+    border-image: url(:/style_items/icons/style_items/tree_branch_end.png);
+}
+
+QTreeView::branch:has-children:!has-siblings:closed,
+QTreeView::branch:closed:has-children:has-siblings {
+        border-image: none;
+		image: url(:/style_items/icons/style_items/tree_branch_closed.png);
+}
+
+QTreeView::branch:open:has-children:!has-siblings,
+QTreeView::branch:open:has-children:has-siblings  {
+		border-image: none;
+		image: url(:/style_items/icons/style_items/tree_branch_open.png);
+}
+
+/* QSpinBox and QDoubleSpinBox Section*/
+QSpinBox,QDoubleSpinBox
+{
+background-color: rgb(30,30,30);
+color: white;
+border: 1px solid rgb(100,100,100);
+min-width: 50px;
+}
+
+QLabel:disabled
+{
+color: rgb(200,200,200);
+}
+
+QLineEdit:disabled,QSpinBox:disabled,QDoubleSpinBox:disabled
+{
+background-color: rgb(100,100,100);
+color: rgb(200,200,200);
+border: 1px solid rgb(100,100,100);
+min-width: 50px;
+}
+
+QSpinBox::up-button,QDoubleSpinBox::up-button
+{
+background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(97, 97, 97, 255), stop:0.642045 rgba(30, 30, 30, 255), stop:1 rgba(48, 48, 48, 255));
+}
+
+QSpinBox::down-button,QDoubleSpinBox::down-button
+{
+background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(97, 97, 97, 255), stop:0.642045 rgba(30, 30, 30, 255), stop:1 rgba(48, 48, 48, 255));
+}
+
+QSpinBox::up-button:hover,QDoubleSpinBox::up-button:hover
+{
+background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(236, 100, 0, 255), stop:0.625 rgba(255, 118, 18, 255), stop:1 rgba(196, 66, 0, 255));
+}
+
+QSpinBox::down-button:hover,QDoubleSpinBox::down-button:hover
+{
+background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(236, 100, 0, 255), stop:0.625 rgba(255, 118, 18, 255), stop:1 rgba(196, 66, 0, 255));
+}
+
+QSpinBox::up-button:pressed,QDoubleSpinBox::up-button:pressed
+{
+background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(124, 52, 0, 255), stop:0.625 rgba(36, 16, 2, 255), stop:1 rgba(97, 32, 0, 255));
+}
+
+QSpinBox::down-button:pressed,QDoubleSpinBox::down-button:pressed
+{
+background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(124, 52, 0, 255), stop:0.625 rgba(36, 16, 2, 255), stop:1 rgba(97, 32, 0, 255));
+}
+
+QSpinBox::up-button:disabled,QDoubleSpinBox::up-button:disabled
+{
+background-color: rgb(150,150,150);
+}
+
+QSpinBox::down-button:disabled,QDoubleSpinBox::down-button:disabled
+{
+background-color: rgb(150,150,150);
+}
+
+QSpinBox::up-arrow,QDoubleSpinBox::up-arrow
+{
+image: url(:/VecTB/icons/toolbars/Up_Arrow.png);
+width: 6px;
+height: 6px; 
+}
+
+QSpinBox::down-arrow,QDoubleSpinBox::down-arrow
+{
+image: url(:/VecTB/icons/toolbars/Down_Arrow.png);
+width: 6px;
+height: 6px; 
+}
+
+QSpinBox::up-arrow:hover,QDoubleSpinBox::up-arrow:hover
+{
+image: url(:/VecTB/icons/toolbars/Up_Arrow.png);
+width: 6px;
+height: 6px; 
+}
+
+QSpinBox::down-arrow:hover,QDoubleSpinBox::down-arrow:hover
+{
+image: url(:/VecTB/icons/toolbars/Down_Arrow.png);
+width: 6px;
+height: 6px; 
+}
+
+QSpinBox::up-arrow:disabled,QDoubleSpinBox::up-arrow:disabled
+{
+image: url(:/VecTB/icons/toolbars/Up_Arrow.png);
+width: 6px;
+height: 6px; 
+}
+
+QSpinBox::down-arrow:disabled,QDoubleSpinBox::down-arrow:disabled
+{
+image: url(:/VecTB/icons/toolbars/Down_Arrow.png);
+width: 6px;
+height: 6px; 
+}
+/* End of code for QSpinBox and QDoubleSpinBox*/
+
+
+QMenuBar::item {
+background-color: transparent;
+}
+
+QMenuBar::item:selected {
+background-color: rgb(90, 90, 90);}
+
+QMenu 
+{
+border: 1px solid transparent;
+border-color: rgb(100, 100, 100);
+min-width: 6em;
+}
+
+QMenu::separator 
+{
+background-color: rgb(100,100,100);
+width: 1px;
+height: 1px;
+}
+
+QMenu::item 
+{
+background-color: rgb(30, 30, 30);
+}
+
+QMenu::item:selected 
+{
+background-color: rgb(90, 90, 90);
+}
+
+QToolBar {
+spacing: 15px;
+border: 0px;
+}
+
+QToolBar::separator {
+background-color: rgb(100,100,100);
+width: 1px;
+height: 1px;
+}
+
+/* TOOLBUTTON */
+
+QToolButton
+{
+border-radius: 5px;
+padding: 3px;
+border: 1px solid rgb(55, 55, 55);
+}
+
+QToolButton:pressed
+{
+background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.547, fx:0.5, fy:0.5, stop:0 rgba(77, 77, 77, 255), stop:1 rgba(27, 27, 27, 255));
+border: 1px solid rgb(70, 70, 70);
+padding: 3px;
+border-radius: 5px;
+}
+
+QToolButton:hover {
+background-color: rgb(90, 90, 90);
+border-radius: 5px;
+border: 1px solid rgb(70, 70, 70);
+padding: 3px;
+}
+
+QToolButton[popupMode=&quot;1&quot;] { /* only for MenuButtonPopup */
+    padding-right: 20px; /* make way for the popup button */
+}
+
+/* the subcontrols below are used only in the MenuButtonPopup mode */
+QToolButton::menu-button {
+	border: 1px solid rgb(55, 55, 55);
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    /* 16px width + 4px for border = 20px allocated above */
+    width: 16px;
+}
+
+QToolButton::menu-arrow {
+    image: url(:/VecTB/icons/toolbars/Down_Arrow.png);
+	width: 6px;
+	height: 6px; 
+}
+
+QToolButton::menu-arrow:open {
+    top: 1px; left: 1px; /* shift it a bit */
+}
+
+QToolButton:checked 
+{
+background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.547, fx:0.5, fy:0.5, stop:0 rgba(77, 77, 77, 255), stop:1 rgba(27, 27, 27, 255));
+border: 1px inset rgb(45, 45, 45);
+padding: 3px;
+border-radius: 5px;
+}
+
+
+/* END TOOLBUTTON */
+
+QHeaderView::section {
+background-color: rgb(70, 70, 70);
+}
+
+QTextEdit{
+background-color: rgb(30,30,30);
+border: 1px solid rgb(100,100,100);
+}
+
+QPlainTextEdit{
+background-color: rgb(30,30,30);
+border: 1px solid rgb(100,100,100);
+}
+
+QTreeWidget
+{
+background-color: rgb(30,30,30);
+border: 1px solid rgb(100,100,100);
+}
+
+QListWidget
+{
+background-color: rgb(30,30,30);
+border: 1px solid rgb(100,100,100);
+}
+
+QTabWidget::tab-bar {
+    left: 5px; /* move to the right by 5px */
+}
+
+QTabBar::tab {
+    background-color: rgb(55,55,55);
+    border: 1px solid rgb(55,55,55);
+	border-bottom-color: rgb(55,55,55);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    min-width: 8ex;
+    padding: 2px;
+}
+
+QTabBar::tab:selected, QTabBar::tab:hover {
+   border-color: rgb(30, 30, 30);
+}
+
+QTabBar::tab:selected {
+    border-color: rgb(30,30,30);
+    border-bottom-color: rgb(30,30,30);
+}
+
+QTabBar::tab:!selected 
+{
+    margin-top: 2px; /* make non-selected tabs look smaller */
+}</string>
+  </property>
+  <property name="iconSize">
+   <size>
+    <width>24</width>
+    <height>24</height>
+   </size>
+  </property>
+  <property name="animated">
+   <bool>false</bool>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowTabbedDocks</set>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="m_scene_view">
+   <property name="cursor">
+    <cursorShape>ArrowCursor</cursorShape>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::ClickFocus</enum>
+   </property>
+  </widget>
+  <widget class="QMenuBar" name="mMenubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1600</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionLoad"/>
+    <addaction name="actionSave"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionResource_Browser"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menuView"/>
+  </widget>
+  <widget class="QStatusBar" name="mStatusbar"/>
+  <widget class="QToolBar" name="mTopToolbar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="acceptDrops">
+    <bool>false</bool>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionLoad"/>
+   <addaction name="actionSwitchMap"/>
+   <addaction name="actionSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
+   <addaction name="separator"/>
+   <addaction name="actionUnlock"/>
+   <addaction name="actionStampMode"/>
+   <addaction name="separator"/>
+   <addaction name="actionLayerMode"/>
+   <addaction name="separator"/>
+   <addaction name="actionMirrorMode"/>
+   <addaction name="separator"/>
+   <addaction name="actionShowAllHidden"/>
+   <addaction name="actionToggleLighting"/>
+   <addaction name="separator"/>
+  </widget>
+  <widget class="QToolBar" name="mSideToolbar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <property name="movable">
+    <bool>true</bool>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionSelect"/>
+   <addaction name="actionSelectArea"/>
+   <addaction name="separator"/>
+   <addaction name="actionTileBrush"/>
+   <addaction name="actionEraserBrush"/>
+   <addaction name="actionObjectBrush"/>
+   <addaction name="separator"/>
+   <addaction name="actionDeleteSelection"/>
+   <addaction name="actionSwapTiles"/>
+   <addaction name="actionNewBrush"/>
+   <addaction name="actionHideSelection"/>
+   <addaction name="actionUnhideSelection"/>
+  </widget>
+  <widget class="QDockWidget" name="mDockTiles">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Tiles</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="TileView" name="mTileView"/>
+  </widget>
+  <widget class="QDockWidget" name="mDockOutput">
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::BottomDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Console</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="OutputView" name="mOutputView"/>
+  </widget>
+  <widget class="QDockWidget" name="mDockObjects">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Objects</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="ObjectView" name="mObjectView">
+    <layout class="QHBoxLayout" name="horizontalLayout"/>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="mCamToolbar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::RightToLeft</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QToolBar {
+spacing: 2px;
+border: 0px;
+}</string>
+   </property>
+   <property name="movable">
+    <bool>true</bool>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionCameraSettings"/>
+   <addaction name="actionTopDown"/>
+   <addaction name="actionIsoView"/>
+   <addaction name="actionFrontView"/>
+   <addaction name="actionObjectCenter"/>
+   <addaction name="actionCameraCenter"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
+  </widget>
+  <action name="actionLoad">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Open.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Open_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Load</string>
+   </property>
+   <property name="toolTip">
+    <string>Load map file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Save.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Save_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="toolTip">
+    <string>Save map file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/Toolbars/Resources/NewIcon.png</normaloff>:/Toolbars/Resources/NewIcon.png</iconset>
+   </property>
+   <property name="text">
+    <string>New...</string>
+   </property>
+   <property name="toolTip">
+    <string>Create new plugin</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionSelect">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Pointer.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Pointer_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Pointer.png</iconset>
+   </property>
+   <property name="text">
+    <string>select</string>
+   </property>
+   <property name="toolTip">
+    <string>Select objects and tiles</string>
+   </property>
+  </action>
+  <action name="actionSelectArea">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Selection_Tool.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Selection_Tool_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Selection_Tool.png</iconset>
+   </property>
+   <property name="text">
+    <string>selectArea</string>
+   </property>
+   <property name="toolTip">
+    <string>Select an area of object/tiles</string>
+   </property>
+  </action>
+  <action name="actionTileBrush">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Build_Tile_Tool.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Build_Tile_Tool_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Build_Tile_Tool.png</iconset>
+   </property>
+   <property name="text">
+    <string>tileBrush</string>
+   </property>
+   <property name="toolTip">
+    <string>Add tiles to the scene</string>
+   </property>
+  </action>
+  <action name="actionObjectBrush">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Build_Object_Tool.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Build_Object_Tool_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Build_Object_Tool.png</iconset>
+   </property>
+   <property name="text">
+    <string>objectBrush</string>
+   </property>
+   <property name="toolTip">
+    <string>Add objects to the scene</string>
+   </property>
+  </action>
+  <action name="actionEraserBrush">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Eraser.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Eraser_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Eraser.png</iconset>
+   </property>
+   <property name="text">
+    <string>eraserBrush</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove tiles/objects from the world</string>
+   </property>
+  </action>
+  <action name="actionDeleteSelection">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Delete.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Delete_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>deleteSelection</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete the currently selected items</string>
+   </property>
+  </action>
+  <action name="actionSwapTiles">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Change_Tile_Type.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Change_Tile_Type_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Change_Tile_Type.png</iconset>
+   </property>
+   <property name="text">
+    <string>swapTiles</string>
+   </property>
+   <property name="toolTip">
+    <string>Swap the selected tiles in the scene with the selected tile in the Tiles window</string>
+   </property>
+  </action>
+  <action name="actionNewBrush">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Selection_To_Brush.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Selection_To_Brush_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Selection_To_Brush.png</iconset>
+   </property>
+   <property name="text">
+    <string>newBrush</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new brush from the current selection of tiles</string>
+   </property>
+  </action>
+  <action name="actionHideSelection">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Hidden.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Hidden_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Hidden.png</iconset>
+   </property>
+   <property name="text">
+    <string>hideSelection</string>
+   </property>
+   <property name="toolTip">
+    <string>Hide the currently selected objects</string>
+   </property>
+  </action>
+  <action name="actionUnhideSelection">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Visable.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Visable_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Visable.png</iconset>
+   </property>
+   <property name="text">
+    <string>unhideSelection</string>
+   </property>
+   <property name="toolTip">
+    <string>Unhide the current selection</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Undo.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Undo_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>undo</string>
+   </property>
+   <property name="toolTip">
+    <string>Undo previous action</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Redo.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Redo_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Redo.png</iconset>
+   </property>
+   <property name="text">
+    <string>redo</string>
+   </property>
+   <property name="toolTip">
+    <string>Redo previous action</string>
+   </property>
+  </action>
+  <action name="actionUnlock">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Unlocked.png</normaloff>
+     <normalon>:/VecTB/icons/toolbars/Locked.png</normalon>:/VecTB/icons/toolbars/Unlocked.png</iconset>
+   </property>
+   <property name="text">
+    <string>lock</string>
+   </property>
+   <property name="toolTip">
+    <string>If enabled the brush will  replace any tiles it crosses over</string>
+   </property>
+  </action>
+  <action name="actionStampMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Click_To_Build.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Click_To_Build_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Click_To_Build.png</iconset>
+   </property>
+   <property name="text">
+    <string>stampMode</string>
+   </property>
+   <property name="toolTip">
+    <string>If enabled the brushes will only be activated once per click</string>
+   </property>
+  </action>
+  <action name="actionLayerMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Select_Layer.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Select_Layer_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Select_Layer.png</iconset>
+   </property>
+   <property name="text">
+    <string>layerMode</string>
+   </property>
+   <property name="toolTip">
+    <string>Set the active layer - all higher layers will be hidden</string>
+   </property>
+  </action>
+  <action name="actionCameraCenter">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Camera_Center.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Camera_Center_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Camera_Center.png</iconset>
+   </property>
+   <property name="text">
+    <string>cameraCenter</string>
+   </property>
+   <property name="toolTip">
+    <string>Make the camera the center of rotation</string>
+   </property>
+  </action>
+  <action name="actionObjectCenter">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Object_Center.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Object_Center_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Object_Center.png</iconset>
+   </property>
+   <property name="text">
+    <string>objectCenter</string>
+   </property>
+   <property name="toolTip">
+    <string>Center the camera around the last selected object</string>
+   </property>
+  </action>
+  <action name="actionFrontView">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Front_Camera.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Front_Camera_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Front_Camera.png</iconset>
+   </property>
+   <property name="text">
+    <string>frontView</string>
+   </property>
+   <property name="toolTip">
+    <string>Restrict the camera angle to stay even with the horizontal plane</string>
+   </property>
+  </action>
+  <action name="actionTopDown">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Top_Camera.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Top_Camera_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Top_Camera.png</iconset>
+   </property>
+   <property name="text">
+    <string>topDown</string>
+   </property>
+   <property name="toolTip">
+    <string>Lock the camera in top down view</string>
+   </property>
+  </action>
+  <action name="actionIsoView">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Iso_Camera.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Iso_Camera_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Iso_Camera.png</iconset>
+   </property>
+   <property name="text">
+    <string>isoView</string>
+   </property>
+   <property name="toolTip">
+    <string>Lock the camera in isometric view</string>
+   </property>
+  </action>
+  <action name="actionNewMap">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/New_Map.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/New_Map_Disabled.png</disabledoff>:/VecTB/icons/toolbars/New_Map.png</iconset>
+   </property>
+   <property name="text">
+    <string>newMap</string>
+   </property>
+   <property name="toolTip">
+    <string>Create new map</string>
+   </property>
+  </action>
+  <action name="actionSwitchMap">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Extra_Icon.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Extra_Icon_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Extra_Icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>switchMap</string>
+   </property>
+   <property name="toolTip">
+    <string>Switch the current map being edited</string>
+   </property>
+  </action>
+  <action name="actionCameraSettings">
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Settings.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Settings_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Settings.png</iconset>
+   </property>
+   <property name="text">
+    <string>cameraSettings</string>
+   </property>
+   <property name="toolTip">
+    <string>Bring up dialog with camera settings</string>
+   </property>
+  </action>
+  <action name="actionShowAllHidden">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Visable.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Visable_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Visable.png</iconset>
+   </property>
+   <property name="text">
+    <string>showAllHidden</string>
+   </property>
+   <property name="toolTip">
+    <string>Show all hidden objects so that you can unhide them if you want</string>
+   </property>
+  </action>
+  <action name="actionMirrorMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Mirror_Build_Mode.png</normaloff>
+     <disabledoff>:/VecTB/icons/toolbars/Mirror_Build_Mode_Disabled.png</disabledoff>:/VecTB/icons/toolbars/Mirror_Build_Mode.png</iconset>
+   </property>
+   <property name="text">
+    <string>mirrorMode</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable mirror mode building</string>
+   </property>
+  </action>
+  <action name="actionToggleLighting">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../toolkit.qrc">
+     <normaloff>:/VecTB/icons/toolbars/Lighting_Toggle.png</normaloff>:/VecTB/icons/toolbars/Lighting_Toggle.png</iconset>
+   </property>
+   <property name="text">
+    <string>toggleLighting</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable/disable lighting - disabling lighting can increase performance</string>
+   </property>
+  </action>
+  <action name="actionResource_Browser">
+   <property name="text">
+    <string>Resource Browser</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>OutputView</class>
+   <extends>QWidget</extends>
+   <header location="global">outputview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TileView</class>
+   <extends>QWidget</extends>
+   <header location="global">tileview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ObjectView</class>
+   <extends>QWidget</extends>
+   <header location="global">objectview.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../toolkit.qrc"/>
+ </resources>
+ <connections/>
+ <slots>
+  <slot>on_select(bool)</slot>
+  <slot>on_select_area(bool)</slot>
+  <slot>on_selection_brush(bool)</slot>
+  <slot>on_tile_brush(bool)</slot>
+  <slot>on_object_brush(bool)</slot>
+  <slot>on_eraser_brush(bool)</slot>
+  <slot>on_properties_click(bool)</slot>
+  <slot>on_erase_click(bool)</slot>
+  <slot>on_new()</slot>
+  <slot>on_load()</slot>
+  <slot>on_save()</slot>
+  <slot>on_undo()</slot>
+  <slot>on_redo()</slot>
+  <slot>on_unlock(bool)</slot>
+  <slot>on_stamp_mode(bool)</slot>
+  <slot>on_layer_mode(bool)</slot>
+  <slot>on_del_selection()</slot>
+  <slot>on_replace_tile()</slot>
+  <slot>on_new_brush()</slot>
+  <slot>on_hide_selection()</slot>
+  <slot>on_unhide_selection()</slot>
+  <slot>on_cam_center(bool)</slot>
+  <slot>on_cam_iso(bool)</slot>
+  <slot>on_cam_top(bool)</slot>
+  <slot>on_switch_maps()</slot>
+  <slot>on_cam_front(bool)</slot>
+  <slot>on_object_center(bool)</slot>
+  <slot>on_camera_settings()</slot>
+  <slot>on_show_all_hidden(bool)</slot>
+  <slot>on_mirror_mode(bool)</slot>
+  <slot>on_toggle_lighting(bool)</slot>
+  <slot>on_toggle_xfb(bool)</slot>
+  <slot>on_resource_browser()</slot>
+ </slots>
+</ui>
