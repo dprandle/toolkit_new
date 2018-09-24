@@ -1,67 +1,92 @@
-#ifndef SCENE_VIEW_H
-#define SCENE_VIEW_H
+#pragma once
 
-#include <QMap>
 #include <QWidget>
+#include <Urho3D/Engine/Application.h>
 #include <Urho3D/Core/Object.h>
+#include <Urho3D/Input/Input.h>
+#include <Urho3D/Math/Vector3.h>
 
-namespace Urho3D {
-class Engine;
-class Scene;
+using namespace Urho3D;
+
+namespace Urho3D
+{
 class Node;
-}
+class Scene;
+class Sprite;
+} // namespace Urho3D
 
-class InputTranslator;
-class InputMap;
-class EditorCameraController;
-class EditorSelection;
-struct input_context;
+class Editor_Selection_Controller;
+class Editor_Camera_Controller;
+class Input_Translator;
+class Input_Map;
+struct Input_Context;
 
-class SceneView : public QWidget, public Urho3D::Object {
+const float TOUCH_SENSITIVITY = 2.0f;
+
+class SceneView : public QWidget, public Urho3D::Object
+{
     Q_OBJECT
     URHO3D_OBJECT(SceneView, Urho3D::Object)
 
     friend class Toolkit;
 
-public:
-    SceneView(Urho3D::Context* context, QWidget* parent = NULL);
+  public:
+    SceneView(Urho3D::Context * context, QWidget * parent = nullptr);
+
     ~SceneView();
 
-    void init();
+    void init_mouse_mode(MouseMode mode);
+
+    void enterEvent(QEvent * e) override;
+
+    void resizeEvent(QResizeEvent * e) override;
+
+    void mousePressEvent(QMouseEvent * e) override;
+
+    void mouseReleaseEvent(QMouseEvent * e) override;
+
+    void mouseMoveEvent(QMouseEvent * e) override;
+
+    void wheelEvent(QWheelEvent * e) override;
+
+    void keyPressEvent(QKeyEvent * e) override;
+
+    void keyReleaseEvent(QKeyEvent * e) override;
+
+    // void handle_update(Urho3D::StringHash eventType, Urho3D::VariantMap & eventData);
+    // void handle_render_update(Urho3D::StringHash eventType, Urho3D::VariantMap & eventData);
+    // void handle_input_event(Urho3D::StringHash eventType, Urho3D::VariantMap & eventData);
+
+  public slots:
+
+    void run();
+
+  private:
+    void handle_input_event(StringHash event_type, VariantMap & event_data);
+
+    void handle_scene_update(StringHash event_type, VariantMap & event_data);
+
+    void handle_post_render_update(StringHash event_type, VariantMap & event_data);
+
+    bool init();
+
     void release();
 
-    void enterEvent(QEvent* e) override;
-    void resizeEvent(QResizeEvent* e) override;
-    void mousePressEvent(QMouseEvent* e) override;
-    void mouseReleaseEvent(QMouseEvent* e) override;
-    void mouseMoveEvent(QMouseEvent* e) override;
-    void wheelEvent(QWheelEvent* e) override;
-    void keyPressEvent(QKeyEvent* e) override;
-    void keyReleaseEvent(QKeyEvent* e) override;
+    void setup_global_keys(Input_Context * ctxt);
 
-    void handle_update(Urho3D::StringHash eventType,
-        Urho3D::VariantMap& eventData);
-    void handle_render_update(Urho3D::StringHash eventType,
-        Urho3D::VariantMap& eventData);
-    void handle_input_event(Urho3D::StringHash eventType,
-        Urho3D::VariantMap& eventData);
+    void create_visuals();
 
-public slots:
+    Engine * engine_;
 
-    void on_timeout();
+    Scene * scene_;
 
-private:
+    Node * cam_node_;
 
-    void setup_input(input_context * ctxt);
-    
-    Urho3D::Vector3 current_trans;
-    Urho3D::Context* ctxt;
-    Urho3D::Engine* eng;
-    Urho3D::Scene* scene;
-    Urho3D::Node* editor_cam_node;
-    InputMap* m_input_map;
-    InputTranslator* input_system;
-    EditorCameraController* cam_controller;
-    EditorSelection* selection;
+    Input_Translator * input_translator_;
+
+    Editor_Camera_Controller * camera_controller_;
+
+    Input_Map * input_map_;
+
+    bool draw_debug_;
 };
-#endif

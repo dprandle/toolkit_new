@@ -1,8 +1,8 @@
-#ifndef CAMERASETTINGS_H
-#define CAMERASETTINGS_H
+#pragma once
+
 #include <ui_camerasettings.h>
 
-struct camera_params;
+struct Camera_Params;
 
 class CameraSettingsDialog : public QDialog
 {
@@ -11,15 +11,13 @@ public:
 	CameraSettingsDialog(QWidget * pParent=NULL);
 	~CameraSettingsDialog();
 
-	void set_camera_params(camera_params * cp_);
+	void set_camera_params(Camera_Params * cp_);
 
 public slots:
 	void update_params();
 
 private:
 	bool init;
-	camera_params * cp;
+	Camera_Params * cp;
 	Ui_CameraSettingsDialog mUI;
 };
-
-#endif

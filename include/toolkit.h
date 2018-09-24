@@ -20,6 +20,8 @@ This file contains all of the neccessary declarations for the Toolkit class.
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Container/HashMap.h>
 
+#define bbtk Toolkit::inst()
+
 #define LAYER_ABOVE_TEXT "Above"
 #define LAYER_BELOW_TEXT "Below"
 #define LAYER_ALL_TEXT "All Except"
@@ -178,8 +180,5 @@ public:
     int m_spinbox_val;
     QString m_prev_layer_text;
 };
-
-
-#define bbtk Toolkit::inst()
 
 #endif // TOOLKIT_H

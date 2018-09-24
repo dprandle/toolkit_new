@@ -684,7 +684,7 @@ bool ManagePluginsDialog::_itemHasCheckedChildren(QTreeWidgetItem* item)
 //		++iter;
 //	}
 
-//	return false;
+	return false;
 }
 
 /*!

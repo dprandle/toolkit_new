@@ -213,6 +213,7 @@ QString AddNewBrushDialog::_generateIcon(const QString & pObjName,const QString 
 //    nsfile_os::create_dir(savePath);
 //    pixMap.save(savePath.c_str());
 //    return savePath;
+    return QString();
 }
 
 
