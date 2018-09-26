@@ -86,6 +86,10 @@ class Editor_Camera_Controller : public Urho3D::Object
 	
 	void handle_input_event(Urho3D::StringHash event_type, Urho3D::VariantMap& event_data);
 
+    void add_viewport(int vp_ind);
+
+    void remove_viewport(int vp_ind);
+
     void set_camera(Urho3D::Camera * cam);
 
     void set_orbit_point(const fvec3 & point);
@@ -105,11 +109,13 @@ class Editor_Camera_Controller : public Urho3D::Object
 
 	void _on_cam_orbit(const Urho3D::Vector2 & mdelta);
 
-    void _on_cam_orbit_set_point(const Urho3D::Vector2 & norm_mpos);
+    void _on_cam_orbit_set_point(const Urho3D::Vector2 & norm_mpos, int vp_ind);
 
 	void _on_cam_move(const Urho3D::Vector2 & mdelta);
 
 	void _on_cam_zoom(int scroll);
+
+    Urho3D::Vector<int> viewports_;
 	
 	Urho3D::HashMap<Urho3D::StringHash, Force_Timer> forces_;
 

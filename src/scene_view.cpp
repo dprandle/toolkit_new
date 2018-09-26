@@ -46,7 +46,7 @@
 
 using namespace Urho3D;
 
-SceneView::SceneView(Context* context, QWidget* parent)
+Scene_View::Scene_View(Context * context, QWidget * parent)
     : QWidget(parent),
       Object(context),
       engine_(new Engine(context)),
@@ -61,10 +61,10 @@ SceneView::SceneView(Context* context, QWidget* parent)
     setMouseTracking(true);
 }
 
-SceneView::~SceneView() {}
+Scene_View::~Scene_View()
+{}
 
-
-void SceneView::handle_post_render_update(StringHash event_type, VariantMap & event_data)
+void Scene_View::handle_post_render_update(StringHash event_type, VariantMap & event_data)
 {
     if (draw_debug_)
     {
@@ -86,7 +86,7 @@ void SceneView::handle_post_render_update(StringHash event_type, VariantMap & ev
     }
 }
 
-bool SceneView::init()
+bool Scene_View::init()
 {
     VariantMap engine_params;
     engine_params[EP_FRAME_LIMITER] = false;
@@ -95,7 +95,7 @@ bool SceneView::init()
     engine_params[EP_WINDOW_WIDTH] = 1280;
     engine_params[EP_WINDOW_HEIGHT] = 720;
     engine_params[EP_WINDOW_RESIZABLE] = true;
-    engine_params[EP_EXTERNAL_WINDOW] = (void*)(winId());
+    engine_params[EP_EXTERNAL_WINDOW] = (void *)(winId());
 
     // Register custom systems
     context_->RegisterSubsystem(input_translator_);
@@ -118,21 +118,20 @@ bool SceneView::init()
     input_translator_->init();
     camera_controller_->init();
 
-    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(SceneView, handle_scene_update));
-    SubscribeToEvent(E_INPUT_TRIGGER, URHO3D_HANDLER(SceneView, handle_input_event));
-    SubscribeToEvent(E_POSTRENDERUPDATE,
-                     URHO3D_HANDLER(SceneView, handle_post_render_update));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Scene_View, handle_scene_update));
+    SubscribeToEvent(E_INPUT_TRIGGER, URHO3D_HANDLER(Scene_View, handle_input_event));
+    SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(Scene_View, handle_post_render_update));
 
     create_visuals();
-    
-    QTimer* timer = new QTimer(this);
+
+    QTimer * timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(run()));
     timer->start();
 
     return true;
 }
 
-void SceneView::release()
+void Scene_View::release()
 {
     input_translator_->release();
     camera_controller_->release();
@@ -141,7 +140,7 @@ void SceneView::release()
     context_->RemoveSubsystem<Input_Translator>();
 }
 
-void SceneView::create_visuals()
+void Scene_View::create_visuals()
 {
     Graphics * graphics = GetSubsystem<Graphics>();
     graphics->SetWindowTitle("Build and Battle");
@@ -185,19 +184,20 @@ void SceneView::create_visuals()
     editor_cam_node->SetDirection(Vector3(0, 0, -1));
     editor_cam_node->Pitch(-70.0f);
 
-    //editor_cam_node->Rot
-    camera_controller_->set_camera(editor_cam);
-    editor_selection->set_camera(editor_cam);
-
     Renderer * rnd = GetSubsystem<Renderer>();
 
     Viewport * vp = new Viewport(ctxt, scene_, editor_cam);
     vp->SetDrawDebug(true);
     rnd->SetViewport(0, vp);
-    
+
     RenderPath * rp = new RenderPath;
     rp->Load(cache->GetResource<XMLFile>("RenderPaths/DeferredWithOutlines.xml"));
     vp->SetRenderPath(rp);
+
+    camera_controller_->add_viewport(0);
+    editor_selection->add_viewport(0);
+    camera_controller_->set_camera(editor_cam);
+    editor_selection->set_camera(editor_cam);
 
     Node * skyNode = scene_->CreateChild("Sky");
     skyNode->Rotate(Quaternion(90.0f, Vector3(1, 0, 0)));
@@ -289,7 +289,7 @@ void SceneView::create_visuals()
     }
 }
 
-void SceneView::setup_global_keys(Input_Context * ctxt)
+void Scene_View::setup_global_keys(Input_Context * ctxt)
 {
     Input_Context * input_ctxt = input_map_->get_context(StringHash("global_context"));
 
@@ -326,10 +326,10 @@ void SceneView::setup_global_keys(Input_Context * ctxt)
     ctxt->create_trigger(it);
 }
 
-void SceneView::handle_scene_update(StringHash /*event_type*/, VariantMap & event_data)
+void Scene_View::handle_scene_update(StringHash /*event_type*/, VariantMap & event_data)
 {}
 
-void SceneView::handle_input_event(StringHash event_type, VariantMap & event_data)
+void Scene_View::handle_input_event(StringHash event_type, VariantMap & event_data)
 {
     StringHash name = event_data[InputTrigger::P_TRIGGER_NAME].GetStringHash();
     int state = event_data[InputTrigger::P_TRIGGER_STATE].GetInt();
@@ -369,51 +369,54 @@ void SceneView::handle_input_event(StringHash event_type, VariantMap & event_dat
     }
 }
 
-void SceneView::run()
+void Scene_View::run()
 {
     if (!engine_->IsExiting())
         engine_->RunFrame();
 }
 
-void SceneView::resizeEvent(QResizeEvent* e)
+void Scene_View::resizeEvent(QResizeEvent * e)
 {
     input_translator_->qt_window_resize(e);
     QWidget::resizeEvent(e);
 }
 
-void SceneView::enterEvent(QEvent* e) { QWidget::enterEvent(e); }
+void Scene_View::enterEvent(QEvent * e)
+{
+    QWidget::enterEvent(e);
+}
 
-void SceneView::mousePressEvent(QMouseEvent* e)
+void Scene_View::mousePressEvent(QMouseEvent * e)
 {
     input_translator_->qt_mouse_press(e);
     QWidget::mousePressEvent(e);
 }
 
-void SceneView::mouseReleaseEvent(QMouseEvent* e)
+void Scene_View::mouseReleaseEvent(QMouseEvent * e)
 {
     input_translator_->qt_mouse_release(e);
     QWidget::mouseReleaseEvent(e);
 }
 
-void SceneView::mouseMoveEvent(QMouseEvent* e)
+void Scene_View::mouseMoveEvent(QMouseEvent * e)
 {
     input_translator_->qt_mouse_move(e);
     QWidget::mouseMoveEvent(e);
 }
 
-void SceneView::wheelEvent(QWheelEvent* e)
+void Scene_View::wheelEvent(QWheelEvent * e)
 {
     input_translator_->qt_mouse_wheel(e);
     QWidget::wheelEvent(e);
 }
 
-void SceneView::keyPressEvent(QKeyEvent* e)
+void Scene_View::keyPressEvent(QKeyEvent * e)
 {
     input_translator_->qt_key_press(e);
     QWidget::keyPressEvent(e);
 }
 
-void SceneView::keyReleaseEvent(QKeyEvent* e)
+void Scene_View::keyReleaseEvent(QKeyEvent * e)
 {
     input_translator_->qt_key_release(e);
     QWidget::keyReleaseEvent(e);

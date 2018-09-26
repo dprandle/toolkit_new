@@ -1,8 +1,10 @@
 #include <input_translator.h>
-
+#include <mtdebug_print.h>
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Engine/Engine.h>
 #include <Urho3D/Graphics/Graphics.h>
+#include <Urho3D/Graphics/Viewport.h>
+#include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/Input/Input.h>
 
 #ifdef QT_BUILD
@@ -272,7 +274,17 @@ void Input_Translator::handle_key_down(Urho3D::StringHash event_type,
                     event_data[P_NORM_MPOS] = current_norm_mpos_;
                     event_data[P_NORM_MDELTA] = Vector2();
                     event_data[P_MOUSE_WHEEL] = 0;
-                    SendEvent(E_INPUT_TRIGGER, event_data);
+
+                    // Send an event to each viewport
+                    Urho3D::Vector<Viewport_Info> vp_info_vec;
+                    _fill_vp_info(vp_info_vec, current_norm_mpos_, fvec2());
+                    for (int vpind = 0; vpind < vp_info_vec.Size(); ++vpind)
+                    {
+                        event_data[P_VIEWPORT_NORM_MPOS] = vp_info_vec[vpind].vp_norm_mpos;
+                        event_data[P_VIEWPORT_NORM_MDELTA] = vp_info_vec[vpind].vp_norm_mdelta;
+                        event_data[P_VIEWPORT_INDEX] = vp_info_vec[vpind].vp_index;
+                        SendEvent(E_INPUT_TRIGGER, event_data);
+                    }
                 }
                 active_triggers_.Push(trig);
             }
@@ -320,7 +332,17 @@ void Input_Translator::handle_key_up(Urho3D::StringHash event_type, Urho3D::Vari
                 event_data[P_NORM_MPOS] = current_norm_mpos_;
                 event_data[P_NORM_MDELTA] = Vector2();
                 event_data[P_MOUSE_WHEEL] = 0;
-                SendEvent(E_INPUT_TRIGGER, event_data);
+
+                // Send an event to each viewport
+                Urho3D::Vector<Viewport_Info> vp_info_vec;
+                _fill_vp_info(vp_info_vec, current_norm_mpos_, fvec2());
+                for (int vpind = 0; vpind < vp_info_vec.Size(); ++vpind)
+                {
+                    event_data[P_VIEWPORT_NORM_MPOS] = vp_info_vec[vpind].vp_norm_mpos;
+                    event_data[P_VIEWPORT_NORM_MDELTA] = vp_info_vec[vpind].vp_norm_mdelta;
+                    event_data[P_VIEWPORT_INDEX] = vp_info_vec[vpind].vp_index;
+                    SendEvent(E_INPUT_TRIGGER, event_data);
+                }
             }
             iter = active_triggers_.Erase(iter);
         }
@@ -336,6 +358,40 @@ void Input_Translator::_normalize_mpos(Vector2 & to_norm)
     IntVector2 size = GetSubsystem<Graphics>()->GetSize();
     to_norm.x_ /= float(size.x_);
     to_norm.y_ /= float(size.y_);
+}
+
+void Input_Translator::_fill_vp_info(Urho3D::Vector<Viewport_Info> & vp_inf_vec,
+                                     const fvec2 & norm_mpos,
+                                     const fvec2 & norm_mdelta)
+{
+    ivec2 sz = GetSubsystem<Graphics>()->GetSize();
+    fvec2 sz_f(sz.x_, sz.y_);
+
+    Renderer * rend = GetSubsystem<Renderer>();
+
+    // First figure out which viewport we are in
+    for (int i = 0; i < rend->GetNumViewports(); ++i)
+    {
+        Viewport * vp = rend->GetViewport(i);
+        irect scrn = vp->GetRect();
+        fvec2 ll(scrn.left_, scrn.top_);
+        fvec2 ur(scrn.right_, scrn.bottom_);
+        fvec2 mpos = norm_mpos * sz_f;
+        fvec2 mdelta = norm_mdelta * sz_f;
+
+        if (scrn == irect())
+            ur = sz_f;
+
+        frect fr(ll, ur);
+        if (fr.IsInside(mpos) == Intersection::INSIDE)
+        {
+            Viewport_Info vinf;
+            vinf.vp_index = i;
+            vinf.vp_norm_mpos = (mpos - ll) / fr.Size();
+            vinf.vp_norm_mdelta = mdelta / fr.Size();
+            vp_inf_vec.Push(vinf);
+        }
+    }
 }
 
 void Input_Translator::handle_mouse_down(Urho3D::StringHash event_type,
@@ -400,7 +456,17 @@ void Input_Translator::handle_mouse_down(Urho3D::StringHash event_type,
                     event_data[P_NORM_MPOS] = current_norm_mpos_;
                     event_data[P_NORM_MDELTA] = norm_mdelta;
                     event_data[P_MOUSE_WHEEL] = wheel;
-                    SendEvent(E_INPUT_TRIGGER, event_data);
+
+                    // Send an event to each viewport
+                    Urho3D::Vector<Viewport_Info> vp_info_vec;
+                    _fill_vp_info(vp_info_vec, current_norm_mpos_, norm_mdelta);
+                    for (int vpind = 0; vpind < vp_info_vec.Size(); ++vpind)
+                    {
+                        event_data[P_VIEWPORT_NORM_MPOS] = vp_info_vec[vpind].vp_norm_mpos;
+                        event_data[P_VIEWPORT_NORM_MDELTA] = vp_info_vec[vpind].vp_norm_mdelta;
+                        event_data[P_VIEWPORT_INDEX] = vp_info_vec[vpind].vp_index;
+                        SendEvent(E_INPUT_TRIGGER, event_data);
+                    }
                 }
 
                 if (tc.mouse_button_ != MOUSEB_WHEEL && tc.mouse_button_ != MOUSEB_MOVE)
@@ -437,7 +503,17 @@ void Input_Translator::handle_mouse_up(Urho3D::StringHash event_type,
                 event_data[P_NORM_MPOS] = current_norm_mpos_;
                 event_data[P_NORM_MDELTA] = Vector2();
                 event_data[P_MOUSE_WHEEL] = 0;
-                SendEvent(E_INPUT_TRIGGER, event_data);
+
+                // Send an event to each viewport
+                Urho3D::Vector<Viewport_Info> vp_info_vec;
+                _fill_vp_info(vp_info_vec, current_norm_mpos_, fvec2());
+                for (int vpind = 0; vpind < vp_info_vec.Size(); ++vpind)
+                {
+                    event_data[P_VIEWPORT_NORM_MPOS] = vp_info_vec[vpind].vp_norm_mpos;
+                    event_data[P_VIEWPORT_NORM_MDELTA] = vp_info_vec[vpind].vp_norm_mdelta;
+                    event_data[P_VIEWPORT_INDEX] = vp_info_vec[vpind].vp_index;
+                    SendEvent(E_INPUT_TRIGGER, event_data);
+                }
             }
             iter = active_triggers_.Erase(iter);
         }

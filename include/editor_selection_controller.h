@@ -47,6 +47,10 @@ class Editor_Selection_Controller : public Urho3D::Component
 
     void snap_selection();
 
+    void add_viewport(int vp_ind);
+
+    void remove_viewport(int vp_ind);
+
     void translate_selection(const fvec3 & translation);
 
     void toggle_occ_debug_selection();
@@ -83,6 +87,8 @@ class Editor_Selection_Controller : public Urho3D::Component
     Urho3D::Camera * cam_comp_;
 
     Urho3D::Scene * scene_;
+
+    Urho3D::Vector<int> viewports_;
 
     Urho3D::UIElement * ui_root_;
 

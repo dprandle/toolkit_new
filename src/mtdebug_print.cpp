@@ -13,11 +13,10 @@ MTDebug_Print::MTDebug_Print(bool auto_spacing, bool auto_newline, Urho_Log_Type
 
 MTDebug_Print::~MTDebug_Print()
 {
-    mtx_.Acquire();
-    const char * cstr = ss_.str().c_str();
     QString prefix("");
-
-    String msg(cstr);
+    mtx_.Acquire();
+    String msg(ss_.str().c_str());
+    mtx_.Release();
     switch (lt_)
     {
     case (URHO_LT_INFO):
@@ -40,6 +39,5 @@ MTDebug_Print::~MTDebug_Print()
         prefix = "TRACE: ";
         break;
     }
-    bbtk.output_view()->writeToScreen(prefix + cstr);
-    mtx_.Release();
+    bbtk.output_view()->writeToScreen(prefix + QString(msg.CString()));
 }

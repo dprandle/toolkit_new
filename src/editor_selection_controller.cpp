@@ -22,6 +22,7 @@
 
 #include <Urho3D/Resource/ResourceCache.h>
 
+#include <Urho3D/Graphics/View.h>
 #include <Urho3D/Graphics/Viewport.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Graphics/Renderer.h>
@@ -179,6 +180,11 @@ void Editor_Selection_Controller::DrawDebugGeometry(bool depth_test)
         deb->AddLine(cam_pos, node_pos, Color(1.0f, 0.0f, 0.0f), depth_test);
         ++iter;
     }
+}
+
+void Editor_Selection_Controller::remove_viewport(int vp_ind)
+{
+    viewports_.Remove(vp_ind);
 }
 
 void Editor_Selection_Controller::translate_selection(const fvec3 & translation)
@@ -363,6 +369,12 @@ void Editor_Selection_Controller::snap_selection()
     }
 }
 
+void Editor_Selection_Controller::add_viewport(int vp_ind)
+{
+    if (!viewports_.Contains(vp_ind))
+        viewports_.Push(vp_ind);
+}
+
 void Editor_Selection_Controller::setup_input_context(Input_Context * ctxt)
 {
     Input_Action_Trigger it;
@@ -448,7 +460,7 @@ void Editor_Selection_Controller::_add_to_selection_from_rect()
     Frustum f;
     Renderer * rnd = GetSubsystem<Renderer>();
     irect screct = rnd->GetViewport(0)->GetRect();
-    
+
     ivec2 sz = ui_root_->GetSize();
     ivec2 sel_pos = ui_selection_rect_->GetPosition();
     ivec2 sel_sz = ui_selection_rect_->GetSize();
@@ -559,9 +571,20 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
 {
     StringHash name = event_data[InputTrigger::P_TRIGGER_NAME].GetStringHash();
     int state = event_data[InputTrigger::P_TRIGGER_STATE].GetInt();
-    Vector2 norm_mpos = event_data[InputTrigger::P_NORM_MPOS].GetVector2();
-    Vector2 norm_mdelta = event_data[InputTrigger::P_NORM_MDELTA].GetVector2();
+    Vector2 norm_mpos = event_data[InputTrigger::P_VIEWPORT_NORM_MPOS].GetVector2();
+    Vector2 norm_mdelta = event_data[InputTrigger::P_VIEWPORT_NORM_MDELTA].GetVector2();
     int wheel = event_data[InputTrigger::P_MOUSE_WHEEL].GetInt();
+    int vp_ind = event_data[InputTrigger::P_VIEWPORT_INDEX].GetInt();
+
+    if (!viewports_.Contains(vp_ind))
+        return;
+    
+    Viewport * vp = GetSubsystem<Renderer>()->GetViewport(vp_ind);
+    irect vp_sz = vp->GetRect();
+    if (vp_sz.Max() == ivec2())
+        vp_sz = vp->GetView()->GetViewRect();
+    ui_root_->SetSize(vp_sz.Size());
+    ui_root_->SetPosition(vp_sz.Min());
 
     if (name == hashes_[8])
     {

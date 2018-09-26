@@ -23,17 +23,17 @@ struct Input_Context;
 
 const float TOUCH_SENSITIVITY = 2.0f;
 
-class SceneView : public QWidget, public Urho3D::Object
+class Scene_View : public QWidget, public Urho3D::Object
 {
     Q_OBJECT
-    URHO3D_OBJECT(SceneView, Urho3D::Object)
+    URHO3D_OBJECT(Scene_View, Urho3D::Object)
 
     friend class Toolkit;
 
   public:
-    SceneView(Urho3D::Context * context, QWidget * parent = nullptr);
+    Scene_View(Urho3D::Context * context, QWidget * parent = nullptr);
 
-    ~SceneView();
+    ~Scene_View();
 
     void init_mouse_mode(MouseMode mode);
 

@@ -51,6 +51,17 @@ Camera_Params * Editor_Camera_Controller::get_camera_params()
     return &cp_;
 }
 
+void Editor_Camera_Controller::add_viewport(int vp_ind)
+{
+    if (!viewports_.Contains(vp_ind))
+        viewports_.Push(vp_ind);
+}
+
+void Editor_Camera_Controller::remove_viewport(int vp_ind)
+{
+    viewports_.Remove(vp_ind);
+}
+
 void Editor_Camera_Controller::handle_update(Urho3D::StringHash event_type,
                                              Urho3D::VariantMap & event_data)
 {
@@ -211,15 +222,22 @@ void Editor_Camera_Controller::_on_cam_pitch_yaw(const Urho3D::Vector2 & mdelta)
     cam_node->Rotate(pitch * yaw, TS_WORLD);
 }
 
-void Editor_Camera_Controller::_on_cam_orbit_set_point(const Urho3D::Vector2 & norm_mpos)
+void Editor_Camera_Controller::_on_cam_orbit_set_point(const Urho3D::Vector2 & norm_mpos, int vp_ind)
 {
     if (cam_comp_ == nullptr)
         return;
 
     Urho3D::Node * cam_node = cam_comp_->GetNode();
     Renderer * rnd = GetSubsystem<Renderer>();
-    Viewport * vp = rnd->GetViewport(0);
+    Viewport * vp = rnd->GetViewport(vp_ind);
+
+    if (vp == nullptr)
+        return;
+
     Scene * scene_ = vp->GetScene();
+    if (scene_ == nullptr)
+        return;
+    
     Octree * oct = scene_->GetComponent<Octree>();
     PODVector<RayQueryResult> res;
     RayOctreeQuery q(res, cam_comp_->GetScreenRay(norm_mpos.x_, norm_mpos.y_));
@@ -284,9 +302,13 @@ void Editor_Camera_Controller::handle_input_event(Urho3D::StringHash event_type,
 
     StringHash name = event_data[InputTrigger::P_TRIGGER_NAME].GetStringHash();
     int state = event_data[InputTrigger::P_TRIGGER_STATE].GetInt();
-    Vector2 norm_mpos = event_data[InputTrigger::P_NORM_MPOS].GetVector2();
-    Vector2 norm_mdelta = event_data[InputTrigger::P_NORM_MDELTA].GetVector2();
+    Vector2 norm_mpos = event_data[InputTrigger::P_VIEWPORT_NORM_MPOS].GetVector2();
+    Vector2 norm_mdelta = event_data[InputTrigger::P_VIEWPORT_NORM_MDELTA].GetVector2();
     int wheel = event_data[InputTrigger::P_MOUSE_WHEEL].GetInt();
+    int vp_ind = event_data[InputTrigger::P_VIEWPORT_INDEX].GetInt();
+
+    if (!viewports_.Contains(vp_ind))
+        return;
 
     Force_Timer ft;
     ft.time_left_ = 0.0f;
@@ -333,7 +355,7 @@ void Editor_Camera_Controller::handle_input_event(Urho3D::StringHash event_type,
     }
     else if (name == StringHash("SetOrbitPoint"))
     {
-        _on_cam_orbit_set_point(norm_mpos);
+        _on_cam_orbit_set_point(norm_mpos, vp_ind);
     }
     else if (name == StringHash("OrbitCam"))
     {

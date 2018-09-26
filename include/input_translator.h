@@ -2,6 +2,7 @@
 
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Input/InputEvents.h>
+#include <math_utils.h>
 #include <map>
 #include <vector>
 
@@ -111,6 +112,13 @@ class Input_Map
     Context_Map contexts_;
 };
 
+struct Viewport_Info
+{
+    int vp_index;
+    fvec2 vp_norm_mpos;
+    fvec2 vp_norm_mdelta;
+};
+
 // Keep track of current modifier state etc?
 class Input_Translator : public Urho3D::Object
 {
@@ -147,7 +155,9 @@ class Input_Translator : public Urho3D::Object
   private:
     bool _trigger_already_active(Input_Action_Trigger * trig);
 
-    void _normalize_mpos(Urho3D::Vector2 & to_norm);
+    void _normalize_mpos(fvec2 & to_norm);
+
+    void _fill_vp_info(Urho3D::Vector<Viewport_Info> & vp_inf_vec, const fvec2 & norm_mpos, const fvec2 & norm_mdelta);    
 
 #ifdef QT_BUILD
 	void _init_key_map();
@@ -162,7 +172,7 @@ class Input_Translator : public Urho3D::Object
 
     Urho3D::Vector<Input_Context *> context_stack_;
     Urho3D::Vector<Input_Action_Trigger *> active_triggers_;
-    Urho3D::Vector2 current_norm_mpos_;
+    fvec2 current_norm_mpos_;
 };
 
 namespace Urho3D
@@ -174,6 +184,9 @@ URHO3D_EVENT(E_INPUT_TRIGGER, InputTrigger)
     URHO3D_PARAM(P_TRIGGER_STATE, trigger_state);        // int
     URHO3D_PARAM(P_NORM_MPOS, normalized_mouse_pos);     // Vector2
     URHO3D_PARAM(P_NORM_MDELTA, normalized_mouse_delta); // Vector2
+    URHO3D_PARAM(P_VIEWPORT_NORM_MPOS, viewport_normalized_mouse_pos); // Vector2
+    URHO3D_PARAM(P_VIEWPORT_NORM_MDELTA, viewport_normalized_mouse_delta); // Vector2
+    URHO3D_PARAM(P_VIEWPORT_INDEX, viewport_index); // int
     URHO3D_PARAM(P_MOUSE_WHEEL, mouse_wheel);            // int
 }
 

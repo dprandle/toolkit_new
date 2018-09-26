@@ -51,7 +51,7 @@ Toolkit::Toolkit(Urho3D::Context* urho_context, QWidget* parent)
     m_ui.setupUi(this);
     setWindowIcon(QIcon(":/Toolkit/bbicon_256px.ico"));
     m_ptr = this;
-    m_ui.m_scene_view = new SceneView(urho_context, this);
+    m_ui.m_scene_view = new Scene_View(urho_context, this);
     setCentralWidget(m_ui.m_scene_view);
 
     QWidgetAction* wA = new QWidgetAction(this);
@@ -126,9 +126,9 @@ void Toolkit::init()
     scene_view()->init();
 }
 
-SceneView* Toolkit::scene_view()
+Scene_View* Toolkit::scene_view()
 {
-    return static_cast<SceneView*>(m_ui.m_scene_view);
+    return static_cast<Scene_View*>(m_ui.m_scene_view);
 }
 
 int message_box(QWidget* parent, const QString& title, const QString& msg, int buttons, int icon)

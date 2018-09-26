@@ -51,7 +51,7 @@ class QIcon;
 class QToolButton;
 class QComboBox;
 
-class SceneView;
+class Scene_View;
 class InputMap;
 class TileView;
 class ObjectView;
@@ -83,7 +83,7 @@ public:
     	
     TileView *  tile_view();
 
-	SceneView * scene_view();
+	Scene_View * scene_view();
 
     CameraSettingsDialog * camera_settings();
 
