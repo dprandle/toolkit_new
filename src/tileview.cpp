@@ -1,3 +1,5 @@
+#include <prefab_editor_dialog.h>
+#include <toolkit.h>
 #include <tileview.h>
 
 TileView::TileView(QWidget * parent):
@@ -16,24 +18,9 @@ void TileView::init()
 
 void TileView::onActionNew()
 {
-//	NewTileDialog newTileDialog(parentWidget()->parentWidget());
-//    newTileDialog.init();
-//	nsplugin * actplg = nse.active();
-
-//	if (newTileDialog.exec() == QDialog::Accepted)
-//	{
-//		QListWidgetItem * item = new QListWidgetItem(newTileDialog.getEntityName());
-//		nsentity * ent = actplg->get<nsentity>(item->text().toStdString());
-//		if (ent == NULL)
-//			return;
-		
-//        if (!ent->icon_path().empty())
-//            item->setIcon(QIcon(ent->icon_path().c_str()));
-//		else
-//			item->setIcon(QIcon(":/TileIcons/Resources/defaulthexicon.png"));
-
-//        m_ui.mListWidget->addItem(item);
-//	}
+    Prefab_Editor_Dialog * pfe = bbtk.prefab_editor();
+    pfe->setModal(false);
+    pfe->show();
 }
 
 void TileView::onActionDelete()

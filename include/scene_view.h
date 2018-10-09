@@ -1,41 +1,47 @@
 #pragma once
 
 #include <QWidget>
-#include <Urho3D/Engine/Application.h>
-#include <Urho3D/Core/Object.h>
-#include <Urho3D/Input/Input.h>
-#include <Urho3D/Math/Vector3.h>
-
-using namespace Urho3D;
+#include <urho_editor.h>
 
 namespace Urho3D
 {
-class Node;
-class Scene;
-class Sprite;
-} // namespace Urho3D
+class Context;
+}
 
-class Editor_Selection_Controller;
-class Editor_Camera_Controller;
-class Input_Translator;
-class Input_Map;
-struct Input_Context;
 
-const float TOUCH_SENSITIVITY = 2.0f;
-
-class Scene_View : public QWidget, public Urho3D::Object
+class Scene_View : public QWidget
 {
     Q_OBJECT
-    URHO3D_OBJECT(Scene_View, Urho3D::Object)
 
     friend class Toolkit;
 
   public:
-    Scene_View(Urho3D::Context * context, QWidget * parent = nullptr);
+    Scene_View(QWidget * parent = nullptr);
 
     ~Scene_View();
 
-    void init_mouse_mode(MouseMode mode);
+    template<class EditorType>
+    void init_editor(Urho3D::Context * context)
+    {
+        if (me_ != nullptr)
+            release_editor();
+        me_ = new EditorType(context, (void *)winId());
+        me_->update_gl_context();
+        _start_timer();
+    }
+
+    template<class EditorType>
+    EditorType * get_editor()
+    {
+        return static_cast<EditorType*>(me_);
+    }
+
+    Urho_Editor * get_editor()
+    {
+        return me_;
+    }
+
+    void release_editor();
 
     void enterEvent(QEvent * e) override;
 
@@ -53,40 +59,12 @@ class Scene_View : public QWidget, public Urho3D::Object
 
     void keyReleaseEvent(QKeyEvent * e) override;
 
-    // void handle_update(Urho3D::StringHash eventType, Urho3D::VariantMap & eventData);
-    // void handle_render_update(Urho3D::StringHash eventType, Urho3D::VariantMap & eventData);
-    // void handle_input_event(Urho3D::StringHash eventType, Urho3D::VariantMap & eventData);
-
   public slots:
 
     void run();
 
   private:
-    void handle_input_event(StringHash event_type, VariantMap & event_data);
+    void _start_timer();
 
-    void handle_scene_update(StringHash event_type, VariantMap & event_data);
-
-    void handle_post_render_update(StringHash event_type, VariantMap & event_data);
-
-    bool init();
-
-    void release();
-
-    void setup_global_keys(Input_Context * ctxt);
-
-    void create_visuals();
-
-    Engine * engine_;
-
-    Scene * scene_;
-
-    Node * cam_node_;
-
-    Input_Translator * input_translator_;
-
-    Editor_Camera_Controller * camera_controller_;
-
-    Input_Map * input_map_;
-
-    bool draw_debug_;
+    Urho_Editor * me_;
 };

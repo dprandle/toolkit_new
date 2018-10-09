@@ -420,12 +420,12 @@ QTabBar::tab:!selected
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>false</bool>
   </property>
-  <widget class="QWidget" name="m_scene_view">
+  <widget class="Scene_View" name="m_scene_view">
    <property name="cursor">
     <cursorShape>ArrowCursor</cursorShape>
    </property>
    <property name="focusPolicy">
-    <enum>Qt::ClickFocus</enum>
+    <enum>Qt::StrongFocus</enum>
    </property>
   </widget>
   <widget class="QMenuBar" name="mMenubar">
@@ -434,7 +434,7 @@ QTabBar::tab:!selected
      <x>0</x>
      <y>0</y>
      <width>1600</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -1106,6 +1106,12 @@ border: 0px;
    <class>ObjectView</class>
    <extends>QWidget</extends>
    <header location="global">objectview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Scene_View</class>
+   <extends>QWidget</extends>
+   <header location="global">scene_view.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

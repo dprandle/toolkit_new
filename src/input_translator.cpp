@@ -548,7 +548,7 @@ void Input_Translator::pop_context()
     context_stack_.Pop();
 }
 
-#ifdef QT_BUILD
+//#ifdef QT_BUILD
 void Input_Translator::qt_key_press(QKeyEvent * e)
 {
     SDL_Event sdl_event;
@@ -752,4 +752,4 @@ int Input_Translator::_convert_Qtmb_to_SDL(int qtbutton)
         return iter->second_;
     return 0;
 }
-#endif
+//#endif

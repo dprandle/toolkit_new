@@ -11,7 +11,7 @@
 #include <QToolButton>
 #include <QWidgetAction>
 
-
+#include <prefab_editor_dialog.h>
 #include <addnewbrushdialog.h>
 #include <brushmenuwidget.h>
 #include <camerasettingsdialog.h>
@@ -19,7 +19,7 @@
 #include <managepluginsdialog.h>
 #include <scene_view.h>
 #include <toolkit.h>
-
+#include <map_editor.h>
 
 //#include <entityeditordialog.h>
 //#include <resource_browser.h>
@@ -27,34 +27,38 @@
 //#include <resource_dialog_prev.h>
 //#include <resource_dialog_prev_lighting.h>
 
-Toolkit::Toolkit(Urho3D::Context* urho_context, QWidget* parent)
-    : QMainWindow(parent)
-    , m_brush_height(new QSpinBox())
-    , m_current_layer(new QSpinBox())
-    , m_layer_CB(new QComboBox())
-    , m_brush_menu(new QMenu(this))
-    , m_brush_tool_btn(new QToolButton())
-    , m_brush_menu_widget(new BrushMenuWidget(this))
-    , m_cam_settings(new CameraSettingsDialog(this))
-    ,
-    //m_resource_browser(new resource_browser(this)),
-    m_grid_x(new QSpinBox())
-    , m_grid_y(new QSpinBox())
-    ,
-    //m_res_dialog(new resource_dialog(this)),
-    //m_res_dialog_prev(new resource_dialog_prev(this)),
-    //m_res_dialog_prev_lighting(new resource_dialog_prev_lighting(this)),
-    m_layers_above_hidden(0)
-    , m_spinbox_val(0)
-    , m_prev_layer_text(LAYER_ABOVE_TEXT)
+//	Urho3D::Context * context = new Urho3D::Context();
+
+#include <Urho3D/Engine/Application.h>
+
+using namespace Urho3D;
+
+Toolkit::Toolkit(QWidget * parent)
+    : QMainWindow(parent),
+      scene_view_context_(new Urho3D::Context()),
+      prefab_view_context_(new Urho3D::Context()),
+      m_brush_height(new QSpinBox()),
+      m_current_layer(new QSpinBox()),
+      m_layer_CB(new QComboBox()),
+      m_brush_menu(new QMenu(this)),
+      m_brush_tool_btn(new QToolButton()),
+      m_brush_menu_widget(new BrushMenuWidget(this)),
+      m_cam_settings(new CameraSettingsDialog(this)),
+      m_grid_x(new QSpinBox()),
+      m_grid_y(new QSpinBox()),
+      m_layers_above_hidden(0),
+      m_spinbox_val(0),
+      m_prev_layer_text(LAYER_ABOVE_TEXT)
 {
     m_ui.setupUi(this);
     setWindowIcon(QIcon(":/Toolkit/bbicon_256px.ico"));
     m_ptr = this;
-    m_ui.m_scene_view = new Scene_View(urho_context, this);
+
+    prefab_editor_ = new Prefab_Editor_Dialog(this);
+
     setCentralWidget(m_ui.m_scene_view);
 
-    QWidgetAction* wA = new QWidgetAction(this);
+    QWidgetAction * wA = new QWidgetAction(this);
     wA->setDefaultWidget(m_brush_menu_widget);
     m_brush_menu->addAction(wA);
 
@@ -86,12 +90,13 @@ Toolkit::Toolkit(Urho3D::Context* urho_context, QWidget* parent)
     m_ui.mTopToolbar->insertWidget(m_ui.actionMirrorMode, new QLabel("y"));
     m_ui.mTopToolbar->insertWidget(m_ui.actionMirrorMode, m_grid_y);
 
-    QAction* deb = new QAction(QIcon(":/VecTB/icons/toolbars/Debug_Icon.png"), "Debug View", this);
+    QAction * deb = new QAction(QIcon(":/VecTB/icons/toolbars/Debug_Icon.png"), "Debug View", this);
     deb->setCheckable(true);
     m_ui.mTopToolbar->addAction(deb);
     connect(deb, SIGNAL(toggled(bool)), this, SLOT(on_debug_view(bool)));
 
-    QAction* deb_spaces = new QAction(QIcon(":/VecTB/icons/toolbars/occupied_grid.png"), "Show Map Occupied Spaces", this);
+    QAction * deb_spaces = new QAction(
+        QIcon(":/VecTB/icons/toolbars/occupied_grid.png"), "Show Map Occupied Spaces", this);
     deb_spaces->setCheckable(true);
     m_ui.mTopToolbar->addAction(deb_spaces);
     connect(deb_spaces, SIGNAL(toggled(bool)), this, SLOT(on_view_occupied_spaces(bool)));
@@ -100,7 +105,10 @@ Toolkit::Toolkit(Urho3D::Context* urho_context, QWidget* parent)
 
     connect(m_brush_height, SIGNAL(valueChanged(int)), this, SLOT(on_brush_height_change(int)));
     connect(m_current_layer, SIGNAL(valueChanged(int)), this, SLOT(on_change_layer(int)));
-    connect(m_layer_CB, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(on_layer_index_change(const QString&)));
+    connect(m_layer_CB,
+            SIGNAL(currentIndexChanged(const QString &)),
+            this,
+            SLOT(on_layer_index_change(const QString &)));
     connect(m_grid_x, SIGNAL(valueChanged(int)), this, SLOT(on_mirror_center_change()));
     connect(m_grid_y, SIGNAL(valueChanged(int)), this, SLOT(on_mirror_center_change()));
 
@@ -110,6 +118,11 @@ Toolkit::Toolkit(Urho3D::Context* urho_context, QWidget* parent)
 
     showMaximized();
     m_ui.m_scene_view->setFocus();
+}
+
+Prefab_Editor_Dialog * Toolkit::prefab_editor()
+{
+    return prefab_editor_;
 }
 
 Toolkit::~Toolkit()
@@ -123,15 +136,16 @@ void Toolkit::init()
     m_ui.mTileView->init();
     m_ui.mObjectView->init();
     m_brush_menu_widget->init();
-    scene_view()->init();
+    m_ui.m_scene_view->init_editor<Map_Editor>(scene_view_context_);
+    prefab_editor_->init(prefab_view_context_);
 }
 
-Scene_View* Toolkit::scene_view()
+Scene_View * Toolkit::scene_view()
 {
-    return static_cast<Scene_View*>(m_ui.m_scene_view);
+    return m_ui.m_scene_view;
 }
 
-int message_box(QWidget* parent, const QString& title, const QString& msg, int buttons, int icon)
+int message_box(QWidget * parent, const QString & title, const QString & msg, int buttons, int icon)
 {
     QMessageBox mb(parent);
     mb.setIcon(QMessageBox::Icon(icon));
@@ -141,7 +155,7 @@ int message_box(QWidget* parent, const QString& title, const QString& msg, int b
     return mb.exec();
 }
 
-OutputView* Toolkit::output_view()
+OutputView * Toolkit::output_view()
 {
     return m_ui.mOutputView;
 }
@@ -175,12 +189,12 @@ void Toolkit::on_actionCameraSettings_triggered()
     m_cam_settings->show();
 }
 
-CameraSettingsDialog* Toolkit::camera_settings()
+CameraSettingsDialog * Toolkit::camera_settings()
 {
     return m_cam_settings;
 }
 
-void Toolkit::closeEvent(QCloseEvent* pEvent)
+void Toolkit::closeEvent(QCloseEvent * pEvent)
 {
     //    nsplugin * activePlug = nse.active();
 
@@ -282,7 +296,8 @@ void Toolkit::_disable_side_tb_actions()
 
 void Toolkit::on_actionSelect_triggered(bool pVal)
 {
-    if (pVal) {
+    if (pVal)
+    {
         _disable_side_tb_actions();
         //        nse.system<nsbuild_system>()->enable(false);
     }
@@ -302,7 +317,8 @@ void Toolkit::on_actionToggleLighting_toggled(bool pChange)
 
 void Toolkit::on_actionTileBrush_triggered(bool pVal)
 {
-    if (pVal) {
+    if (pVal)
+    {
         _disable_side_tb_actions();
 
         //        nse.system<nsbuild_system>()->set_brush_type(nsbuild_system::brush_tile);
@@ -336,7 +352,8 @@ void Toolkit::on_change_layer(int pVal)
 
 void Toolkit::on_actionObjectBrush_triggered(bool pVal)
 {
-    if (pVal) {
+    if (pVal)
+    {
         _disable_side_tb_actions();
 
         // nse.system<nsbuild_system>()->set_brush_type(nsbuild_system::brush_object);
@@ -350,7 +367,8 @@ void Toolkit::on_actionObjectBrush_triggered(bool pVal)
 
 void Toolkit::on_actionEraserBrush_triggered(bool pVal)
 {
-    if (pVal) {
+    if (pVal)
+    {
         _disable_side_tb_actions();
 
         // nse.system<nsbuild_system>()->set_brush_type(nsbuild_system::brush_tile);
@@ -390,7 +408,8 @@ void Toolkit::on_actionLoad_triggered()
     ManagePluginsDialog mPlugs(this);
     mPlugs.init();
 
-    if (mPlugs.exec() == QDialog::Accepted) {
+    if (mPlugs.exec() == QDialog::Accepted)
+    {
     }
     m_ui.m_scene_view->setFocus();
 }
@@ -476,12 +495,12 @@ void Toolkit::on_actionUnlock_toggled(bool pVal)
     //    m_ui.mMapView->setFocus();
 }
 
-ObjectView* Toolkit::object_view()
+ObjectView * Toolkit::object_view()
 {
     return m_ui.mObjectView;
 }
 
-TileView* Toolkit::tile_view()
+TileView * Toolkit::tile_view()
 {
     return m_ui.mTileView;
 }
@@ -526,7 +545,8 @@ void Toolkit::on_actionNewBrush_triggered()
     AddNewBrushDialog brushD(this);
 
     brushD.init();
-    if (brushD.exec() == QDialog::Accepted) {
+    if (brushD.exec() == QDialog::Accepted)
+    {
     }
     m_ui.m_scene_view->setFocus();
 }
@@ -555,7 +575,7 @@ void Toolkit::on_set_current_brush()
     //    m_ui.mMapView->setFocus();
 }
 
-void Toolkit::on_brush_change(QListWidgetItem*)
+void Toolkit::on_brush_change(QListWidgetItem *)
 {
     //	if (pCurrent == NULL)
     //	{
@@ -586,9 +606,10 @@ void Toolkit::on_brush_change(QListWidgetItem*)
     //    m_ui.mMapView->setFocus();
 }
 
-void Toolkit::on_layer_index_change(const QString& pItem)
+void Toolkit::on_layer_index_change(const QString & pItem)
 {
-    if (m_ui.actionLayerMode->isChecked()) {
+    if (m_ui.actionLayerMode->isChecked())
+    {
         m_layer_CB->blockSignals(true);
         m_layer_CB->setCurrentText(m_prev_layer_text);
         on_actionLayerMode_toggled(false);
@@ -652,7 +673,8 @@ void Toolkit::on_actionUnhideSelection_triggered()
 
 void Toolkit::on_actionCameraCenter_triggered(bool pVal)
 {
-    if (pVal) {
+    if (pVal)
+    {
         m_ui.actionObjectCenter->setChecked(!pVal);
 
         //        nse.system<nscamera_system>()->set_mode(nscamera_system::mode_free);
@@ -678,7 +700,8 @@ void Toolkit::on_actionTopDown_triggered()
 
 void Toolkit::on_actionObjectCenter_triggered(bool pVal)
 {
-    if (pVal) {
+    if (pVal)
+    {
         m_ui.actionCameraCenter->setChecked(!pVal);
         //        nse.system<nscamera_system>()->set_mode(nscamera_system::mode_focus);
     }
@@ -712,9 +735,9 @@ void Toolkit::on_actionUndo_triggered()
     //    m_ui.mMapView->setFocus();
 }
 
-Toolkit* Toolkit::m_ptr = nullptr;
+Toolkit * Toolkit::m_ptr = nullptr;
 
-Toolkit& Toolkit::inst()
+Toolkit & Toolkit::inst()
 {
     return *m_ptr;
 }
