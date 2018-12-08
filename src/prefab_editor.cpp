@@ -161,11 +161,11 @@ void Prefab_Editor::create_visuals()
         scene_->CreateComponent<Editor_Selection_Controller>();
     phys->SetGravity(fvec3(0.0f, 0.0f, -9.81f));
 
-    Node * editor_cam_node = new Node(ctxt);
-    Camera * editor_cam = editor_cam_node->CreateComponent<Camera>();
-    editor_cam_node->SetPosition(Vector3(8, -8, 5));
-    editor_cam_node->SetDirection(Vector3(0, 0, -1));
-    editor_cam_node->Pitch(-70.0f);
+    cam_node_ = new Node(ctxt);
+    Camera * editor_cam = cam_node_->CreateComponent<Camera>();
+    cam_node_->SetPosition(Vector3(8, -8, 5));
+    cam_node_->SetDirection(Vector3(0, 0, -1));
+    cam_node_->Pitch(-70.0f);
 
     Renderer * rnd = GetSubsystem<Renderer>();
 
@@ -189,10 +189,11 @@ void Prefab_Editor::create_visuals()
     skybox->SetMaterial(cache->GetResource<Material>("Materials/Skybox.xml"));
 
     // Create a directional light
-    Node * light_node = scene_->CreateChild("Dir_Light");
-    light_node->SetDirection(Vector3(-0.0f, -0.5f, -1.0f));
-    Light * light = light_node->CreateComponent<Light>();
-    light->SetLightType(LIGHT_DIRECTIONAL);
+    dir_light_node_ = scene_->CreateChild("Dir_Light");
+    dir_light_node_->SetDirection(Vector3(-0.0f, -0.5f, -1.0f));
+    dir_light_node_->SetPosition(Vector3(5,5,5));
+    Light * light = dir_light_node_->CreateComponent<Light>();
+    light->SetLightType(LIGHT_POINT);
     light->SetColor(Color(1.0f, 1.0f, 1.0f));
     light->SetSpecularIntensity(5.0f);
     light->SetBrightness(1.0f);
@@ -203,6 +204,7 @@ void Prefab_Editor::create_visuals()
     // Create StaticModelGroups in the scene
     StaticModelGroup * lastGroup = nullptr;
     Material * grass_tile = cache->GetResource<Material>("Materials/Tiles/Grass.xml");
+    
     Material * grass_tile_selected =
         cache->GetResource<Material>("Materials/Tiles/GrassSelected.xml");
     grass_tile_selected->SetShaderParameter("OutlineEnable", true);
@@ -241,6 +243,7 @@ void Prefab_Editor::create_visuals()
                 Node * tile_node = scene_->CreateChild("Grass_Tile_" + String(cnt));
 
                 StaticModel * modc = tile_node->CreateComponent<StaticModel>();
+                modc->SetCastShadows(true);
                 modc->SetModel(mod);
                 modc->SetMaterial(grass_tile);
 
@@ -270,6 +273,7 @@ void Prefab_Editor::create_visuals()
             }
         }
     }
+    
 }
 
 void Prefab_Editor::setup_global_keys(Input_Context * ctxt)

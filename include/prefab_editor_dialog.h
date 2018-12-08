@@ -18,6 +18,8 @@ class Prefab_Editor_Dialog : public QDialog
 
     void closeEvent(QCloseEvent * ev);
 
+    Ui_Prefab_Editor_Dialog * get_ui() {return &ui_;}
+
   private:
     Ui_Prefab_Editor_Dialog ui_;
 };
