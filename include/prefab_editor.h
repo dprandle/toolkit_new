@@ -35,6 +35,8 @@ struct Prefab_Editor : public Urho_Editor
 
     Urho3D::Node * cam_node_;
 
+    Urho3D::Node * dir_light_node_;
+
     Editor_Camera_Controller * camera_controller_;
 
     bool draw_debug_;

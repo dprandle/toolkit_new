@@ -16,6 +16,8 @@ void Prefab_Editor_Dialog::init(Urho3D::Context * context)
     ui_.prefab_view->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     ui_.prefab_view->setMinimumSize(QSize(400, 400));
     ui_.prefab_view->init_editor<Prefab_Editor>(context);
+    auto editor = ui_.prefab_view->get_editor<Prefab_Editor>();
+    ui_.comp_widget->setup_ui(editor->dir_light_node_);
 }
 
 void Prefab_Editor_Dialog::closeEvent(QCloseEvent * ev)

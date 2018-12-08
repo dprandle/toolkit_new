@@ -1,6 +1,7 @@
 #include <prefab_editor_dialog.h>
 #include <toolkit.h>
 #include <tileview.h>
+#include <prefab_editor.h>
 
 TileView::TileView(QWidget * parent):
 QMainWindow(parent)
@@ -18,7 +19,7 @@ void TileView::init()
 
 void TileView::onActionNew()
 {
-    Prefab_Editor_Dialog * pfe = bbtk.prefab_editor();
+    Prefab_Editor_Dialog * pfe = bbtk.prefab_editor();    
     pfe->setModal(false);
     pfe->show();
 }
