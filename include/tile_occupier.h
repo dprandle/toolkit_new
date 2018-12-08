@@ -37,6 +37,10 @@ class Tile_Occupier : public Urho3D::Component
 
     void OnMarkedDirty(Urho3D::Node * node) override;
 
+    void set_spaces(const Urho3D::VariantVector & spaces);
+
+    Urho3D::VariantVector get_spaces() const;
+
   private:
     fvec3 old_position_;
 

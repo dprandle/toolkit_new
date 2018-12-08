@@ -4,7 +4,14 @@ project(bbtoolkit)
 
 set(EXEC_NAME bbtoolkit)
 
-set(CUSTOM_LIB_DIR $ENV{HOME}/CustomLibs/${CMAKE_BUILD_TYPE})
+if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    set(CUSTOM_LIB_DIR /usr/local/debug)
+    add_definitions(-DDEBUG_VERSION)
+else()
+    set(CUSTOM_LIB_DIR /usr/local)
+    add_definitions(-DRELEASE_VERSION)
+endif()
+
 
 find_package(Qt5Core)
 find_package(Qt5Widgets)
@@ -18,13 +25,12 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Set the include directory
 set(BBTOOLKIT_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
+
 set(URHO3D_INCLUDE_DIR ${CUSTOM_LIB_DIR}/include)
 set(THIRD_PARTY_INCLUDE_DIR ${URHO3D_INCLUDE_DIR}/Urho3D/ThirdParty)
 
-
 # Postfix debug builds with d
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
 
 # Set the src files for the project
 file(GLOB SRC_FILES 
@@ -50,22 +56,7 @@ include_directories(
   "${THIRD_PARTY_INCLUDE_DIR}"
   )
 
-if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
-  add_definitions(-DDEBUG_VERSION)
-else()
-  add_definitions(-DRELEASE_VERSION)
-endif()
-
 add_definitions(-DQT_BUILD)
-
-if (UNIX)
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
-elseif (WIN32)
-  set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} /WX /NODEFAULTLIB:MSVCRT /NODEFAULTLIB:LIBCMT" )
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
-endif()
 
 add_executable(${EXEC_NAME} ${SRC_FILES} ${SRC_MOC_FILES} ${UI_HEADERS} ${SRC_RES_FILE})
 
@@ -81,14 +72,9 @@ add_custom_target(move_compile_commands ALL
   DEPENDS ${TARGET_NAME}
   )
 
-find_library(URHO3D Urho3D PATHS ${CUSTOM_LIB_DIR}/lib/Urho3D)
+find_library(URHO3D NAMES Urho3D PATHS ${CUSTOM_LIB_DIR}/lib/Urho3D NO_DEFAULT_PATH)
 
-# link with opengl (no debug version)
-find_package(OpenGL REQUIRED)
-if(NOT OPENGL_FOUND)
-  message(ERROR "Error: OpenGL not found on your system - please make sure you have it downloaded.")
-endif(NOT OPENGL_FOUND)
-target_link_libraries(${EXEC_NAME} ${OPENGL_LIBRARIES})
+target_link_libraries(${EXEC_NAME} GL)
 
 # Link in the unix only stuff
 if (UNIX)
@@ -98,7 +84,6 @@ endif()
 
 # link in the libraries for Urho3d
 target_link_libraries(${EXEC_NAME}
-  ${OPENGL_LIBRARIES}
   Qt5::Core
   Qt5::Widgets
   Qt5::Gui

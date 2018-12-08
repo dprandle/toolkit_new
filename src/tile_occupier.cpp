@@ -1,15 +1,17 @@
-#include <tile_occupier.h>
-#include <hex_tile_grid.h>
-#include <mtdebug_print.h>
+#include <Urho3D/Core/Context.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Core/Context.h>
+#include <hex_tile_grid.h>
+#include <mtdebug_print.h>
+#include <tile_occupier.h>
 
 using namespace Urho3D;
 
 Tile_Occupier::Tile_Occupier(Urho3D::Context * context) : Component(context), draw_debug_(false)
 {
+    URHO3D_ACCESSOR_ATTRIBUTE(
+        "Spaces", get_spaces, set_spaces, VariantVector, Variant::emptyVariantVector, AM_FILE);
     spaces_.Push(ivec3());
 }
 
@@ -50,6 +52,22 @@ void Tile_Occupier::enable_debug(bool enable)
 bool Tile_Occupier::debug_enabled()
 {
     return draw_debug_;
+}
+
+void Tile_Occupier::set_spaces(const Urho3D::VariantVector & spaces)
+{
+    spaces_.Resize(spaces.Size());
+    for (int i = 0; i < spaces.Size(); ++i)
+        spaces_[i] = spaces[i].GetIntVector3();
+}
+
+Urho3D::VariantVector Tile_Occupier::get_spaces() const
+{
+    VariantVector spaces;
+    spaces.Resize(spaces_.Size());
+    for (int i = 0; i < spaces.Size(); ++i)
+        spaces[i] = spaces_[i];
+    return spaces;
 }
 
 void Tile_Occupier::OnNodeSet(Urho3D::Node * node)
