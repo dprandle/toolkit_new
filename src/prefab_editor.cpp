@@ -125,30 +125,7 @@ void Prefab_Editor::handle_post_render_update(StringHash event_type, VariantMap 
 
 void Prefab_Editor::create_visuals()
 {
-    Graphics * graphics = GetSubsystem<Graphics>();
-    graphics->SetWindowTitle("Build and Battle");
-
-    // Get default style
     ResourceCache * cache = GetSubsystem<ResourceCache>();
-    XMLFile * xmlFile = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
-
-    // Create console
-    Console * console = engine_->CreateConsole();
-    console->SetDefaultStyle(xmlFile);
-    console->GetBackground()->SetOpacity(0.8f);
-    console->GetBackground()->SetOpacity(0.8f);
-
-    // Create debug HUD.
-    DebugHud * debugHud = engine_->CreateDebugHud();
-    debugHud->SetDefaultStyle(xmlFile);
-
-    UI * usi = GetSubsystem<UI>();
-    UIElement * root = usi->GetRoot();
-    Button * btn = new Button(context_);
-    btn->SetName("Button1");
-    btn->SetSize(IntVector2(200, 200));
-    btn->SetColor(Color(0.7f, 0.6f, 0.1f, 0.4f));
-    root->AddChild(btn);
 
     //Button *
     Context * ctxt = GetContext();
@@ -193,7 +170,7 @@ void Prefab_Editor::create_visuals()
     dir_light_node_->SetDirection(Vector3(-0.0f, -0.5f, -1.0f));
     dir_light_node_->SetPosition(Vector3(5,5,5));
     Light * light = dir_light_node_->CreateComponent<Light>();
-    light->SetLightType(LIGHT_POINT);
+    light->SetLightType(LIGHT_DIRECTIONAL);
     light->SetColor(Color(1.0f, 1.0f, 1.0f));
     light->SetSpecularIntensity(5.0f);
     light->SetBrightness(1.0f);
@@ -201,16 +178,11 @@ void Prefab_Editor::create_visuals()
     Technique * tech = cache->GetResource<Technique>("Techniques/DiffNormal.xml");
     Technique * tech_outline = cache->GetResource<Technique>("Techniques/DiffNormalOutline.xml");
 
-    // Create StaticModelGroups in the scene
-    StaticModelGroup * lastGroup = nullptr;
-    Material * grass_tile = cache->GetResource<Material>("Materials/Tiles/Grass.xml");
-    
+    Material * grass_tile = cache->GetResource<Material>("Materials/Tiles/Grass.xml");    
     Material * grass_tile_selected =
         cache->GetResource<Material>("Materials/Tiles/GrassSelected.xml");
     grass_tile_selected->SetShaderParameter("OutlineEnable", true);
 
-    //<parameter name="OutlineWidth" value="0.01" />
-    //<parameter name="OutlineColor" value="1 1 0 1" />
     Model * mod = cache->GetResource<Model>("Models/Tiles/Grass.mdl");
 
     Input_Context * in_context = input_map_->create_context("global_context");
@@ -226,21 +198,10 @@ void Prefab_Editor::create_visuals()
         {
             for (int z = 0; z < 2; ++z)
             {
-                // if ((z == 1) && (x < 5 || x > 15 || y < 5 || y > 15))
-                //     continue;
-
-                // if (!lastGroup || lastGroup->GetNumInstanceNodes() >= 25 * 25)
-                // {
-                //     Node * tile_group_node = scene->CreateChild("Grass_Tile_Group");
-                //     EditorSelector * sel = tile_group_node->CreateComponent<EditorSelector>();
-                //     lastGroup = tile_group_node->CreateComponent<StaticModelGroup>();
-                //     lastGroup->SetModel(mod);
-                //     lastGroup->SetMaterial(grass_tile);
-                //     sel->set_selection_material("Materials/Tiles/GrassSelected.xml");
-                //     sel->set_render_component_to_control(lastGroup->GetID());
-                // }
-
                 Node * tile_node = scene_->CreateChild("Grass_Tile_" + String(cnt));
+
+                if (cnt == 0)
+                    dir_light_node_ = tile_node;
 
                 StaticModel * modc = tile_node->CreateComponent<StaticModel>();
                 modc->SetCastShadows(true);
@@ -257,18 +218,12 @@ void Prefab_Editor::create_visuals()
 
                 RigidBody * rb = tile_node->CreateComponent<RigidBody>();
                 rb->SetMass(0.0f);
-                // if (z == 1)
-                //     rb->SetMass(10.0f);
-                // rb->SetFriction(0.1f);
-                // rb->SetRestitution(0.9f);
 
                 Tile_Occupier * occ = tile_node->CreateComponent<Tile_Occupier>();
                 tile_node->AddListener(occ);
 
                 tile_node->SetPosition(Hex_Tile_Grid::grid_to_world(ivec3(x, y, z)));
                 tile_node->SetRotation(Quaternion(90.0f, fvec3(1.0f, 0.0f, 0.0f)));
-
-                //lastGroup->AddInstanceNode(tile_node);
                 ++cnt;
             }
         }

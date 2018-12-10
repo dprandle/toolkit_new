@@ -8,10 +8,8 @@
 
 using namespace Urho3D;
 
-Tile_Occupier::Tile_Occupier(Urho3D::Context * context) : Component(context), draw_debug_(false)
+Tile_Occupier::Tile_Occupier(Urho3D::Context * context) : Component(context), draw_debug_(false), scoobers("Poopy")
 {
-    URHO3D_ACCESSOR_ATTRIBUTE(
-        "Spaces", get_spaces, set_spaces, VariantVector, Variant::emptyVariantVector, AM_FILE);
     spaces_.Push(ivec3());
 }
 
@@ -39,9 +37,12 @@ const Urho3D::Vector<ivec3> & Tile_Occupier::tile_spaces()
     return spaces_;
 }
 
-void Tile_Occupier::register_context(Urho3D::Context * ctxt)
+void Tile_Occupier::register_context(Urho3D::Context * context)
 {
-    ctxt->RegisterFactory<Tile_Occupier>();
+    context->RegisterFactory<Tile_Occupier>();
+    URHO3D_ACCESSOR_ATTRIBUTE(
+        "Spaces", get_spaces, set_spaces, VariantVector, Variant::emptyVariantVector, AM_FILE);
+    URHO3D_ATTRIBUTE("Scooby", String, scoobers, String(), AM_DEFAULT);
 }
 
 void Tile_Occupier::enable_debug(bool enable)

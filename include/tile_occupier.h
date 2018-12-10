@@ -46,5 +46,7 @@ class Tile_Occupier : public Urho3D::Component
 
     bool draw_debug_;
 
+    Urho3D::String scoobers;
+
     Urho3D::Vector<ivec3> spaces_;
 };
