@@ -258,8 +258,7 @@ void Input_Translator::handle_key_down(Urho3D::StringHash event_type,
             int32_t allowed_mb = trig->mb_required_ | trig->mb_allowed_;
             bool pass_qual_allowed(((allowed_quals & QUAL_ANY) == QUAL_ANY) ||
                                    (qualifiers | allowed_quals) == allowed_quals);
-            bool pass_mb_allowed(((allowed_mb & MOUSEB_ANY) == MOUSEB_ANY) ||
-                                 ((mouse_buttons | allowed_mb) == allowed_mb));
+            bool pass_mb_allowed((mouse_buttons | allowed_mb) == allowed_mb);
 
             // If passes all the conditions, send the event for the trigger and mark trigger as active
             if (!_trigger_already_active(trig) && pass_qual_required && pass_mb_required &&
@@ -439,8 +438,7 @@ void Input_Translator::handle_mouse_down(Urho3D::StringHash event_type,
                 trig->mb_required_ | trig->mb_allowed_ | trig->condition_.mouse_button_;
             bool pass_qual_allowed(((allowed_quals & QUAL_ANY) == QUAL_ANY) ||
                                    (qualifiers | allowed_quals) == allowed_quals);
-            bool pass_mb_allowed(((allowed_mb & MOUSEB_ANY) == MOUSEB_ANY) ||
-                                 ((mouse_buttons | allowed_mb) == allowed_mb));
+            bool pass_mb_allowed((mouse_buttons | allowed_mb) == allowed_mb);
 
             // If passes all the conditions, send the event for the trigger and mark trigger as active
 

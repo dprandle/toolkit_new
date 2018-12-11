@@ -228,6 +228,15 @@ void Prefab_Editor::create_visuals()
             }
         }
     }
+
+
+    dir_light_node_->SetVar("Scooby", "4DSF");
+    dir_light_node_->SetVar("Jimmy", 2);
+    dir_light_node_->SetVar("Toby", 5.0f);
+    dir_light_node_->SetVar("Bobie", 2.0);
+    dir_light_node_->SetVar("sdsd", true);
+    dir_light_node_->SetVar("ddd", false);
+
     
 }
 

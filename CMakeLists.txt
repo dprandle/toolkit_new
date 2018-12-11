@@ -4,9 +4,11 @@ project(bbtoolkit)
 
 set(EXEC_NAME bbtoolkit)
 
+add_definitions(-URHO_HASH_DEBUG)
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
     set(CUSTOM_LIB_DIR /usr/local/debug)
     add_definitions(-DDEBUG_VERSION)
+
 else()
     set(CUSTOM_LIB_DIR /usr/local)
     add_definitions(-DRELEASE_VERSION)
