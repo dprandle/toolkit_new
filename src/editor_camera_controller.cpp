@@ -180,10 +180,10 @@ void Editor_Camera_Controller::setup_input_context(Input_Context * ctxt)
     it.mb_allowed_ = 0;
     ctxt->create_trigger(it);
 
-    // it.name_ = "CameraMove";
-    // it.mb_required_ = MOUSEB_LEFT | MOUSEB_RIGHT;
-    // it.mb_allowed_ = MOUSEB_ANY;
-    // ctxt->create_trigger(it);
+    it.name_ = "CameraMove";
+    it.mb_required_ = (MOUSEB_RIGHT | MOUSEB_LEFT).AsInteger();
+    it.mb_allowed_ = MOUSEB_ANY;
+    ctxt->create_trigger(it);
 
     it.condition_.mouse_button_ = MOUSEB_WHEEL;
     it.name_ = "CameraZoom";

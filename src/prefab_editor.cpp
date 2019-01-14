@@ -49,6 +49,9 @@
 #include <editor_selection_controller.h>
 #include <editor_camera_controller.h>
 #include <input_translator.h>
+#include <toolkit.h>
+#include <prefab_editor_dialog.h>
+#include <component_widget.h>
 
 using namespace Urho3D;
 
@@ -230,13 +233,27 @@ void Prefab_Editor::create_visuals()
     }
 
 
+
+    VariantMap nested1;
+    nested1["HaHa"] = "Wow!";
+    nested1["HolySmokes"] = 2023.34;
+    nested1["Crazy"] = 222.0f;
+    nested1["Bool"] = false;
+
+    VariantVector v;
+    v.Push("Value");
+    v.Push(2);
+    v.Push(20000.0f);
+    v.Push(nested1);
+
     dir_light_node_->SetVar("Scooby", "4DSF");
     dir_light_node_->SetVar("Jimmy", 2);
     dir_light_node_->SetVar("Toby", 5.0f);
     dir_light_node_->SetVar("Bobie", 2.0);
     dir_light_node_->SetVar("sdsd", true);
     dir_light_node_->SetVar("ddd", false);
-
+    dir_light_node_->SetVar("Craziness", nested1);
+    dir_light_node_->SetVar("CoolioFoolio", v);
     
 }
 
@@ -278,7 +295,9 @@ void Prefab_Editor::setup_global_keys(Input_Context * ctxt)
 }
 
 void Prefab_Editor::handle_scene_update(StringHash /*event_type*/, VariantMap & event_data)
-{}
+{
+    bbtk.prefab_editor()->get_ui()->comp_widget->update_tw_from_node();
+}
 
 void Prefab_Editor::handle_input_event(StringHash event_type, VariantMap & event_data)
 {

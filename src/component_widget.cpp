@@ -3,11 +3,16 @@
 #include <toolkit.h>
 #include <prefab_editor_dialog.h>
 
+#include <limits>
+
 #include <Urho3D/Scene/Component.h>
 #include <Urho3D/Scene/Node.h>
 #include <Urho3D/Container/Vector.h>
 #include <Urho3D/Container/HashMap.h>
 
+#include <QLabel>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
 #include <QPushButton>
 #include <QTreeWidgetItem>
 #include <QLineEdit>
@@ -17,15 +22,12 @@
 #include <QHeaderView>
 #include <QSpacerItem>
 
-template<class T>
-void Slot_Callback(Urho3D::Serializable * serz, Urho3D::VariantVector * nested_attrib_names, const Urho3D::String & attrib_name, const T & val)
+Urho3D::Variant * Get_Attrib_Variant(Urho3D::Variant & attrib_value, Urho3D::VariantVector & nested_attrib_names)
 {
-    Urho3D::Variant attrib = serz->GetAttribute(attrib_name);
-    Urho3D::Variant * cur_nested_val = &attrib;
-
-    while (!nested_attrib_names->Empty())
+    Urho3D::Variant * cur_nested_val = &attrib_value;
+    while (!nested_attrib_names.Empty())
     {
-        Urho3D::Variant & cur_val = (*nested_attrib_names)[0];
+        Urho3D::Variant & cur_val = nested_attrib_names[0];
         if (cur_nested_val->GetType() == Urho3D::VAR_VARIANTVECTOR)
         {
             int index = cur_val.GetInt();
@@ -34,23 +36,42 @@ void Slot_Callback(Urho3D::Serializable * serz, Urho3D::VariantVector * nested_a
         }
         else if (cur_nested_val->GetType() == Urho3D::VAR_VARIANTMAP)
         {
-            Urho3D::StringHash key = (*nested_attrib_names)[0].GetStringHash();
+            Urho3D::StringHash key = nested_attrib_names[0].GetStringHash();
             Urho3D::VariantMap * vm = cur_nested_val->GetVariantMapPtr();
             cur_nested_val = &((*vm)[key]);
         }
-        nested_attrib_names->Erase(0);
+        nested_attrib_names.Erase(0);
     }
-    *cur_nested_val = val;
+    return cur_nested_val;
+}
+
+template<class T>
+void Slot_Callback(Urho3D::Serializable * serz, Urho3D::VariantVector nested_attrib_names, const Urho3D::String & attrib_name, const T & val)
+{
+    Urho3D::Variant attrib = serz->GetAttribute(attrib_name);
+    Urho3D::Variant * final_attrib = Get_Attrib_Variant(attrib, nested_attrib_names);
+    *final_attrib = val;
     serz->SetAttribute(attrib_name, attrib);
     bbtk.prefab_editor()->get_ui()->prefab_view->setFocus();
 }
 
-void create_tw_item(Urho3D::Serializable * ser,
+void Component_Widget::update_tw_from_node()
+{
+    auto iter = updaters.begin();
+    while (iter != updaters.end())
+    {
+        Urho3D::Variant attrib = iter.key()->GetAttribute(iter->attrib_name);
+        Urho3D::Variant * nested_val = Get_Attrib_Variant(attrib, iter->nested_names);
+        iter->set_widget_value(*nested_val);
+        ++iter;
+    }
+}
+
+void Component_Widget::create_tw_item(Urho3D::Serializable * ser,
                     const Urho3D::String & attrib_name,
                     const Urho3D::String & nested_name,
                     Urho3D::VariantVector & nested_attrib_names,
                     const Urho3D::Variant & value,
-                    QTreeWidget * tw,
                     QTreeWidgetItem * parent)
 {
     Urho3D::VariantType vtype = value.GetType();
@@ -71,7 +92,7 @@ void create_tw_item(Urho3D::Serializable * ser,
             nested_attrib_names.Push(i);
             std::stringstream ss;
             ss << attrib_name.CString() << "[" << i << "]";
-            create_tw_item(ser, attrib_name, ss.str().c_str(), nested_attrib_names, vv[i], tw, tw_item);
+            create_tw_item(ser, attrib_name, ss.str().c_str(), nested_attrib_names, vv[i], tw_item);
         }
         break;
     }
@@ -83,7 +104,7 @@ void create_tw_item(Urho3D::Serializable * ser,
 	    while (vm_iter != vm.End())
 	    {
 		    nested_attrib_names.Push(vm_iter->first_);
-		    create_tw_item(ser, attrib_name, vm_iter->first_.Reverse(), nested_attrib_names, vm_iter->second_, tw, tw_item);
+		    create_tw_item(ser, attrib_name, vm_iter->first_.Reverse(), nested_attrib_names, vm_iter->second_, tw_item);
 		    ++vm_iter;
 	    }
         break;
@@ -124,6 +145,7 @@ void create_tw_item(Urho3D::Serializable * ser,
     case (Urho3D::VAR_VECTOR2):
         break;
     case (Urho3D::VAR_VECTOR3):
+        item_widget = create_widget_item(ser, attrib_name, nested_attrib_names, value.GetVector3());
         break;
     case (Urho3D::VAR_VECTOR4):
         break;
@@ -157,21 +179,20 @@ void create_tw_item(Urho3D::Serializable * ser,
     if (parent != nullptr)
         parent->addChild(tw_item);
     else
-        tw->addTopLevelItem(tw_item);
+        tw_->addTopLevelItem(tw_item);
 
-    tw->setItemWidget(tw_item, 1, item_widget);
+    tw_->setItemWidget(tw_item, 1, item_widget);
 }
 
-void build_tree_widget(Urho3D::Node * node, QTreeWidget * tw)
+void Component_Widget::build_tree_widget()
 {
-    if (node == nullptr)
+    if (node_ == nullptr)
         return;
 
-    tw->clear();
-    QStringList sl;
-    sl.append("Attribute");
-    sl.append("Value");
-    tw->setHeaderLabels(sl);
+    tw_->clear();
+    tw_->setColumnCount(2);
+    updaters.clear();
+
 
     QTreeWidgetItem * node_dummy_root = new QTreeWidgetItem;
     node_dummy_root->setText(0, "Node Information");
@@ -180,16 +201,16 @@ void build_tree_widget(Urho3D::Node * node, QTreeWidget * tw)
     fnt.setBold(true);
     fnt.setPointSize(fnt.pointSize() + 1);
     node_dummy_root->setFont(0, fnt);
-    tw->addTopLevelItem(node_dummy_root);
+    tw_->addTopLevelItem(node_dummy_root);
 
     QTreeWidgetItem * node_info_root = new QTreeWidgetItem;
 
     QWidget * name_widget =
-        create_widget_item(node, "Name", Urho3D::VariantVector(), node->GetName());
+        create_widget_item(node_, "Name", Urho3D::VariantVector(), node_->GetName());
     QWidget * enabled_widget =
-        create_widget_item(node, "Is Enabled", Urho3D::VariantVector(), node->IsEnabled());
+        create_widget_item(node_, "Is Enabled", Urho3D::VariantVector(), node_->IsEnabled());
 
-    auto node_attribs = node->GetAttributes();
+    auto node_attribs = node_->GetAttributes();
     if (node_attribs != nullptr)
     {
         for (int att_ind = 0; att_ind < node_attribs->Size(); ++att_ind)
@@ -197,18 +218,18 @@ void build_tree_widget(Urho3D::Node * node, QTreeWidget * tw)
             Urho3D::String var_name = (*node_attribs)[att_ind].name_;
             if (var_name == "Name" || var_name == "Is Enabled")
                 continue;
-            Urho3D::Variant val = node->GetAttribute(var_name);
+            Urho3D::Variant val = node_->GetAttribute(var_name);
             Urho3D::VariantVector nested_names;
-            create_tw_item(node, var_name, var_name, nested_names, val, tw, node_info_root);
+            create_tw_item(node_, var_name, var_name, nested_names, val, node_info_root);
         }
     }
-    tw->addTopLevelItem(node_info_root);
-    tw->setItemWidget(node_info_root, 0, name_widget);
-    tw->setItemWidget(node_info_root, 1, enabled_widget);
+    tw_->addTopLevelItem(node_info_root);
+    tw_->setItemWidget(node_info_root, 0, name_widget);
+    tw_->setItemWidget(node_info_root, 1, enabled_widget);
     node_info_root->setExpanded(true);
 
     // Add the components to the tree widget
-    const Urho3D::Vector<Urho3D::SharedPtr<Urho3D::Component>> & all_comps = node->GetComponents();
+    const Urho3D::Vector<Urho3D::SharedPtr<Urho3D::Component>> & all_comps = node_->GetComponents();
     for (int i = 0; i < all_comps.Size(); ++i)
     {
         QTreeWidgetItem * tw_item = new QTreeWidgetItem;
@@ -236,97 +257,212 @@ void build_tree_widget(Urho3D::Node * node, QTreeWidget * tw)
 
                 Urho3D::Variant val = all_comps[i]->GetAttribute(var_name);
                 Urho3D::VariantVector nested_names;
-                create_tw_item(all_comps[i], var_name, var_name, nested_names, val, tw, tw_item);
+                create_tw_item(all_comps[i], var_name, var_name, nested_names, val, tw_item);
             }
-            tw->addTopLevelItem(tw_item);
-            tw->setItemWidget(tw_item, 1, cb_widget);
+            tw_->addTopLevelItem(tw_item);
+            tw_->setItemWidget(tw_item, 1, cb_widget);
         }
     }
 }
 
-QWidget * create_widget_item(Urho3D::Serializable * serz,
+QWidget * Component_Widget::create_widget_item(Urho3D::Serializable * serz,
                              Urho3D::String attrib_name,
-                             Urho3D::VariantVector nested_attrib_names,
+                             Urho3D::VariantVector nested_names,
                              const Urho3D::String & value)
 {
     QLineEdit * item = new QLineEdit;
-    item->setText(value.CString());
-    auto func = [=]() mutable {
-        Slot_Callback(serz, &nested_attrib_names, attrib_name, qPrintable(item->text()));
+
+    cb_desc fd(attrib_name, nested_names);
+    fd.set_widget_value = [=](const Urho3D::Variant & var) {
+        item->setText(var.GetString().CString());
+    };
+    updaters[serz] = fd;
+    fd.set_widget_value(value);
+
+    auto func = [=]() {
+        Slot_Callback(serz, nested_names, attrib_name, qPrintable(item->text()));
     };
     QObject::connect(item, &QLineEdit::editingFinished, func);
     return item;
 }
 
-QWidget * create_widget_item(Urho3D::Serializable * serz,
+QWidget * Component_Widget::create_widget_item(Urho3D::Serializable * serz,
                              Urho3D::String attrib_name,
-                             Urho3D::VariantVector nested_attrib_names,
+                             Urho3D::VariantVector nested_names,
                              int value)
 {
-    QLineEdit * item = new QLineEdit;
-    item->setText(QString::number(value));
-    item->setValidator(new QIntValidator);
+    QSpinBox * item = new QSpinBox;
+    item->setMaximum(std::numeric_limits<int>::max());
+    item->setMinimum(std::numeric_limits<int>::min());
 
-    auto func = [=]() mutable {
-        Slot_Callback(serz, &nested_attrib_names, attrib_name, item->text().toInt());
+    cb_desc fd(attrib_name, nested_names);
+    fd.set_widget_value = [=](const Urho3D::Variant & var) {
+        item->setValue(var.GetInt());
+    };
+    updaters[serz] = fd;
+    fd.set_widget_value(value);
+
+    auto func = [=](int new_val) {
+        Slot_Callback(serz, nested_names, attrib_name, new_val);
     };
 
-    QObject::connect(item, &QLineEdit::editingFinished, func);
+    QObject::connect(item, qOverload<int>(&QSpinBox::valueChanged), func);
     return item;
 }
 
-QWidget * create_widget_item(Urho3D::Serializable * serz,
+QWidget * Component_Widget::create_widget_item(Urho3D::Serializable * serz,
                              Urho3D::String attrib_name,
-                             Urho3D::VariantVector nested_attrib_names,
+                             Urho3D::VariantVector nested_names,
                              float value)
 {
-    QLineEdit * item = new QLineEdit;
-    item->setText(QString::number(value, 'f', 2));
-    item->setValidator(new QDoubleValidator);
+    QDoubleSpinBox * item = new QDoubleSpinBox;
+    item->setSingleStep(0.1);
+    item->setMaximum(std::numeric_limits<float>::max());
+    item->setMinimum(-1.0f * std::numeric_limits<float>::max());
 
-    auto func = [=]() mutable {
-        Slot_Callback(serz, &nested_attrib_names, attrib_name, item->text().toFloat());
+    cb_desc fd(attrib_name, nested_names);
+    fd.set_widget_value = [=](const Urho3D::Variant & var) {
+        item->setValue(var.GetFloat());
+    };
+    updaters[serz] = fd;
+    fd.set_widget_value(value);
+
+    auto func = [=](float new_val) {
+        Slot_Callback(serz, nested_names, attrib_name, new_val);
     };
 
-    QObject::connect(item, &QLineEdit::editingFinished, func);
+    QObject::connect(item, qOverload<double>(&QDoubleSpinBox::valueChanged), func);
     return item;
 }
 
-QWidget * create_widget_item(Urho3D::Serializable * serz,
+QWidget * Component_Widget::create_widget_item(Urho3D::Serializable * serz,
                              Urho3D::String attrib_name,
-                             Urho3D::VariantVector nested_attrib_names,
+                             Urho3D::VariantVector nested_names,
                              double value)
 {
-    QLineEdit * item = new QLineEdit;
-    item->setText(QString::number(value, 'f', 4));
-    item->setValidator(new QDoubleValidator);
+    QDoubleSpinBox * item = new QDoubleSpinBox;
+    item->setSingleStep(0.1);
+    item->setMaximum(std::numeric_limits<double>::max());
+    item->setMinimum(-1.0 * std::numeric_limits<double>::max());
 
-    auto func = [=]() mutable {
-        Slot_Callback(serz, &nested_attrib_names, attrib_name, item->text().toDouble());
+    cb_desc fd(attrib_name, nested_names);
+    fd.set_widget_value = [=](const Urho3D::Variant & var) {
+        item->setValue(var.GetDouble());
+    };
+    updaters[serz] = fd;
+    fd.set_widget_value(value);
+
+    auto func = [=](double new_val) {
+        Slot_Callback(serz, nested_names, attrib_name, new_val);
     };
 
-    QObject::connect(item, &QLineEdit::editingFinished, func);
+    QObject::connect(item, qOverload<double>(&QDoubleSpinBox::valueChanged), func);
     return item;
 }
 
-QWidget * create_widget_item(Urho3D::Serializable * serz,
+QWidget * Component_Widget::create_widget_item(Urho3D::Serializable * serz,
                              Urho3D::String attrib_name,
-                             Urho3D::VariantVector nested_attrib_names,
+                             Urho3D::VariantVector nested_names,
                              bool value)
 {
     QCheckBox * item = new QCheckBox;
     item->setText("");
-    item->setChecked(value);
 
-    auto func = [=](int state) mutable {
-        Slot_Callback(serz, &nested_attrib_names, attrib_name, state == Qt::Checked);
+    cb_desc fd(attrib_name, nested_names);
+    fd.set_widget_value = [=](const Urho3D::Variant & var) {
+        item->setChecked(var.GetBool());
+    };
+    updaters[serz] = fd;
+    fd.set_widget_value(value);
+
+    auto func = [=](int state) {
+        Slot_Callback(serz, nested_names, attrib_name, state == Qt::Checked);
     };
 
     QObject::connect(item, &QCheckBox::stateChanged, func);
     return item;
 }
 
-Component_Widget::Component_Widget(QWidget * parent) : QWidget(nullptr)
+
+QWidget * Component_Widget::create_widget_item(Urho3D::Serializable * serz,
+                             Urho3D::String attrib_name,
+                             Urho3D::VariantVector nested_names,
+                             const Urho3D::Vector3 & value)
+{
+    QWidget * item = new QWidget;
+    QHBoxLayout * layout = new QHBoxLayout;
+    //layout->setSpacing(0);
+    layout->setMargin(0);
+    
+    QLabel * lbl_x = new QLabel("x");
+    QLabel * lbl_y = new QLabel("y");
+    QLabel * lbl_z = new QLabel("z");
+    
+    QDoubleSpinBox * sb_x = new QDoubleSpinBox();
+    QSizePolicy pc = sb_x->sizePolicy();
+    pc.setHorizontalPolicy(QSizePolicy::Maximum);
+    sb_x->setMaximum(std::numeric_limits<float>::max());
+    sb_x->setMinimum(-1.0 * std::numeric_limits<float>::max());
+    sb_x->setSingleStep(0.1);
+    sb_x->setSizePolicy(pc);
+    
+    QDoubleSpinBox * sb_y = new QDoubleSpinBox();
+    sb_y->setMaximum(std::numeric_limits<float>::max());
+    sb_y->setMinimum(-1.0 * std::numeric_limits<float>::max());
+    sb_y->setSingleStep(0.1);
+    sb_y->setSizePolicy(pc);
+
+    
+    QDoubleSpinBox * sb_z = new QDoubleSpinBox();
+    sb_z->setMaximum(std::numeric_limits<float>::max());
+    sb_z->setMinimum(-1.0 * std::numeric_limits<float>::max());
+    sb_z->setSingleStep(0.1);
+    sb_z->setSizePolicy(pc);
+
+    
+    layout->addWidget(lbl_x);
+    layout->addWidget(sb_x);
+    layout->addStretch(20);
+    layout->addWidget(lbl_y);
+    layout->addWidget(sb_y);
+    layout->addStretch(20);
+    layout->addWidget(lbl_z);
+    layout->addWidget(sb_z);
+    layout->addStretch(20);
+    item->setLayout(layout);
+
+    cb_desc fd(attrib_name, nested_names);
+    fd.set_widget_value = [=](const Urho3D::Variant & var) {
+        Urho3D::Vector3 vec = var.GetVector3();
+        sb_x->blockSignals(true);
+        sb_y->blockSignals(true);
+        sb_z->blockSignals(true);
+        sb_x->setValue(vec.x_);
+        sb_y->setValue(vec.y_);
+        sb_z->setValue(vec.z_);
+        sb_x->blockSignals(false);
+        sb_y->blockSignals(false);
+        sb_z->blockSignals(false);
+    };
+    updaters[serz] = fd;
+    fd.set_widget_value(value);
+
+    auto func = [=](double new_val) {
+        Urho3D::Vector3 val;
+        val.x_ = sb_x->value();
+        val.y_ = sb_y->value();
+        val.z_ = sb_z->value();
+        Slot_Callback(serz, nested_names, attrib_name, val);
+    };
+
+    QObject::connect(sb_x, qOverload<double>(&QDoubleSpinBox::valueChanged), func);
+    QObject::connect(sb_y, qOverload<double>(&QDoubleSpinBox::valueChanged), func);
+    QObject::connect(sb_z, qOverload<double>(&QDoubleSpinBox::valueChanged), func);
+
+    return item;
+}
+
+Component_Widget::Component_Widget(QWidget * parent) : QWidget(nullptr), tw_(nullptr), node_(nullptr)
 {}
 
 Component_Widget::~Component_Widget()
@@ -334,18 +470,20 @@ Component_Widget::~Component_Widget()
 
 void Component_Widget::setup_ui(Urho3D::Node * node)
 {
+    node_ = node;
     QVBoxLayout * layout = new QVBoxLayout;
     layout->setMargin(0);
-    layout->setSpacing(0);
+    //layout->setSpacing(0);
 
-    QTreeWidget * tw = new QTreeWidget;
-    tw->setHeaderHidden(true);
-    tw->setStyleSheet(TW_STYLE);
-    tw->setSelectionMode(QAbstractItemView::NoSelection);
-    build_tree_widget(node, tw);
-    tw->header()->setStretchLastSection(false);
-    tw->header()->setSectionResizeMode(0,QHeaderView::Stretch);
-    tw->header()->setSectionResizeMode(1,QHeaderView::Stretch);
-    layout->addWidget(tw);
+    tw_ = new QTreeWidget;
+    tw_->setHeaderHidden(true);
+    tw_->setStyleSheet(TW_STYLE);
+    tw_->setSelectionMode(QAbstractItemView::NoSelection);
+    tw_->header()->setStretchLastSection(false);
+    tw_->header()->setSectionResizeMode(QHeaderView::Stretch);
+    // tw_->header()->setSectionResizeMode(1,QHeaderView::Stretch);
+
+    build_tree_widget();
+    layout->addWidget(tw_);
     setLayout(layout);
 }

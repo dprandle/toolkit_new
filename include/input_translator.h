@@ -6,8 +6,8 @@
 #include <map>
 #include <vector>
 
-static const int32_t MOUSEB_MOVE = 32;
-static const int32_t MOUSEB_WHEEL = 64;
+const int32_t MOUSEB_MOVE = SDL_BUTTON(7);
+const int32_t MOUSEB_WHEEL = SDL_BUTTON(8);
 
 #ifdef QT_BUILD
 #include <QObject>

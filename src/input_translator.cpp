@@ -430,6 +430,7 @@ void Input_Translator::handle_mouse_down(Urho3D::StringHash event_type,
 
             // Check the qualifier and mouse button required conditions
             bool pass_qual_required((trig->qual_required_ & qualifiers) == trig->qual_required_);
+
             bool pass_mb_required((trig->mb_required_ & mouse_buttons) == trig->mb_required_);
 
             // Check the qualifier and mouse button allowed conditions
