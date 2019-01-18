@@ -5,6 +5,7 @@ project(bbtoolkit)
 set(EXEC_NAME bbtoolkit)
 
 add_definitions(-URHO_HASH_DEBUG)
+
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
     set(CUSTOM_LIB_DIR /usr/local/debug)
     add_definitions(-DDEBUG_VERSION)
@@ -75,6 +76,8 @@ add_custom_target(move_compile_commands ALL
   )
 
 find_library(URHO3D NAMES Urho3D PATHS ${CUSTOM_LIB_DIR}/lib/Urho3D NO_DEFAULT_PATH)
+
+message(${URHO3D})
 
 target_link_libraries(${EXEC_NAME} GL)
 

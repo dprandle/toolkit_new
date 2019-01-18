@@ -203,9 +203,6 @@ void Prefab_Editor::create_visuals()
             {
                 Node * tile_node = scene_->CreateChild("Grass_Tile_" + String(cnt));
 
-                if (cnt == 0)
-                    dir_light_node_ = tile_node;
-
                 StaticModel * modc = tile_node->CreateComponent<StaticModel>();
                 modc->SetCastShadows(true);
                 modc->SetModel(mod);
@@ -246,6 +243,7 @@ void Prefab_Editor::create_visuals()
     v.Push(20000.0f);
     v.Push(nested1);
 
+    
     dir_light_node_->SetVar("Scooby", "4DSF");
     dir_light_node_->SetVar("Jimmy", 2);
     dir_light_node_->SetVar("Toby", 5.0f);
@@ -254,7 +252,9 @@ void Prefab_Editor::create_visuals()
     dir_light_node_->SetVar("ddd", false);
     dir_light_node_->SetVar("Craziness", nested1);
     dir_light_node_->SetVar("CoolioFoolio", v);
-    
+
+    dir_light_node_->AddTag("Scooby");
+    dir_light_node_->AddTag("Yeppers");
 }
 
 void Prefab_Editor::setup_global_keys(Input_Context * ctxt)
