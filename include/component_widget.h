@@ -109,8 +109,35 @@ class Component_Widget : public QWidget
     QWidget * create_widget_item(Urho3D::Serializable * serz,
                                  Urho3D::String attrib_name,
                                  Urho3D::VariantVector nested_attrib_names,
+                                 const Urho3D::Vector2 & value);
+
+    QWidget * create_widget_item(Urho3D::Serializable * serz,
+                                 Urho3D::String attrib_name,
+                                 Urho3D::VariantVector nested_attrib_names,
+                                 const Urho3D::IntVector2 & value);
+
+    QWidget * create_widget_item(Urho3D::Serializable * serz,
+                                 Urho3D::String attrib_name,
+                                 Urho3D::VariantVector nested_attrib_names,
                                  const Urho3D::Vector3 & value);
-    
+
+
+    QWidget * create_widget_item(Urho3D::Serializable * serz,
+                                 Urho3D::String attrib_name,
+                                 Urho3D::VariantVector nested_attrib_names,
+                                 const Urho3D::IntVector3 & value);
+
+    QWidget * create_widget_item(Urho3D::Serializable * serz,
+                                 Urho3D::String attrib_name,
+                                 Urho3D::VariantVector nested_attrib_names,
+                                 const Urho3D::Vector4 & value);
+
+
+    QWidget * create_widget_item(Urho3D::Serializable * serz,
+                                 Urho3D::String attrib_name,
+                                 Urho3D::VariantVector nested_attrib_names,
+                                 const Urho3D::IntRect & value);
+
     Urho3D::Node * node_;
     QTreeWidget * tw_;
     QMap<Urho3D::Serializable*, cb_desc> updaters;

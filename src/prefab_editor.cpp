@@ -232,10 +232,10 @@ void Prefab_Editor::create_visuals()
 
 
     VariantMap nested1;
-    nested1["HaHa"] = "Wow!";
-    nested1["HolySmokes"] = 2023.34;
-    nested1["Crazy"] = 222.0f;
-    nested1["Bool"] = false;
+    nested1["String"] = "Wow!";
+    nested1["Double"] = 2023.34;
+    nested1["Float"] = 222.0f;
+    nested1["BoolFalse"] = false;
 
     VariantVector v;
     v.Push("Value");
@@ -243,15 +243,32 @@ void Prefab_Editor::create_visuals()
     v.Push(20000.0f);
     v.Push(nested1);
 
-    
-    dir_light_node_->SetVar("Scooby", "4DSF");
-    dir_light_node_->SetVar("Jimmy", 2);
-    dir_light_node_->SetVar("Toby", 5.0f);
-    dir_light_node_->SetVar("Bobie", 2.0);
-    dir_light_node_->SetVar("sdsd", true);
-    dir_light_node_->SetVar("ddd", false);
-    dir_light_node_->SetVar("Craziness", nested1);
-    dir_light_node_->SetVar("CoolioFoolio", v);
+    IntRect ex_rect;
+    ex_rect.left_ = 3;
+    ex_rect.right_ = 10;
+    ex_rect.bottom_ = 5;
+    ex_rect.top_ =16;
+
+    IntVector2 v2;
+    v2.x_ = 3;
+    v2.y_ = -5;
+
+
+    Vector2 vf2;
+    vf2.x_ = 4.67;
+    vf2.y_ = 6.88;
+
+    dir_light_node_->SetVar("IntRect", ex_rect);
+    dir_light_node_->SetVar("IntVec2", v2);
+    dir_light_node_->SetVar("Vec2", vf2);
+    dir_light_node_->SetVar("String", "4DSF");
+    dir_light_node_->SetVar("Int", 2);
+    dir_light_node_->SetVar("Float", 5.0f);
+    dir_light_node_->SetVar("Double", 2.0);
+    dir_light_node_->SetVar("BoolTrue", true);
+    dir_light_node_->SetVar("BoolFalse", false);
+    dir_light_node_->SetVar("NestedObj", nested1);
+    dir_light_node_->SetVar("IntVec3", IntVector3(2,2,3));
 
     dir_light_node_->AddTag("Scooby");
     dir_light_node_->AddTag("Yeppers");

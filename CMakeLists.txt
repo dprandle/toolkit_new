@@ -25,6 +25,9 @@ set(BBTOOLKIT_SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 set(UI_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/ui)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Set the include directory
 set(BBTOOLKIT_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
@@ -65,7 +68,7 @@ add_executable(${EXEC_NAME} ${SRC_FILES} ${SRC_MOC_FILES} ${UI_HEADERS} ${SRC_RE
 
 # copy all the files in the deploy folder to bin
 add_custom_target(deploy_files ALL
-  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/deploy ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/deploy ${CMAKE_SOURCE_DIR}/build
   DEPENDS ${TARGET_NAME}
   )
 
