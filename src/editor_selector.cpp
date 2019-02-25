@@ -18,20 +18,20 @@ void Editor_Selector::set_selected(Urho3D::Node * node, bool select)
     if (select == cur_selected)
         return;
 
-    Scene * scn = GetScene();
+    Urho3D::Scene * scn = GetScene();
     if (scn == nullptr)
         return;
-    StaticModel * comp = static_cast<StaticModel *>(scn->GetComponent(id_of_component_to_control_));
+    Urho3D::StaticModel * comp = static_cast<Urho3D::StaticModel *>(scn->GetComponent(id_of_component_to_control_));
     if (comp == nullptr)
         return;
 
     if ((select && is_selected(node)) || (!select && !is_selected(node)))
         return;
 
-    StaticModelGroup * ogp = nullptr;
-    StaticModelGroup * gp = static_cast<StaticModelGroup *>(comp);
-    if (sel_render_comp_->IsInstanceOf<StaticModelGroup>())
-        ogp = static_cast<StaticModelGroup *>(sel_render_comp_);
+    Urho3D::StaticModelGroup * ogp = nullptr;
+    Urho3D::StaticModelGroup * gp = static_cast<Urho3D::StaticModelGroup *>(comp);
+    if (sel_render_comp_->IsInstanceOf<Urho3D::StaticModelGroup>())
+        ogp = static_cast<Urho3D::StaticModelGroup *>(sel_render_comp_);
 
     //URHO3D_LOGINFO("The selection node is " + String(uint64_t(node_)) + " and the passed in node is " + String(uint64_t(node)));
     // If node passed in is the same node that this component is attached to, it means either the node is a StaticModel
@@ -49,7 +49,7 @@ void Editor_Selector::set_selected(Urho3D::Node * node, bool select)
             int cnt = ogp->GetNumInstanceNodes();
             for (int i = 0; i < cnt; ++i)
             {
-                Node * nd = ogp->GetInstanceNode(i);
+                Urho3D::Node * nd = ogp->GetInstanceNode(i);
                 gp->AddInstanceNode(nd);
             }
             ogp->RemoveAllInstanceNodes();
@@ -83,11 +83,11 @@ bool Editor_Selector::is_selected(Urho3D::Node * node)
     {
         // The node passed in is not the same node our static model is attached to (or static model group)
         // This means either the node is a sub object (if it is selected) or not if it is not selected
-        StaticModelGroup * mg = static_cast<StaticModelGroup *>(sel_render_comp_);
+        Urho3D::StaticModelGroup * mg = static_cast<Urho3D::StaticModelGroup *>(sel_render_comp_);
         int cnt = mg->GetNumInstanceNodes();
         for (int i = 0; i < cnt; ++i)
         {
-            Node * nd = mg->GetInstanceNode(i);
+            Urho3D::Node * nd = mg->GetInstanceNode(i);
             if (mg->GetInstanceNode(i) == node)
                 return true;
         }
@@ -112,11 +112,11 @@ void Editor_Selector::set_render_component_to_control(int comp_id)
     else
     {
         Component * cmp = GetScene()->GetComponent(comp_id);
-        StaticModel * smcmp = static_cast<StaticModel *>(cmp);
-        ResourceCache * cache = GetSubsystem<ResourceCache>();
-        Material * mat = cache->GetResource<Material>(selected_mat_);
+        Urho3D::StaticModel * smcmp = static_cast<Urho3D::StaticModel *>(cmp);
+        Urho3D::ResourceCache * cache = GetSubsystem<Urho3D::ResourceCache>();
+        Urho3D::Material * mat = cache->GetResource<Urho3D::Material>(selected_mat_);
 
-        sel_render_comp_ = static_cast<StaticModel *>(node_->CreateComponent(cmp->GetType()));
+        sel_render_comp_ = static_cast<Urho3D::StaticModel *>(node_->CreateComponent(cmp->GetType()));
         sel_render_comp_->SetModel(smcmp->GetModel());
 
         sel_render_comp_->SetMaterial(mat);
@@ -128,8 +128,8 @@ void Editor_Selector::set_selection_material(const Urho3D::String & name)
     selected_mat_ = name;
     if (sel_render_comp_ != nullptr)
     {
-        ResourceCache * cache = GetSubsystem<ResourceCache>();
-        Material * mat = cache->GetResource<Material>(selected_mat_);
+        Urho3D::ResourceCache * cache = GetSubsystem<Urho3D::ResourceCache>();
+        Urho3D::Material * mat = cache->GetResource<Urho3D::Material>(selected_mat_);
         sel_render_comp_->SetMaterial(mat);
     }
 }
@@ -146,10 +146,10 @@ void Editor_Selector::register_context(Urho3D::Context * context)
 
 void Editor_Selector::OnNodeSet(Urho3D::Node * node)
 {
-    Component * comp = node->GetComponent<StaticModelGroup>();
+    Urho3D::Component * comp = node->GetComponent<Urho3D::StaticModelGroup>();
     if (comp == nullptr)
     {
-        comp = node->GetComponent<StaticModel>();
+        comp = node->GetComponent<Urho3D::StaticModel>();
         if (comp != nullptr)
             set_render_component_to_control(comp->GetID());
     }

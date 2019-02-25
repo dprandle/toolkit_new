@@ -1,41 +1,25 @@
 #pragma once
+#include <QMainWindow>
 
-#include <urho_editor.h>
+namespace Ui {
+class Map_Editor;
+}
 
-namespace Urho3D
+namespace Urho3D {
+   class Context;
+}
+
+class Map_Editor : public QMainWindow
 {
-class Node;
-class Scene;
-} // namespace Urho3D
+   Q_OBJECT
+   
+  public:
+   
+   explicit Map_Editor(QWidget *parent = 0);
+   ~Map_Editor();
 
-class Editor_Selection_Controller;
-class Editor_Camera_Controller;
-struct Input_Context;
-
-const float TOUCH_SENSITIVITY = 2.0f;
-
-struct Map_Editor : public Urho_Editor
-{
-    URHO3D_OBJECT(Map_Editor, Urho_Editor)
-
-    Map_Editor(Urho3D::Context * context, void * window_id);
-    ~Map_Editor();
-
-    void handle_input_event(Urho3D::StringHash event_type, Urho3D::VariantMap & event_data);
-
-    void handle_scene_update(Urho3D::StringHash event_type, Urho3D::VariantMap & event_data);
-
-    void handle_post_render_update(Urho3D::StringHash event_type, Urho3D::VariantMap & event_data);
-
-    void setup_global_keys(Input_Context * ctxt);
-
-    void create_visuals();
-
-    Urho3D::Scene * scene_;
-
-    Urho3D::Node * cam_node_;
-
-    Editor_Camera_Controller * camera_controller_;
-
-    bool draw_debug_;
+   void init(Urho3D::Context * ctxt);
+   
+  private:
+   Ui::Map_Editor * ui;
 };

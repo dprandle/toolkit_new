@@ -1,13 +1,12 @@
 #pragma once
 
 #include <QWidget>
-#include <urho_editor.h>
+#include <urho_window.h>
 
 namespace Urho3D
 {
 class Context;
 }
-
 
 class Scene_View : public QWidget
 {
@@ -36,7 +35,7 @@ class Scene_View : public QWidget
         return static_cast<EditorType*>(me_);
     }
 
-    Urho_Editor * get_editor()
+    Urho_Window * get_urho_window()
     {
         return me_;
     }
@@ -66,5 +65,5 @@ class Scene_View : public QWidget
   private:
     void _start_timer();
 
-    Urho_Editor * me_;
+    Urho_Window * me_;
 };

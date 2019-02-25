@@ -40,6 +40,9 @@
 #include <Urho3D/UI/UIElement.h>
 #include <Urho3D/UI/BorderImage.h>
 
+#include <toolkit.h>
+#include <ui_toolkit.h>
+#include <details_view.h>
 #include <editor_selector.h>
 #include <string>
 
@@ -255,6 +258,9 @@ void Editor_Selection_Controller::handle_update(Urho3D::StringHash event_type,
         ++sel_iter_al;
     }
 
+    if (selection_.Size() == 1)
+        bbtk.ui->details->set_node(selection_.Front().first_);
+
     auto iter = selection_.Begin();
     while (iter != selection_.End())
     {
@@ -457,6 +463,7 @@ bool Editor_Selection_Controller::is_selected(Urho3D::Node * obj_node, Urho3D::N
 
 void Editor_Selection_Controller::_add_to_selection_from_rect()
 {
+    iout << "HERE";
     Frustum f;
     Renderer * rnd = GetSubsystem<Renderer>();
     irect screct = rnd->GetViewport(0)->GetRect();
@@ -751,8 +758,12 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
                     {
                         clear_selection();
                         //es->set_selected(nd, true);
+                        iout << "SETTING NODE";
                         if (!selection_[cr.node_].Contains(nd) && cr.node_ != nd)
+                        {
                             selection_[cr.node_].Push(nd);
+                            bbtk.ui->details->set_node(nd);
+                        }
                     }
                 }
                 else if (name == hashes_[1])

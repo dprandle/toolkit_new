@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Details_View</class>
+ <widget class="QMainWindow" name="Details_View">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Details View</string>
+  </property>
+  <widget class="Component_Widget" name="comp_widget"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Component_Widget</class>
+   <extends>QWidget</extends>
+   <header location="global">component_widget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

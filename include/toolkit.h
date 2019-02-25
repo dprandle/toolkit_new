@@ -5,8 +5,6 @@
 #include <QDir>
 #include <QList>
 #include <Urho3D/Core/Object.h>
-
-#include <ui_toolkit.h>
 #include <math_utils.h>
 
 #define bbtk Toolkit::inst()
@@ -29,155 +27,45 @@
 #define mboxc(title, msg) message_box(this, title, msg, QMessageBox::Ok, QMessageBox::Critical)
 #define mboxcb(title, msg, b) message_box(this, title, msg, b, QMessageBox::Critical)
 
-class QMessageBox;
-class QSpinBox;
-class QCheckBox;
-class QLabel;
-class QMenu;
-class QIcon;
-class QToolButton;
-class QComboBox;
-
-class Prefab_Editor_Dialog;
 class Scene_View;
-class InputMap;
-class TileView;
-class ObjectView;
-class OutputView;
-class BrushMenuWidget;
-class CameraSettingsDialog;
 
 namespace Urho3D
 {
 class Context;
 }
 
-int message_box(QWidget * parent,
-                const QString & title,
-                const QString & msg,
-                int buttons,
-                int icon);
+namespace Ui
+{
+  class Toolkit;
+}
 
 class Toolkit : public QMainWindow
 {
     Q_OBJECT
 
   public:
+
     Toolkit(QWidget * parent = 0);
+
     ~Toolkit();
-
-    void closeEvent(QCloseEvent * pEvent);
-
-    OutputView * output_view();
-
-    ObjectView * object_view();
-
-    TileView * tile_view();
-
-    Scene_View * scene_view();
-
-    CameraSettingsDialog * camera_settings();
-
-    Prefab_Editor_Dialog * prefab_editor();
-
 
     void init();
 
-    //    resource_browser * res_browser();
-
-    //    resource_dialog * res_dialog();
-
-    //    resource_dialog_prev * res_dialog_prev();
-
-    //    resource_dialog_prev_lighting * res_dialog_prev_lighting();
-
-    //    void load_plugin_files(const QDir & startingDir);
-
-    void refresh_views();
-
-    void update_brush_tool_button();
-
     static Toolkit & inst();
+
+    Ui::Toolkit * ui;
 
   public slots:
 
-    void update_ui();
-
-    void on_actionSelect_triggered(bool);
-    void on_actionSelectArea_triggered(bool);
-    void on_actionTileBrush_triggered(bool);
-    void on_actionObjectBrush_triggered(bool);
-    void on_actionEraserBrush_triggered(bool);
-    void on_actionNew_triggered();
-    void on_actionLoad_triggered();
-    void on_actionSave_triggered();
-    void on_actionUnlock_toggled(bool);
-    void on_actionSwapTiles_triggered();
-    void on_actionDeleteSelection_triggered();
-    void on_actionNewBrush_triggered();
-    void on_actionLayerMode_toggled(bool);
-    void on_actionStampMode_toggled(bool);
-    void on_actionHideSelection_triggered();
-    void on_actionUnhideSelection_triggered();
-    void on_actionCameraCenter_triggered(bool);
-    void on_actionFrontView_triggered();
-    void on_actionObjectCenter_triggered(bool);
-    void on_actionIsoView_triggered();
-    void on_actionTopDown_triggered();
-    void on_actionRedo_triggered();
-    void on_actionUndo_triggered();
-    void on_actionSwitchMap_triggered();
-    void on_actionCameraSettings_triggered();
-    void on_actionShowAllHidden_toggled(bool);
-    void on_actionMirrorMode_toggled(bool);
-    void on_actionToggleLighting_toggled(bool);
-    void on_actionResource_Browser_triggered();
-
-    void on_mirror_center_change();
-    void on_change_layer(int);
-    void on_brush_height_change(int);
-    void on_brush_double_click();
-    void on_set_current_brush();
-    void on_brush_change(QListWidgetItem *);
-    void on_layer_index_change(const QString &);
-
-    void on_debug_view(bool);
-    void on_view_occupied_spaces(bool);
-
+  protected:
+  
   private:
-    void _disable_side_tb_actions();
 
-    Ui_Toolkit m_ui;
+    void remove_dock_widgets();
 
-    static Toolkit * m_ptr;
+    static Toolkit * toolkit_ptr_;
 
-    Urho3D::Context * scene_view_context_;
+    Urho3D::Context * toolkit_context_;
 
-    Urho3D::Context * prefab_view_context_;
-
-    Prefab_Editor_Dialog * prefab_editor_;
-
-    QSpinBox * m_brush_height;
-
-    QSpinBox * m_current_layer;
-
-    QSpinBox * m_grid_x;
-
-    QSpinBox * m_grid_y;
-
-    QComboBox * m_layer_CB;
-
-    QMenu * m_brush_menu;
-
-    QToolButton * m_brush_tool_btn;
-
-    BrushMenuWidget * m_brush_menu_widget;
-
-    CameraSettingsDialog * m_cam_settings;
-
-    int m_layers_above_hidden;
-
-    int m_spinbox_val;
-
-    QString m_prev_layer_text;
+    Urho3D::Context * game_context_;
 };

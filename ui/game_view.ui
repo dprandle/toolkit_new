@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Game_View</class>
+ <widget class="QMainWindow" name="Game_View">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>680</width>
+    <height>570</height>
+   </rect>
+  </property>
+  <widget class="Scene_View" name="centralWidget"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>680</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuGame_View">
+    <property name="title">
+     <string>Game View</string>
+    </property>
+   </widget>
+   <addaction name="menuGame_View"/>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Scene_View</class>
+   <extends>QWidget</extends>
+   <header location="global">scene_view.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

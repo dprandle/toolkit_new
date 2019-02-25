@@ -1,6 +1,6 @@
 #include <component_widget.h>
 #include <mtdebug_print.h>
-#include <prefab_editor_dialog.h>
+//#include <prefab_editor_dialog.h>
 #include <toolkit.h>
 
 #include <limits>
@@ -56,7 +56,7 @@ void Slot_Callback(Urho3D::Serializable * serz,
     Urho3D::Variant * final_attrib = Get_Attrib_Variant(attrib, nested_attrib_names);
     *final_attrib = val;
     serz->SetAttribute(attrib_name, attrib);
-    bbtk.prefab_editor()->get_ui()->prefab_view->setFocus();
+    //bbtk.prefab_editor()->get_ui()->prefab_view->setFocus();
 }
 
 void Component_Widget::update_tw_from_node()
@@ -281,7 +281,7 @@ void Component_Widget::build_tree_widget()
         cb_widget->setChecked(enabled.GetBool());
         auto func = [=](int state) {
             comp->SetAttribute("Is Enabled", state == Qt::Checked);
-            bbtk.prefab_editor()->get_ui()->prefab_view->setFocus();
+            //bbtk.prefab_editor()->get_ui()->prefab_view->setFocus();
         };
         QObject::connect(cb_widget, &QCheckBox::stateChanged, func);
 
@@ -855,14 +855,7 @@ QWidget * Component_Widget::create_widget_item(Urho3D::Serializable * serz,
 
 Component_Widget::Component_Widget(QWidget * parent)
     : QWidget(nullptr), tw_(nullptr), node_(nullptr)
-{}
-
-Component_Widget::~Component_Widget()
-{}
-
-void Component_Widget::setup_ui(Urho3D::Node * node)
 {
-    node_ = node;
     QVBoxLayout * layout = new QVBoxLayout;
     layout->setMargin(0);
     // layout->setSpacing(0);
@@ -872,8 +865,18 @@ void Component_Widget::setup_ui(Urho3D::Node * node)
     tw_->setSelectionMode(QAbstractItemView::NoSelection);
     tw_->header()->setStretchLastSection(false);
     tw_->header()->setSectionResizeMode(QHeaderView::Stretch);
-
-    build_tree_widget();
     layout->addWidget(tw_);
     setLayout(layout);
+}
+
+Component_Widget::~Component_Widget()
+{}
+
+void Component_Widget::setup_ui(Urho3D::Node * node)
+{
+    if (node_ == node)
+        return;
+    
+    node_ = node;
+    build_tree_widget();
 }
