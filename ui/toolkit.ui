@@ -325,6 +325,7 @@ border: 1px solid rgb(100,100,100);
 
 QDockWidget::title {
     text-align: left; /* align the text to the left */
+	font: 57 12pt &quot;Ubuntu&quot;;
     background: rgb(45,45,45);
     padding-left: 5px;
 }
@@ -370,7 +371,7 @@ QMainWindow::separator {
      <x>0</x>
      <y>0</y>
      <width>1137</width>
-     <height>20</height>
+     <height>14</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -475,7 +476,7 @@ QMainWindow::separator {
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
-    <string>Details</string>
+    <string>Node Information</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>

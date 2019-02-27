@@ -6,9 +6,9 @@ Details_View::Details_View(QWidget * parent) : QMainWindow(parent), ui(new Ui::D
     ui->setupUi(this);
 }
 
-void Details_View::set_node(Urho3D::Node * nd)
+void Details_View::set_nodes(const Urho3D::Vector<Urho3D::Node *> & nodes)
 {
-    ui->comp_widget->setup_ui(nd);
+    ui->comp_widget->setup_ui(nodes);
 }
 
 Details_View::~Details_View()

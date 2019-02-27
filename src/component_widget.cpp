@@ -57,7 +57,6 @@ void Slot_Callback(Urho3D::Serializable * serz,
     Urho3D::Variant * final_attrib = Get_Attrib_Variant(attrib, nested_attrib_names);
     *final_attrib = val;
     serz->SetAttribute(attrib_name, attrib);
-    //bbtk.prefab_editor()->get_ui()->prefab_view->setFocus();
 }
 
 void Component_Widget::update_tw_from_node()
@@ -226,32 +225,19 @@ void Component_Widget::create_tw_item(Urho3D::Serializable * ser,
     tw_->setItemWidget(tw_item, 1, item_widget);
 }
 
-void Component_Widget::build_tree_widget()
+void Component_Widget::add_node_to_treewidget(Urho3D::Node * node)
 {
-    if (node_ == nullptr)
+    if (node == nullptr)
         return;
-
-    tw_->clear();
-    tw_->setColumnCount(2);
-    updaters.clear();
-
-    QTreeWidgetItem * node_dummy_root = new QTreeWidgetItem;
-    node_dummy_root->setText(0, "Node Information");
-
-    QFont fnt = node_dummy_root->font(0);
-    fnt.setBold(true);
-    fnt.setPointSize(fnt.pointSize() + 1);
-    node_dummy_root->setFont(0, fnt);
-    tw_->addTopLevelItem(node_dummy_root);
 
     QTreeWidgetItem * node_info_root = new QTreeWidgetItem;
 
     QWidget * name_widget =
-        create_widget_item(node_, "Name", Urho3D::VariantVector(), node_->GetName());
+        create_widget_item(node, "Name", Urho3D::VariantVector(), node->GetName());
     QWidget * enabled_widget =
-        create_widget_item(node_, "Is Enabled", Urho3D::VariantVector(), node_->IsEnabled());
+        create_widget_item(node, "Is Enabled", Urho3D::VariantVector(), node->IsEnabled());
 
-    auto node_attribs = node_->GetAttributes();
+    auto node_attribs = node->GetAttributes();
     if (node_attribs != nullptr)
     {
         for (int att_ind = 0; att_ind < node_attribs->Size(); ++att_ind)
@@ -259,30 +245,28 @@ void Component_Widget::build_tree_widget()
             Urho3D::String var_name = (*node_attribs)[att_ind].name_;
             if (var_name == "Name" || var_name == "Is Enabled")
                 continue;
-            Urho3D::Variant val = node_->GetAttribute(var_name);
+            Urho3D::Variant val = node->GetAttribute(var_name);
             Urho3D::VariantVector nested_names;
-            create_tw_item(node_, var_name, var_name, nested_names, val, node_info_root);
+            create_tw_item(node, var_name, var_name, nested_names, val, node_info_root);
         }
     }
+
     tw_->addTopLevelItem(node_info_root);
     tw_->setItemWidget(node_info_root, 0, name_widget);
     tw_->setItemWidget(node_info_root, 1, enabled_widget);
     node_info_root->setExpanded(true);
 
     // Add the components to the tree widget
-    const Urho3D::Vector<Urho3D::SharedPtr<Urho3D::Component>> & all_comps = node_->GetComponents();
+    const Urho3D::Vector<Urho3D::SharedPtr<Urho3D::Component>> & all_comps = node->GetComponents();
     for (int i = 0; i < all_comps.Size(); ++i)
     {
         QTreeWidgetItem * tw_item = new QTreeWidgetItem;
         Urho3D::Component * comp = all_comps[i];
         QCheckBox * cb_widget = new QCheckBox;
         tw_item->setText(0, comp->GetTypeName().CString());
-        Urho3D::Variant enabled = comp->GetAttribute("Is Enabled");
-        cb_widget->setText("");
-        cb_widget->setChecked(enabled.GetBool());
+        cb_widget->setChecked(comp->IsEnabled());
         auto func = [=](int state) {
             comp->SetAttribute("Is Enabled", state == Qt::Checked);
-            //bbtk.ui->map_editor->setFocus();
         };
         QObject::connect(cb_widget, &QCheckBox::stateChanged, func);
 
@@ -300,7 +284,8 @@ void Component_Widget::build_tree_widget()
                 Urho3D::VariantVector nested_names;
                 create_tw_item(all_comps[i], var_name, var_name, nested_names, val, tw_item);
             }
-            tw_->addTopLevelItem(tw_item);
+            //tw_->addTopLevelItem(tw_item);
+            node_info_root->addChild(tw_item);
             tw_->setItemWidget(tw_item, 1, cb_widget);
         }
     }
@@ -855,7 +840,7 @@ QWidget * Component_Widget::create_widget_item(Urho3D::Serializable * serz,
 }
 
 Component_Widget::Component_Widget(QWidget * parent)
-    : QWidget(nullptr), tw_(nullptr), node_(nullptr)
+    : QWidget(nullptr), tw_(nullptr)
 {
     QVBoxLayout * layout = new QVBoxLayout;
     layout->setMargin(0);
@@ -873,11 +858,19 @@ Component_Widget::Component_Widget(QWidget * parent)
 Component_Widget::~Component_Widget()
 {}
 
-void Component_Widget::setup_ui(Urho3D::Node * node)
+void Component_Widget::setup_ui(const Urho3D::Vector<Urho3D::Node *> & nodes)
 {
-    if (node_ == node)
+
+    // In the case where there is a single node - add that node
+    if (nodes == selection_ || nodes.Size() > 6)
         return;
     
-    node_ = node;
-    build_tree_widget();
+    selection_ = nodes;
+
+    tw_->clear();
+    tw_->setColumnCount(2);
+    updaters.clear();
+
+    for (int i = 0; i < nodes.Size(); ++i)
+        add_node_to_treewidget(nodes[i]);
 }

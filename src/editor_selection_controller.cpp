@@ -258,8 +258,8 @@ void Editor_Selection_Controller::handle_update(Urho3D::StringHash event_type,
         ++sel_iter_al;
     }
 
-    if (selection_.Size() == 1)
-        bbtk.ui->details->set_node(selection_.Front().first_);
+
+    bbtk.ui->details->set_nodes(selection_.Keys());
 
     auto iter = selection_.Begin();
     while (iter != selection_.End())
@@ -762,7 +762,6 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
                         if (!selection_[cr.node_].Contains(nd) && cr.node_ != nd)
                         {
                             selection_[cr.node_].Push(nd);
-                            bbtk.ui->details->set_node(nd);
                         }
                     }
                 }

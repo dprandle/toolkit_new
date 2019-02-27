@@ -1,6 +1,8 @@
 #pragma once
 #include <QMainWindow>
 
+#include <Urho3D/Container/Vector.h>
+
 namespace Ui {
 class Details_View;
 }
@@ -18,7 +20,7 @@ class Details_View : public QMainWindow
    explicit Details_View(QWidget *parent = 0);
    ~Details_View();
 
-   void set_node(Urho3D::Node * nd);
+   void set_nodes(const Urho3D::Vector<Urho3D::Node *> & nodes);
 
    void update_node();
    

@@ -34,12 +34,12 @@ QTreeView::item
 
 QTreeView::item:has-children
 {
-    border-top: 1px solid rgb(200, 100, 0);
+    border-bottom: 1px solid rgba(200, 100, 0, 100);
 }
 
 QTreeView::branch:has-children
 {
-    border-top: 1px solid rgb(200, 100, 0);
+    border-bottom: 1px solid rgba(200, 100, 0, 100);
 }
 )";
 
@@ -66,13 +66,13 @@ class Component_Widget : public QWidget
     Component_Widget(QWidget * parent = nullptr);
     ~Component_Widget();
 
-    void setup_ui(Urho3D::Node * node);
+    void setup_ui(const Urho3D::Vector<Urho3D::Node *> & nodes);
 
     void update_tw_from_node();
 
   private:
 
-    void build_tree_widget();
+    void add_node_to_treewidget(Urho3D::Node * node);
 
     void create_tw_item(Urho3D::Serializable * ser,
                         const Urho3D::String & attrib_name,
@@ -138,7 +138,7 @@ class Component_Widget : public QWidget
                                  Urho3D::VariantVector nested_attrib_names,
                                  const Urho3D::IntRect & value);
 
-    Urho3D::Node * node_;
     QTreeWidget * tw_;
+    Urho3D::Vector<Urho3D::Node*> selection_;
     QMap<Urho3D::Serializable*, cb_desc> updaters;
 };
