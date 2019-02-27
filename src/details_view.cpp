@@ -15,3 +15,8 @@ Details_View::~Details_View()
 {
     delete ui;
 }
+
+void Details_View::update_node()
+{
+    ui->comp_widget->update_tw_from_node();
+}

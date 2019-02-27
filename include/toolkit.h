@@ -57,6 +57,14 @@ class Toolkit : public QMainWindow
 
   public slots:
 
+  void on_actionSave_View_triggered();
+
+  void on_actionLoad_View_triggered();
+
+  void dock_widget_floating_changed(bool floating);
+
+  void dock_widget_area_changed(Qt::DockWidgetArea area);
+
   protected:
   
   private:

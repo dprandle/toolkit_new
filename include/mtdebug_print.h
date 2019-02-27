@@ -47,18 +47,15 @@ class MTDebug_Print
     template<class T>
     MTDebug_Print & operator<<(const T & rhs)
     {
-        mtx_.Acquire();
         if (autspc_)
             ss_ << " ";
         ss_ << rhs;
         if (autonln_)
             ss_ << "\n";
-        mtx_.Release();
         return *this;
     }
 
   private:
-    static Urho3D::Mutex mtx_;
     String str_;
     std::stringstream ss_;
     bool autspc_;

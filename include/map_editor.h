@@ -19,7 +19,7 @@ class Map_Editor : public QMainWindow
    ~Map_Editor();
 
    void init(Urho3D::Context * ctxt);
-   
+
   private:
    Ui::Map_Editor * ui;
 };

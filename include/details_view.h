@@ -19,6 +19,8 @@ class Details_View : public QMainWindow
    ~Details_View();
 
    void set_node(Urho3D::Node * nd);
+
+   void update_node();
    
   private:
    Ui::Details_View * ui;

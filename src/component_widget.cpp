@@ -1,7 +1,8 @@
 #include <component_widget.h>
 #include <mtdebug_print.h>
-//#include <prefab_editor_dialog.h>
+
 #include <toolkit.h>
+#include <ui_toolkit.h>
 
 #include <limits>
 
@@ -281,7 +282,7 @@ void Component_Widget::build_tree_widget()
         cb_widget->setChecked(enabled.GetBool());
         auto func = [=](int state) {
             comp->SetAttribute("Is Enabled", state == Qt::Checked);
-            //bbtk.prefab_editor()->get_ui()->prefab_view->setFocus();
+            //bbtk.ui->map_editor->setFocus();
         };
         QObject::connect(cb_widget, &QCheckBox::stateChanged, func);
 

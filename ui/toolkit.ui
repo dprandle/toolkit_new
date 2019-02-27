@@ -331,8 +331,8 @@ QDockWidget::title {
 
 QMainWindow::separator {
     background: rgb(40,40,40);
-    width: 2x; /* when vertical */
-    height: 2px; /* when horizontal */
+    width: 4x; /* when vertical */
+    height: 4px; /* when horizontal */
 }</string>
   </property>
   <property name="iconSize">
@@ -380,6 +380,8 @@ QMainWindow::separator {
     <property name="title">
      <string>View</string>
     </property>
+    <addaction name="actionSave_View"/>
+    <addaction name="actionLoad_View"/>
    </widget>
    <widget class="QMenu" name="menu_file">
     <property name="title">
@@ -390,7 +392,7 @@ QMainWindow::separator {
    <addaction name="menu_view"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <widget class="QDockWidget" name="dockWidget_game_view">
+  <widget class="Custom_Dock_Widget" name="dockWidget_game_view">
    <property name="floating">
     <bool>false</bool>
    </property>
@@ -444,7 +446,7 @@ QMainWindow::separator {
    </attribute>
    <addaction name="separator"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_graph">
+  <widget class="Custom_Dock_Widget" name="dockWidget_graph">
    <property name="allowedAreas">
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
@@ -456,7 +458,7 @@ QMainWindow::separator {
    </attribute>
    <widget class="Graph_View" name="graph"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_map_editor">
+  <widget class="Custom_Dock_Widget" name="dockWidget_map_editor">
    <property name="allowedAreas">
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
@@ -468,7 +470,7 @@ QMainWindow::separator {
    </attribute>
    <widget class="Map_Editor" name="map_editor"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_details">
+  <widget class="Custom_Dock_Widget" name="dockWidget_details">
    <property name="allowedAreas">
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
@@ -480,7 +482,7 @@ QMainWindow::separator {
    </attribute>
    <widget class="Details_View" name="details"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_assets">
+  <widget class="Custom_Dock_Widget" name="dockWidget_assets">
    <property name="allowedAreas">
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
@@ -492,7 +494,7 @@ QMainWindow::separator {
    </attribute>
    <widget class="Asset_View" name="assets"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_console">
+  <widget class="Custom_Dock_Widget" name="dockWidget_console">
    <property name="floating">
     <bool>false</bool>
    </property>
@@ -510,7 +512,7 @@ QMainWindow::separator {
    </attribute>
    <widget class="Console" name="console"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_prefab_view">
+  <widget class="Custom_Dock_Widget" name="dockWidget_prefab_view">
    <property name="allowedAreas">
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
@@ -522,6 +524,16 @@ QMainWindow::separator {
    </attribute>
    <widget class="Prefab_View" name="prefab_view"/>
   </widget>
+  <action name="actionSave_View">
+   <property name="text">
+    <string>Save View</string>
+   </property>
+  </action>
+  <action name="actionLoad_View">
+   <property name="text">
+    <string>Load View</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -564,6 +576,12 @@ QMainWindow::separator {
    <class>Prefab_View</class>
    <extends>QWidget</extends>
    <header location="global">prefab_view.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Custom_Dock_Widget</class>
+   <extends>QDockWidget</extends>
+   <header location="global">custom_dock_widget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

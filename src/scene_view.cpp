@@ -32,7 +32,7 @@ void Scene_View::release_editor()
 
 void Scene_View::run()
 {
-    me_->update(hasFocus());
+    me_->update(true);//hasFocus());
 }
 
 void Scene_View::resizeEvent(QResizeEvent * e)

@@ -341,7 +341,9 @@ void Urho_Map_Editor::setup_global_keys(Input_Context * ctxt)
 }
 
 void Urho_Map_Editor::handle_scene_update(Urho3D::StringHash /*event_type*/, Urho3D::VariantMap & event_data)
-{}
+{
+    bbtk.ui->details->update_node();
+}
 
 void Urho_Map_Editor::handle_input_event(Urho3D::StringHash event_type, Urho3D::VariantMap & event_data)
 {

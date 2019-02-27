@@ -1,3 +1,4 @@
+#include <QSettings>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
@@ -13,6 +14,7 @@
 
 #include <Urho3D/Engine/Application.h>
 
+#include <mtdebug_print.h>
 #include <ui_toolkit.h>
 #include <toolkit.h>
 
@@ -24,6 +26,11 @@ Toolkit::Toolkit(QWidget * parent)
       toolkit_context_(new Urho3D::Context()),
       game_context_(new Urho3D::Context())
 {
+    QCoreApplication::setOrganizationName("Earth Banana Games");
+    QCoreApplication::setOrganizationDomain("earthbanana.com");
+    QCoreApplication::setApplicationName("Build and Battle");
+    QCoreApplication::setApplicationVersion("1.0.0");
+
     toolkit_ptr_ = this;
 
     ui->setupUi(this);
@@ -31,6 +38,23 @@ Toolkit::Toolkit(QWidget * parent)
 
     setCentralWidget(nullptr);
     showMaximized();
+
+    connect(ui->dockWidget_map_editor, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
+    connect(ui->dockWidget_assets, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
+    connect(ui->dockWidget_game_view, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
+    connect(ui->dockWidget_prefab_view, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
+    connect(ui->dockWidget_console, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
+    connect(ui->dockWidget_details, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
+    connect(ui->dockWidget_graph, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
+
+    connect(ui->dockWidget_map_editor, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
+    connect(ui->dockWidget_assets, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
+    connect(ui->dockWidget_game_view, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
+    connect(ui->dockWidget_prefab_view, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
+    connect(ui->dockWidget_console, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
+    connect(ui->dockWidget_details, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
+    connect(ui->dockWidget_graph, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
+
 }
 
 Toolkit::~Toolkit()
@@ -42,40 +66,7 @@ Toolkit::~Toolkit()
 void Toolkit::init()
 {
     ui->map_editor->init(toolkit_context_);
-
-    remove_dock_widgets();
-    
-    ui->dockWidget_details->show();
-    ui->dockWidget_graph->show();
-    ui->dockWidget_prefab_view->show();
-    ui->dockWidget_map_editor->show();
-    ui->dockWidget_game_view->show();
-    ui->dockWidget_assets->show();
-    ui->dockWidget_console->show();
-
-
-    addDockWidget(Qt::LeftDockWidgetArea, ui->dockWidget_prefab_view);
-    addDockWidget(Qt::LeftDockWidgetArea, ui->dockWidget_graph);
-
-    splitDockWidget(ui->dockWidget_graph, ui->dockWidget_prefab_view, Qt::Vertical);
-
-
-    addDockWidget(Qt::LeftDockWidgetArea, ui->dockWidget_assets);
-    tabifyDockWidget(ui->dockWidget_prefab_view, ui->dockWidget_assets);
-
-    addDockWidget(Qt::LeftDockWidgetArea, ui->dockWidget_console);
-    tabifyDockWidget(ui->dockWidget_assets, ui->dockWidget_console);
-
-
-    addDockWidget(Qt::LeftDockWidgetArea, ui->dockWidget_map_editor);
-    splitDockWidget(ui->dockWidget_graph, ui->dockWidget_map_editor, Qt::Horizontal);
-
-    addDockWidget(Qt::LeftDockWidgetArea, ui->dockWidget_game_view);
-    tabifyDockWidget(ui->dockWidget_map_editor, ui->dockWidget_game_view);
-
-    addDockWidget(Qt::RightDockWidgetArea, ui->dockWidget_details);
-
-    resizeDocks({ui->dockWidget_console, ui->dockWidget_details}, {1700,200}, Qt::Horizontal);
+    QTimer::singleShot(10,this,&Toolkit::on_actionLoad_View_triggered);
 }
 
 void Toolkit::remove_dock_widgets()
@@ -88,6 +79,24 @@ void Toolkit::remove_dock_widgets()
     removeDockWidget(ui->dockWidget_details);
     removeDockWidget(ui->dockWidget_graph);
 }
+
+void Toolkit::on_actionSave_View_triggered()
+{
+    QSettings settings;
+    settings.setValue("Toolkit_UI", saveState(1.0));
+}
+
+void Toolkit::on_actionLoad_View_triggered()
+{
+    QSettings settings;
+    restoreState(settings.value("Toolkit_UI").toByteArray(), 1.0);
+}
+
+void Toolkit::dock_widget_floating_changed(bool floating)
+{}
+
+void Toolkit::dock_widget_area_changed(Qt::DockWidgetArea area)
+{}
 
 Toolkit & Toolkit::inst()
 {
