@@ -275,7 +275,7 @@ void Editor_Selection_Controller::handle_update(Urho3D::StringHash event_type,
         uint32_t node_id = (*iter)->GetID();
         (*iter)->Translate(frame_translation_, TS_WORLD);
 
-        if (occ != nullptr)
+        if (occ != nullptr && occ->IsEnabled())
         {
             auto occ_tiles =
                 tg->occupied(occ->tile_spaces(), (*iter)->GetPosition(), allowed_items);

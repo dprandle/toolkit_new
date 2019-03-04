@@ -22,16 +22,29 @@ void Tile_Occupier::build_from_model(Urho3D::Model * model)
 void Tile_Occupier::add(const ivec3 & grid)
 {
     if (!spaces_.Contains(grid))
+    {
+        // We need to add this item now to the tile grid
+        Scene * scn = GetScene();
+        Hex_Tile_Grid * tg = scn->GetComponent<Hex_Tile_Grid>();
+        if (tg != nullptr)
+            tg->add(Hex_Tile_Grid::Tile_Item(node_->GetID()),grid, node_->GetWorldPosition());
+
         spaces_.Push(grid);
+    }
 }
 
 void Tile_Occupier::remove(const ivec3 & grid)
 {
+    // If this is already in the tile grid, remove it now
+    Scene * scn = GetScene();
+    Hex_Tile_Grid * tg = scn->GetComponent<Hex_Tile_Grid>();
+    if (tg != nullptr)
+        tg->remove(grid, node_->GetWorldPosition(), Hex_Tile_Grid::Tile_Item(node_->GetID()));
+    
     spaces_.Remove(grid);
     if (spaces_.Empty())
         spaces_.Push(ivec3());
 }
-
 const Urho3D::Vector<ivec3> & Tile_Occupier::tile_spaces()
 {
     return spaces_;
@@ -78,21 +91,44 @@ void Tile_Occupier::OnNodeSet(Urho3D::Node * node)
     Component::OnNodeSet(node);
 }
 
+void Tile_Occupier::OnSetEnabled()
+{
+    bool enabled = IsEnabled();
+    dout << "Enable state changed to" << enabled;
+    uint32_t node_id = node_->GetID();
+
+    Scene * scn = GetScene();
+    Hex_Tile_Grid * tg = scn->GetComponent<Hex_Tile_Grid>();
+    if (tg == nullptr)
+        return;
+
+    tg->remove(spaces_, node_->GetWorldPosition(), Hex_Tile_Grid::Tile_Item(node_id));
+ 
+    if (enabled)   
+        tg->add(Hex_Tile_Grid::Tile_Item(node_id), spaces_, node_->GetWorldPosition());
+}
+
 void Tile_Occupier::OnMarkedDirty(Urho3D::Node * node)
 {
+    if (!enabled_)
+        return;
+    
     Scene * scn = GetScene();
     Hex_Tile_Grid * tg = scn->GetComponent<Hex_Tile_Grid>();
     if (tg == nullptr)
         return;
     uint32_t node_id = node->GetID();
     tg->remove(spaces_, old_position_, Hex_Tile_Grid::Tile_Item(node_id));
-    fvec3 new_position = node->GetPosition();
+    fvec3 new_position = node->GetWorldPosition();
     tg->add(Hex_Tile_Grid::Tile_Item(node_id), spaces_, new_position);
-    old_position_ = node->GetPosition();
+    old_position_ = node->GetWorldPosition();
 }
 
 void Tile_Occupier::DrawDebugGeometry(bool depth)
 {
+    if (!IsEnabled())
+        return;
+
     Scene * scn = GetScene();
     if (scn == nullptr)
         return;

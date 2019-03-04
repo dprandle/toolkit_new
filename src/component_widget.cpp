@@ -1,3 +1,4 @@
+#include <QComboBox>
 #include <component_widget.h>
 #include <mtdebug_print.h>
 
@@ -83,7 +84,8 @@ void Component_Widget::create_tw_item(const Urho3D::Vector<Urho3D::Serializable 
                                       const Urho3D::String & nested_name,
                                       Urho3D::VariantVector & nested_attrib_names,
                                       const Urho3D::Vector<Urho3D::Variant> & values,
-                                      QTreeWidgetItem * parent)
+                                      QTreeWidgetItem * parent,
+                                      const Urho3D::AttributeInfo & att_inf)
 {
     Urho3D::VariantType vtype = values[0].GetType();
 
@@ -105,7 +107,7 @@ void Component_Widget::create_tw_item(const Urho3D::Vector<Urho3D::Serializable 
         //     ss << attrib_name.CString() << "[" << i << "]";
         //     create_tw_item(ser, attrib_name, ss.str().c_str(), nested_attrib_names, vv[i], tw_item);
         // }
-        // break;
+        break;
     }
     case (Urho3D::VAR_VARIANTMAP):
     {
@@ -124,16 +126,16 @@ void Component_Widget::create_tw_item(const Urho3D::Vector<Urho3D::Serializable 
         //                    tw_item);
         //     ++vm_iter;
         // }
-        // break;
+        break;
     }
     case (Urho3D::VAR_INT):
-        item_widget = create_int_widget_item(serz, attrib_name, nested_attrib_names, values);
+        item_widget = create_int_widget_item(Create_Widget_Params(serz, attrib_name, nested_attrib_names, values, att_inf));
         break;
     case (Urho3D::VAR_PTR):
         eout << "Cannot generate widget for pointer!";
         break;
     case (Urho3D::VAR_BOOL):
-        item_widget = create_bool_widget_item(serz, attrib_name, nested_attrib_names, values);
+        item_widget = create_bool_widget_item(Create_Widget_Params(serz, attrib_name, nested_attrib_names, values, att_inf));
         break;
     case (Urho3D::VAR_NONE):
         eout << "No variable type found for dialog";
@@ -141,7 +143,7 @@ void Component_Widget::create_tw_item(const Urho3D::Vector<Urho3D::Serializable 
     case (Urho3D::VAR_RECT):
         break;
     case (Urho3D::VAR_STRING):
-        item_widget = create_string_widget_item(serz, attrib_name, nested_attrib_names, values);
+        item_widget = create_string_widget_item(Create_Widget_Params(serz, attrib_name, nested_attrib_names, values, att_inf));
         break;
     case (Urho3D::VAR_COLOR):
         break;
@@ -149,7 +151,7 @@ void Component_Widget::create_tw_item(const Urho3D::Vector<Urho3D::Serializable 
         //item_widget = create_widget_item(ser, attrib_name, nested_attrib_names, value.GetFloat());
         break;
     case (Urho3D::VAR_INT64):
-        item_widget = create_int_widget_item(serz, attrib_name, nested_attrib_names, values);
+        item_widget = create_int_widget_item(Create_Widget_Params(serz, attrib_name, nested_attrib_names, values, att_inf));
         break;
     case (Urho3D::VAR_INTRECT):
         //item_widget = create_widget_item(ser, attrib_name, nested_attrib_names, value.GetIntRect());
@@ -190,7 +192,7 @@ void Component_Widget::create_tw_item(const Urho3D::Vector<Urho3D::Serializable 
         //     ss << attrib_name.CString() << "[" << i << "]";
         //     create_tw_item(ser, attrib_name, ss.str().c_str(), nested_attrib_names, vv[i], tw_item);
         // }
-        // break;
+        break;
     }
     case (Urho3D::VAR_QUATERNION):
         break;
@@ -250,9 +252,9 @@ void Component_Widget::add_node_to_treewidget(const Urho3D::Vector<Urho3D::Node 
     }
 
     QWidget * name_widget =
-        create_string_widget_item(serz, "Name", Urho3D::VariantVector(), names);
+        create_string_widget_item(Create_Widget_Params(serz, "Name", Urho3D::VariantVector(), names,Urho3D::AttributeInfo()));
     QWidget * enabled_widget =
-        create_bool_widget_item(serz, "Is Enabled", Urho3D::VariantVector(), enables);
+        create_bool_widget_item(Create_Widget_Params(serz, "Is Enabled", Urho3D::VariantVector(), enables,Urho3D::AttributeInfo()));
 
     auto node_attribs = nodes[0]->GetAttributes();
     if (node_attribs != nullptr)
@@ -277,7 +279,7 @@ void Component_Widget::add_node_to_treewidget(const Urho3D::Vector<Urho3D::Node 
                 values.Push(val);
             }
             if (create_item)
-                create_tw_item(serz, var_name, var_name, nested_names, values, node_info_root);
+                create_tw_item(serz, var_name, var_name, nested_names, values, node_info_root, (*node_attribs)[att_ind]);
         }
     }
 
@@ -308,7 +310,7 @@ void Component_Widget::add_node_to_treewidget(const Urho3D::Vector<Urho3D::Node 
         }
 
         QTreeWidgetItem * tw_item = new QTreeWidgetItem;
-        QWidget * comp_widget = create_bool_widget_item(comp_serz, "Is Enabled", Urho3D::VariantVector(), enables);
+        QWidget * comp_widget = create_bool_widget_item(Create_Widget_Params(comp_serz, "Is Enabled", Urho3D::VariantVector(), enables, Urho3D::AttributeInfo()));
         
         Urho3D::Component * comp = all_comps[i];
         tw_item->setText(0, comp->GetTypeName().CString());
@@ -318,8 +320,9 @@ void Component_Widget::add_node_to_treewidget(const Urho3D::Vector<Urho3D::Node 
         {
             for (int j = 0; j < attribs->Size(); ++j)
             {
-                Urho3D::String var_name = (*attribs)[j].name_;
-                if (((*attribs)[j].mode_ & Urho3D::AM_NOEDIT) == Urho3D::AM_NOEDIT ||
+                const Urho3D::AttributeInfo & cur_att_inf = (*attribs)[j];
+                Urho3D::String var_name = cur_att_inf.name_;
+                if ((cur_att_inf.mode_ & Urho3D::AM_NOEDIT) == Urho3D::AM_NOEDIT ||
                     var_name == "Is Enabled")
                     continue;
                 
@@ -337,10 +340,9 @@ void Component_Widget::add_node_to_treewidget(const Urho3D::Vector<Urho3D::Node 
                     vals.Push(val);
                 }
                 if (add_widget)
-                    create_tw_item(comp_serz, var_name, var_name, nested_names, vals, tw_item);
+                    create_tw_item(comp_serz, var_name, var_name, nested_names, vals, tw_item, cur_att_inf);
             }
-            //tw_->addTopLevelItem(tw_item);
-            node_info_root->addChild(tw_item);
+            tw_->addTopLevelItem(tw_item);
             tw_->setItemWidget(tw_item, 1, comp_widget);
         }
     }
@@ -363,55 +365,86 @@ void Component_Widget::do_set_widget(cb_desc * fd, const Urho3D::Vector<Urho3D::
         fd->set_widget_value(Urho3D::Variant());
 }
 
-QWidget * Component_Widget::create_string_widget_item(const Urho3D::Vector<Urho3D::Serializable *> & serz,
-                                     Urho3D::String attrib_name,
-                                     Urho3D::VariantVector nested_attrib_names,
-                                     const Urho3D::Vector<Urho3D::Variant> & values)
+QWidget * Component_Widget::create_string_widget_item(Create_Widget_Params params)
 {
     QLineEdit * item = new QLineEdit;
 
-    cb_desc fd(attrib_name, nested_attrib_names, serz);
+    cb_desc fd(params.attrib_name_, params.nested_attrib_names_, params.serz_);
     fd.set_widget_value = [=](const Urho3D::Variant & var) {
         item->blockSignals(true);
         if (var.IsEmpty())
-            item->setText("-");
+        {
+            item->setText("");
+            item->setPlaceholderText("Different values");
+        }
         else
             item->setText(var.GetString().CString());
         item->blockSignals(false);
     };
     updaters[item] = fd;
-    do_set_widget(&fd, values);
+    do_set_widget(&fd, params.values_);
  
-    auto func = [=]() { Slot_Callback(serz, nested_attrib_names, attrib_name, item->text().toStdString().c_str()); };
-    QObject::connect(item, &QLineEdit::editingFinished, func);
+    auto func = [=](const QString & txt) { Slot_Callback(params.serz_, params.nested_attrib_names_, params.attrib_name_, txt.toStdString().c_str()); };
+    QObject::connect(item, &QLineEdit::textEdited, func);
     return item;
 }
 
-QWidget * Component_Widget::create_int_widget_item(const Urho3D::Vector<Urho3D::Serializable *> & serz,
-                                            Urho3D::String attrib_name,
-                                            Urho3D::VariantVector nested_names,
-                                            const Urho3D::Vector<Urho3D::Variant> & values)
+QWidget * Component_Widget::create_int_widget_item(Create_Widget_Params params)
 {
-    QSpinBox * item = new QSpinBox;
-    item->setMaximum(std::numeric_limits<int>::max());
-    item->setMinimum(std::numeric_limits<int>::min());
+    if (params.att_inf_.enumNames_ != nullptr)
+    {
+        QComboBox * item = new QComboBox;
+        const char ** begin = params.att_inf_.enumNames_;
+        while (*begin != nullptr)
+        {
+            QString str(*begin);
+            item->addItem(str);
+            ++begin;
+        }
 
-    cb_desc fd(attrib_name, nested_names, serz);
-    fd.set_widget_value = [=](const Urho3D::Variant & var) {
-        item->blockSignals(true);
-        if (var.IsEmpty())
-            item->setSpecialValueText("-");
-        else
-            item->setValue(var.GetInt());
-        item->blockSignals(false);
-    };
-    updaters[item] = fd;
-    do_set_widget(&fd, values);
-    
-    auto func = [=](int new_val) { Slot_Callback(serz, nested_names, attrib_name, new_val); };
+        cb_desc fd(params.attrib_name_, params.nested_attrib_names_, params.serz_);
+        fd.set_widget_value = [=](const Urho3D::Variant & var) {
+            item->blockSignals(true);
+            if (var.IsEmpty())
+            {
+                item->setCurrentIndex(-1);
+            }
+            else
+                item->setCurrentIndex(var.GetInt());
+            item->blockSignals(false);
+        };
+        updaters[item] = fd;
+        do_set_widget(&fd, params.values_);
+        
+        auto func = [=](int new_val) { Slot_Callback(params.serz_, params.nested_attrib_names_, params.attrib_name_, new_val); };
 
-    QObject::connect(item, qOverload<int>(&QSpinBox::valueChanged), func);
-    return item;
+        QObject::connect(item, qOverload<int>(&QComboBox::currentIndexChanged), func);
+
+        return item;
+    }
+    else
+    {
+        QSpinBox * item = new QSpinBox;
+        item->setMaximum(std::numeric_limits<int>::max());
+        item->setMinimum(std::numeric_limits<int>::min());
+
+        cb_desc fd(params.attrib_name_, params.nested_attrib_names_, params.serz_);
+        fd.set_widget_value = [=](const Urho3D::Variant & var) {
+            item->blockSignals(true);
+            if (var.IsEmpty())
+                item->setSpecialValueText("-- --");
+            else
+                item->setValue(var.GetInt());
+            item->blockSignals(false);
+        };
+        updaters[item] = fd;
+        do_set_widget(&fd, params.values_);
+        
+        auto func = [=](int new_val) { Slot_Callback(params.serz_, params.nested_attrib_names_, params.attrib_name_, new_val); };
+
+        QObject::connect(item, qOverload<int>(&QSpinBox::valueChanged), func);
+        return item;
+    }
 }
 
 // QWidget * Component_Widget::create_widget_item(Urho3D::Serializable * serz,
@@ -456,15 +489,12 @@ QWidget * Component_Widget::create_int_widget_item(const Urho3D::Vector<Urho3D::
 //     return item;
 // }
 
-QWidget * Component_Widget::create_bool_widget_item(const Urho3D::Vector<Urho3D::Serializable *> & serz,
-                                               Urho3D::String attrib_name,
-                                               Urho3D::VariantVector nested_attrib_names,
-                                               const Urho3D::Vector<Urho3D::Variant> & values)
+QWidget * Component_Widget::create_bool_widget_item(Create_Widget_Params params)
 {
     QCheckBox * item = new QCheckBox;
     item->setTristate(true);
 
-    cb_desc fd(attrib_name, nested_attrib_names, serz);
+    cb_desc fd(params.attrib_name_, params.nested_attrib_names_, params.serz_);
     fd.set_widget_value = [=](const Urho3D::Variant & var) {
         item->blockSignals(true);
         if (var.IsEmpty())
@@ -474,10 +504,10 @@ QWidget * Component_Widget::create_bool_widget_item(const Urho3D::Vector<Urho3D:
         item->blockSignals(false);
     };
     updaters[item] = fd;
-    do_set_widget(&fd, values);
+    do_set_widget(&fd, params.values_);
 
     auto func = [=](int state) {
-        Slot_Callback(serz, nested_attrib_names, attrib_name, state != Qt::Unchecked);
+        Slot_Callback(params.serz_, params.nested_attrib_names_, params.attrib_name_, state != Qt::Unchecked);
     };
 
     QObject::connect(item, &QCheckBox::stateChanged, func);
@@ -949,14 +979,37 @@ Component_Widget::Component_Widget(QWidget * parent)
 Component_Widget::~Component_Widget()
 {}
 
+void Component_Widget::recursive_tree_widget_check(QTreeWidgetItem * item, bool restoring)
+{
+    if (restoring)
+    {
+        auto fiter = prev_expanded_items.find(item->text(0));
+        item->setExpanded(fiter != prev_expanded_items.end());
+    }
+    else
+    {
+        if (item->isExpanded())
+            prev_expanded_items.insert(item->text(0));
+    }
+
+    for (int i = 0; i < item->childCount(); ++i)
+        recursive_tree_widget_check(item->child(i), restoring);
+}
+
 void Component_Widget::setup_ui(const Urho3D::Vector<Urho3D::Node *> & nodes)
 {
-
-    // In the case where there is a single node - add that node
-    if (nodes == selection_ || nodes.Size() > 6)
+    if (selection_ == nodes || nodes.Empty())
         return;
     
     selection_ = nodes;
+    prev_expanded_items.clear();
+
+    // Cache the expanded items
+    for (int i = 0; i < tw_->topLevelItemCount(); ++i)
+    {
+        QTreeWidgetItem * cur_item = tw_->topLevelItem(i);
+        recursive_tree_widget_check(cur_item, false);
+    }
 
     tw_->clear();
     tw_->setColumnCount(2);
@@ -967,4 +1020,11 @@ void Component_Widget::setup_ui(const Urho3D::Vector<Urho3D::Node *> & nodes)
     // If the attribute values are the same for that component or node, then show the value
     // otherwise show a dash like unity. If edits are made, it should change all "serializable's" to that value
     add_node_to_treewidget(nodes);
+
+    // Restore expanded items
+    for (int i = 0; i < tw_->topLevelItemCount(); ++i)
+    {
+        QTreeWidgetItem * cur_item = tw_->topLevelItem(i);
+        recursive_tree_widget_check(cur_item, true);
+    }
 }

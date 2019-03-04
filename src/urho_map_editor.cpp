@@ -255,20 +255,6 @@ void Urho_Map_Editor::create_visuals()
         {
             for (int z = 0; z < 2; ++z)
             {
-                // if ((z == 1) && (x < 5 || x > 15 || y < 5 || y > 15))
-                //     continue;
-
-                // if (!lastGroup || lastGroup->GetNumInstanceNodes() >= 25 * 25)
-                // {
-                //     Node * tile_group_node = scene->CreateChild("Grass_Tile_Group");
-                //     EditorSelector * sel = tile_group_node->CreateComponent<EditorSelector>();
-                //     lastGroup = tile_group_node->CreateComponent<StaticModelGroup>();
-                //     lastGroup->SetModel(mod);
-                //     lastGroup->SetMaterial(grass_tile);
-                //     sel->set_selection_material("Materials/Tiles/GrassSelected.xml");
-                //     sel->set_render_component_to_control(lastGroup->GetID());
-                // }
-
                 Urho3D::Node * tile_node = scene_->CreateChild("Grass_Tile_" + String(cnt));
 
                 Urho3D::StaticModel * modc = tile_node->CreateComponent<Urho3D::StaticModel>();

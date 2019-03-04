@@ -3,25 +3,21 @@
 #include <QWidget>
 #include <Urho3D/Core/Variant.h>
 #include <QMap>
+#include <QSet>
 
 namespace Urho3D
 {
 class String;
 class Node;
 class Serializable;
+class AttributeInfo;
 } // namespace Urho3D
 
 const QString TW_STYLE =
     R"(
-QWidget
+QTreeView, QCheckBox
 {
     background-color: rgb(30,30,30);
-    margin: 0px;
-    padding: 0px;
-}
-
-QTreeView
-{
     padding: 0px;
     margin: 0px;
 }
@@ -60,6 +56,28 @@ struct cb_desc
     Urho3D::Vector<Urho3D::Serializable*> serz;
 };
 
+struct Create_Widget_Params
+{
+    Create_Widget_Params( const Urho3D::Vector<Urho3D::Serializable *> & serz,
+                        const Urho3D::String & attrib_name,
+                        const Urho3D::VariantVector & nested_attrib_names,
+                        const Urho3D::Vector<Urho3D::Variant> & values,
+                        const Urho3D::AttributeInfo & att_inf
+    ):
+    serz_(serz),
+    attrib_name_(attrib_name),
+    nested_attrib_names_(nested_attrib_names),
+    values_(values),
+    att_inf_(att_inf)
+    {}
+
+    Urho3D::Vector<Urho3D::Serializable *> serz_;
+    Urho3D::String attrib_name_;
+    Urho3D::VariantVector nested_attrib_names_;
+    const Urho3D::Vector<Urho3D::Variant> & values_;
+    const Urho3D::AttributeInfo & att_inf_;
+};
+
 class Component_Widget : public QWidget
 {
     Q_OBJECT
@@ -78,22 +96,19 @@ class Component_Widget : public QWidget
 
     void add_node_to_treewidget(const Urho3D::Vector<Urho3D::Node *> nodes);
 
+    void recursive_tree_widget_check(QTreeWidgetItem * item, bool restoring);
+
     void create_tw_item(const Urho3D::Vector<Urho3D::Serializable *> & ser,
                         const Urho3D::String & attrib_name,
                         const Urho3D::String & nested_name,
                         Urho3D::VariantVector & nested_attib_names,
                         const Urho3D::Vector<Urho3D::Variant> & values,
-                        QTreeWidgetItem * parent);
+                        QTreeWidgetItem * parent,
+                        const Urho3D::AttributeInfo & att_inf);
 
-    QWidget * create_string_widget_item(const Urho3D::Vector<Urho3D::Serializable *> & serz,
-                                 Urho3D::String attrib_name,
-                                 Urho3D::VariantVector nested_attrib_names,
-                                 const Urho3D::Vector<Urho3D::Variant> & values);
+    QWidget * create_string_widget_item(Create_Widget_Params params);
 
-    QWidget * create_int_widget_item(const Urho3D::Vector<Urho3D::Serializable *> & serz,
-                                 Urho3D::String attrib_name,
-                                 Urho3D::VariantVector nested_attrib_names,
-                                 const Urho3D::Vector<Urho3D::Variant> & values);
+    QWidget * create_int_widget_item(Create_Widget_Params params);
 
     // QWidget * create_widget_item(const Urho3D::Vector<Urho3D::Serializable *> & serz,
     //                              Urho3D::String attrib_name,
@@ -105,10 +120,7 @@ class Component_Widget : public QWidget
     //                              Urho3D::VariantVector nested_attrib_names,
     //                              const Urho3D::Vector<float> & values);
 
-    QWidget * create_bool_widget_item(const Urho3D::Vector<Urho3D::Serializable *> & serz,
-                                 Urho3D::String attrib_name,
-                                 Urho3D::VariantVector nested_attrib_names,
-                                 const Urho3D::Vector<Urho3D::Variant> & values);
+    QWidget * create_bool_widget_item(Create_Widget_Params params);
 
     // QWidget * create_widget_item(const Urho3D::Vector<Urho3D::Serializable *> & serz,
     //                              Urho3D::String attrib_name,
@@ -145,4 +157,5 @@ class Component_Widget : public QWidget
     QTreeWidget * tw_;
     Urho3D::Vector<Urho3D::Node*> selection_;
     QMap<QWidget*, cb_desc> updaters;
+    QSet<QString> prev_expanded_items;
 };

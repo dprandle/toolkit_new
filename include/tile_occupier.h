@@ -32,6 +32,9 @@ class Tile_Occupier : public Urho3D::Component
 
     void DrawDebugGeometry(bool depth);
 
+    void OnSetEnabled() override;
+
+
   protected:
     void OnNodeSet(Urho3D::Node * node) override;
 
