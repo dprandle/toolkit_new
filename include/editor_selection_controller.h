@@ -43,7 +43,7 @@ class Editor_Selection_Controller : public Urho3D::Component
 
     void clear_selection();
 
-    bool is_selected(Urho3D::Node * obj_node, Urho3D::Node * sub_obj_node = nullptr);
+    bool is_selected(Urho3D::Node * obj_node);
 
     void snap_selection();
 
@@ -78,9 +78,9 @@ class Editor_Selection_Controller : public Urho3D::Component
   private:
     void _add_to_selection_from_rect();
 
-    HashMap<Urho3D::Node *, Vector<Urho3D::Node *>> selection_;
+    HashSet<Urho3D::Node *> selection_;
 
-    HashMap<Urho3D::Node *, Vector<Urho3D::Node *>> sel_rect_selection_;
+    HashSet<Urho3D::Node *> sel_rect_selection_;
 
     Vector<StringHash> hashes_;
 

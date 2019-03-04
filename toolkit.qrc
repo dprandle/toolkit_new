@@ -93,6 +93,7 @@
     <file>icons/default_comp.png</file>
   </qresource>
   <qresource prefix="/style_items">
+    <file>icons/style_items/checkbox_indeterminate.png</file>
     <file>icons/style_items/checkmark-symbol.png</file>
     <file>icons/style_items/tree_branch_open.png</file>
     <file>icons/style_items/tree_branch_more.png</file>

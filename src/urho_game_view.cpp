@@ -208,8 +208,8 @@ void Urho_Game_View::create_visuals()
                 modc->SetMaterial(grass_tile);
 
                 Editor_Selector * sel = tile_node->CreateComponent<Editor_Selector>();
-                sel->set_selection_material("Materials/Tiles/GrassSelected.xml");
-                sel->set_selected(tile_node, false);
+                sel->SetMaterial(grass_tile_selected);
+                sel->set_selected(false);
 
                 CollisionShape * cs = tile_node->CreateComponent<CollisionShape>();
                 const BoundingBox & bb = modc->GetBoundingBox();

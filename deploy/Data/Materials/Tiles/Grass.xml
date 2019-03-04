@@ -6,7 +6,6 @@
 	<parameter name="MatDiffColor" value="1 1 1 1" />
 	<parameter name="MatSpecColor" value="0.0918367 0.0918367 0.0918367 50" />
 	<parameter name="MatEmissiveColor" value="0 0 0 1" />
-    <parameter name="OutlineColor" value="0 0 1 1" />
 	<cull value="none" />
 	<shadowcull value="none" />
 </material>

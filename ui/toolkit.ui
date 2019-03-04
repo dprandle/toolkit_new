@@ -106,6 +106,10 @@ QCheckBox::indicator:checked {
     image: url(:/style_items/icons/style_items/checkmark-symbol.png);
 }
 
+QCheckBox::indicator:indeterminate {
+    image: url(:/style_items/icons/style_items/checkbox_indeterminate.png);
+}
+
 QPushButton {
 background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(97, 97, 97, 255), stop:0.642045 rgba(30, 30, 30, 255), stop:1 rgba(48, 48, 48, 255));
 border-radius: 3px;
@@ -364,6 +368,28 @@ QMainWindow::separator {
    <property name="focusPolicy">
     <enum>Qt::StrongFocus</enum>
    </property>
+   <widget class="QCheckBox" name="checkBox">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>300</y>
+      <width>85</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>CheckBox</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+    <property name="autoRepeat">
+     <bool>false</bool>
+    </property>
+    <property name="tristate">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -371,7 +397,7 @@ QMainWindow::separator {
      <x>0</x>
      <y>0</y>
      <width>1137</width>
-     <height>14</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="styleSheet">

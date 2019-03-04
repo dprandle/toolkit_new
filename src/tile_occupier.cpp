@@ -42,6 +42,7 @@ void Tile_Occupier::register_context(Urho3D::Context * context)
     context->RegisterFactory<Tile_Occupier>();
     URHO3D_ACCESSOR_ATTRIBUTE(
         "Spaces", get_spaces, set_spaces, VariantVector, Variant::emptyVariantVector, AM_FILE);
+    URHO3D_ACCESSOR_ATTRIBUTE("Is Enabled", IsEnabled, SetEnabled, bool, true, AM_DEFAULT);
     URHO3D_ATTRIBUTE("Scooby", String, scoobers, String(), AM_DEFAULT);
     URHO3D_ATTRIBUTE("Coolio", int, coolio, 0, AM_DEFAULT);
 }

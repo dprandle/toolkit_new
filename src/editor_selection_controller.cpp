@@ -195,7 +195,7 @@ void Editor_Selection_Controller::translate_selection(const fvec3 & translation)
     auto sel_iter = selection_.Begin();
     while (sel_iter != selection_.End())
     {
-        sel_iter->first_->Translate(translation, TS_WORLD);
+        (*sel_iter)->Translate(translation, TS_WORLD);
         ++sel_iter;
     }
 }
@@ -205,7 +205,7 @@ void Editor_Selection_Controller::toggle_occ_debug_selection()
     auto sel_iter = selection_.Begin();
     while (sel_iter != selection_.End())
     {
-        Tile_Occupier * toc = sel_iter->first_->GetComponent<Tile_Occupier>();
+        Tile_Occupier * toc = (*sel_iter)->GetComponent<Tile_Occupier>();
         if (toc != nullptr)
             toc->enable_debug(!toc->debug_enabled());
         ++sel_iter;
@@ -217,15 +217,11 @@ void Editor_Selection_Controller::remove_from_selection(Urho3D::Node * node)
     auto iter = selection_.Begin();
     while (iter != selection_.End())
     {
-        Editor_Selector * es = iter->first_->GetComponent<Editor_Selector>();
-        if (node == iter->first_)
+        if (*iter == node)
         {
             selection_.Erase(iter);
             return;
         }
-        bool fnd = iter->second_.Remove(node);
-        if (fnd)
-            return;
         ++iter;
     }
 }
@@ -246,64 +242,44 @@ void Editor_Selection_Controller::handle_update(Urho3D::StringHash event_type,
     ResourceCache * cache = GetSubsystem<ResourceCache>();
     static HashMap<Material *, bool> mat_map;
     Urho3D::Vector<Hex_Tile_Grid::Tile_Item> allowed_items;
+    Urho3D::Vector<Urho3D::Node*> sel_vec;
 
     allowed_items.Resize(selection_.Size());
     int i = 0;
     auto sel_iter_al = selection_.Begin();
     while (sel_iter_al != selection_.End())
     {
-        int node_id = sel_iter_al->first_->GetID();
+        int node_id = (*sel_iter_al)->GetID();
         allowed_items[i].node_id_ = node_id;
+        sel_vec.Push(*sel_iter_al);
         ++i;
         ++sel_iter_al;
     }
 
 
-    bbtk.ui->details->set_nodes(selection_.Keys());
+    bbtk.ui->details->set_nodes(sel_vec);
 
     auto iter = selection_.Begin();
     while (iter != selection_.End())
     {
-        Editor_Selector * es = iter->first_->GetComponent<Editor_Selector>();
-        String str = es->selection_material();
-        Material * mat = cache->GetResource<Material>(str);
+        Editor_Selector * es = (*iter)->GetComponent<Editor_Selector>();
+        Material * mat = es->GetMaterial();
 
         auto fiter = mat_map.Find(mat);
         if (fiter == mat_map.End())
             mat_map[mat] = true;
 
-        if (iter->second_.Empty())
+        Hex_Tile_Grid * tg = scene_->GetComponent<Hex_Tile_Grid>();
+        Tile_Occupier * occ = (*iter)->GetComponent<Tile_Occupier>();
+
+        uint32_t node_id = (*iter)->GetID();
+        (*iter)->Translate(frame_translation_, TS_WORLD);
+
+        if (occ != nullptr)
         {
-            Hex_Tile_Grid * tg = scene_->GetComponent<Hex_Tile_Grid>();
-            Tile_Occupier * occ = iter->first_->GetComponent<Tile_Occupier>();
-
-            uint32_t node_id = iter->first_->GetID();
-            iter->first_->Translate(frame_translation_, TS_WORLD);
-
-            if (occ != nullptr)
-            {
-                auto occ_tiles =
-                    tg->occupied(occ->tile_spaces(), iter->first_->GetPosition(), allowed_items);
-                mat_map[mat] = mat_map[mat] && occ_tiles.Empty();
-            }
-        }
-        else
-        {
-            for (int i = 0; i < iter->second_.Size(); ++i)
-            {
-                Hex_Tile_Grid * tg = scene_->GetComponent<Hex_Tile_Grid>();
-                Tile_Occupier * occ = iter->first_->GetComponent<Tile_Occupier>();
-
-                uint32_t node_id = iter->first_->GetID();
-                iter->second_[i]->Translate(frame_translation_, TS_WORLD);
-
-                if (occ != nullptr)
-                {
-                    auto occ_tiles = tg->occupied(
-                        occ->tile_spaces(), iter->first_->GetPosition(), allowed_items);
-                    mat_map[mat] = mat_map[mat] && occ_tiles.Empty();
-                }
-            }
+            auto occ_tiles =
+                tg->occupied(occ->tile_spaces(), (*iter)->GetPosition(), allowed_items);
+            mat_map[mat] = mat_map[mat] && occ_tiles.Empty();
         }
         ++iter;
     }
@@ -335,22 +311,7 @@ void Editor_Selection_Controller::handle_update(Urho3D::StringHash event_type,
     auto sel_comp_iter = scene_sel_comps_.Begin();
     while (sel_comp_iter != scene_sel_comps_.End())
     {
-        Node * nd = (*sel_comp_iter)->GetNode();
-        StaticModel * md = nd->GetComponent<StaticModel>();
-        if (md->IsInstanceOf<StaticModelGroup>())
-        {
-            StaticModelGroup * smg = static_cast<StaticModelGroup *>(md);
-            for (int i = 0; i < smg->GetNumInstanceNodes(); ++i)
-            {
-                Node * inst_node = smg->GetInstanceNode(i);
-
-                (*sel_comp_iter)->set_selected(inst_node, is_selected(nd, inst_node));
-            }
-        }
-        else
-        {
-            (*sel_comp_iter)->set_selected(nd, is_selected(nd));
-        }
+        (*sel_comp_iter)->set_selected(is_selected((*sel_comp_iter)->GetNode()));
         ++sel_comp_iter;
     }
 }
@@ -360,17 +321,17 @@ void Editor_Selection_Controller::snap_selection()
     auto sel_iter = selection_.Begin();
     while (sel_iter != selection_.End())
     {
-        fvec3 pos = sel_iter->first_->GetPosition();
+        fvec3 pos = (*sel_iter)->GetPosition();
         Hex_Tile_Grid::snap_to_grid(pos);
-        sel_iter->first_->SetPosition(pos);
+        (*sel_iter)->SetPosition(pos);
         ++sel_iter;
     }
     sel_iter = sel_rect_selection_.Begin();
     while (sel_iter != sel_rect_selection_.End())
     {
-        fvec3 pos = sel_iter->first_->GetPosition();
+        fvec3 pos = (*sel_iter)->GetPosition();
         Hex_Tile_Grid::snap_to_grid(pos);
-        sel_iter->first_->SetPosition(pos);
+        (*sel_iter)->SetPosition(pos);
         ++sel_iter;
     }
 }
@@ -439,31 +400,21 @@ void Editor_Selection_Controller::setup_input_context(Input_Context * ctxt)
     ctxt->create_trigger(it);
 }
 
-bool Editor_Selection_Controller::is_selected(Urho3D::Node * obj_node, Urho3D::Node * sub_obj_node)
+bool Editor_Selection_Controller::is_selected(Urho3D::Node * obj_node)
 {
     auto fiter = selection_.Find(obj_node);
     if (fiter != selection_.End())
-    {
-        if (sub_obj_node == nullptr)
-            return true;
-
-        return fiter->second_.Contains(sub_obj_node);
-    }
+        return true;
 
     auto sq_iter = sel_rect_selection_.Find(obj_node);
     if (sq_iter != sel_rect_selection_.End())
-    {
-        if (sub_obj_node == nullptr)
-            return true;
-
-        return sq_iter->second_.Contains(sub_obj_node);
-    }
+        return true;
+    
     return false;
 }
 
 void Editor_Selection_Controller::_add_to_selection_from_rect()
 {
-    iout << "HERE";
     Frustum f;
     Renderer * rnd = GetSubsystem<Renderer>();
     irect screct = rnd->GetViewport(0)->GetRect();
@@ -514,61 +465,39 @@ void Editor_Selection_Controller::_add_to_selection_from_rect()
         if (es == nullptr)
             continue;
 
-        // If the object hit is a static model group then we need to go through each instance
-        // one by one and check the bounding box against the frustum
-        if (sm->IsInstanceOf<StaticModelGroup>())
+        const BoundingBox & bb = sm->GetWorldBoundingBox();
+
+        PhysicsWorld * phys = scene_->GetComponent<PhysicsWorld>();
+
+        bool left_drag = (norm_sel_pos.x_ < selection_rect_.z_);
+
+        bool res = false;
+        auto fiter = cached_raycasts_.Find(nd);
+        if (left_drag || f.IsInside(bb) == Intersection::INSIDE)
         {
-            StaticModelGroup * smg = static_cast<StaticModelGroup *>(sm);
-            const BoundingBox & bb = smg->GetModel()->GetBoundingBox();
-            for (int inst_id = 0; inst_id < smg->GetNumInstanceNodes(); ++inst_id)
+            if (fiter == cached_raycasts_.End())
             {
-                Node * inst_nd = smg->GetInstanceNode(inst_id);
-                BoundingBox transf_bb = bb.Transformed(inst_nd->GetTransform());
-                if (f.IsInside(transf_bb) == Intersection::INSIDE)
-                {
-                    //es->set_selected(inst_nd, true);
-                    if (!selection_[nd].Contains(inst_nd) && nd != inst_nd)
-                        selection_[nd].Push(inst_nd);
-                }
+                // Do a raycast to the center and each point of the objects bounding box
+                PhysicsRaycastResult ray_result;
+                fvec3 cam_pos = cam_comp_->GetNode()->GetWorldPosition();
+                fvec3 direction = nd->GetWorldPosition() - cam_pos;
+                direction.Normalize();
+                Ray cast_ray(cam_pos, direction);
+                // Get the closest object for selection
+                phys->RaycastSingle(ray_result, cast_ray, 100.0f);
+                if (ray_result.body_ != nullptr)
+                    res = (ray_result.body_->GetNode() == nd);
+                cached_raycasts_[nd] = res;
+            }
+            else
+            {
+                res = fiter->second_;
             }
         }
-        else
+
+        if (res)
         {
-            const BoundingBox & bb = sm->GetWorldBoundingBox();
-
-            PhysicsWorld * phys = scene_->GetComponent<PhysicsWorld>();
-
-            bool left_drag = (norm_sel_pos.x_ < selection_rect_.z_);
-
-            bool res = false;
-            auto fiter = cached_raycasts_.Find(nd);
-            if (left_drag || f.IsInside(bb) == Intersection::INSIDE)
-            {
-                if (fiter == cached_raycasts_.End())
-                {
-                    // Do a raycast to the center and each point of the objects bounding box
-                    PhysicsRaycastResult ray_result;
-                    fvec3 cam_pos = cam_comp_->GetNode()->GetWorldPosition();
-                    fvec3 direction = nd->GetWorldPosition() - cam_pos;
-                    direction.Normalize();
-                    Ray cast_ray(cam_pos, direction);
-                    // Get the closest object for selection
-                    phys->RaycastSingle(ray_result, cast_ray, 100.0f);
-                    if (ray_result.body_ != nullptr)
-                        res = (ray_result.body_->GetNode() == nd);
-                    cached_raycasts_[nd] = res;
-                }
-                else
-                {
-                    res = fiter->second_;
-                }
-            }
-
-            if (res)
-            {
-                //es->set_selected(nd, true);
-                sel_rect_selection_[nd].Clear();
-            }
+            sel_rect_selection_.Insert(nd);
         }
     }
 }
@@ -692,12 +621,7 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
                 auto sel_iter = sel_rect_selection_.Begin();
                 while (sel_iter != sel_rect_selection_.End())
                 {
-                    auto & node_vec = selection_[sel_iter->first_];
-                    for (int i = 0; i < sel_iter->second_.Size(); ++i)
-                    {
-                        if (!node_vec.Contains(sel_iter->second_[i]))
-                            node_vec.Push(sel_iter->second_[i]);
-                    }
+                    selection_.Insert(*sel_iter);
                     ++sel_iter;
                 }
                 cached_raycasts_.Clear();
@@ -754,15 +678,10 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
             {
                 if (name == hashes_[0])
                 {
-                    if (!es->is_selected(nd))
+                    if (!es->is_selected())
                     {
                         clear_selection();
-                        //es->set_selected(nd, true);
-                        iout << "SETTING NODE";
-                        if (!selection_[cr.node_].Contains(nd) && cr.node_ != nd)
-                        {
-                            selection_[cr.node_].Push(nd);
-                        }
+                        selection_.Insert(cr.node_);
                     }
                 }
                 else if (name == hashes_[1])
@@ -778,12 +697,7 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
                             auto sel_iter = sel_rect_selection_.Begin();
                             while (sel_iter != sel_rect_selection_.End())
                             {
-                                auto & node_vec = selection_[sel_iter->first_];
-                                for (int i = 0; i < sel_iter->second_.Size(); ++i)
-                                {
-                                    if (!node_vec.Contains(sel_iter->second_[i]))
-                                        node_vec.Push(sel_iter->second_[i]);
-                                }
+                                selection_.Insert(*sel_iter);
                                 ++sel_iter;
                             }
 
@@ -800,15 +714,13 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
                 }
                 else if (name == hashes_[2])
                 {
-                    if (es->is_selected(nd))
+                    if (es->is_selected())
                     {
                         remove_from_selection(nd);
                     }
                     else
                     {
-                        //es->set_selected(nd, true);
-                        if (!selection_[cr.node_].Contains(nd) && cr.node_ != nd)
-                            selection_[cr.node_].Push(nd);
+                        selection_.Insert(cr.node_);
                     }
                 }
             }
@@ -847,12 +759,7 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
                     auto sel_iter = sel_rect_selection_.Begin();
                     while (sel_iter != sel_rect_selection_.End())
                     {
-                        auto & node_vec = selection_[sel_iter->first_];
-                        for (int i = 0; i < sel_iter->second_.Size(); ++i)
-                        {
-                            if (!node_vec.Contains(sel_iter->second_[i]))
-                                node_vec.Push(sel_iter->second_[i]);
-                        }
+                        selection_.Insert(*sel_iter);
                         ++sel_iter;
                     }
 
