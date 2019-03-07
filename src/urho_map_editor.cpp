@@ -299,16 +299,11 @@ void Urho_Map_Editor::setup_global_keys(Input_Context * ctxt)
 
     Input_Action_Trigger it;
 
-    it.condition_.key_ = Urho3D::KEY_ESCAPE;
     it.condition_.mouse_button_ = 0;
-    it.name_ = "CloseWindow";
-    it.trigger_state_ = T_END;
     it.mb_required_ = 0;
     it.mb_allowed_ = Urho3D::MOUSEB_ANY;
     it.qual_required_ = 0;
     it.qual_allowed_ = Urho3D::QUAL_ANY;
-    ctxt->create_trigger(it);
-
     it.condition_.key_ = Urho3D::KEY_F1;
     it.name_ = "ToggleConsole";
     it.trigger_state_ = T_BEGIN;
@@ -340,15 +335,7 @@ void Urho_Map_Editor::handle_input_event(Urho3D::StringHash event_type, Urho3D::
     Urho3D::Vector2 norm_mdelta = event_data[Urho3D::InputTrigger::P_NORM_MDELTA].GetVector2();
     int wheel = event_data[Urho3D::InputTrigger::P_MOUSE_WHEEL].GetInt();
 
-    if (name == StringHash("CloseWindow"))
-    {
-        Urho3D::Console * console = GetSubsystem<Urho3D::Console>();
-        if (console->IsVisible())
-            console->SetVisible(false);
-        else
-            engine_->Exit();
-    }
-    else if (name == StringHash("ToggleDebugHUD"))
+    if (name == StringHash("ToggleDebugHUD"))
     {
         GetSubsystem<Urho3D::DebugHud>()->ToggleAll();
     }

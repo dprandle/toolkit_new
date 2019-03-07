@@ -148,15 +148,6 @@ QTreeView::branch:open:has-children:has-siblings  {
 		image: url(:/style_items/icons/style_items/tree_branch_open.png);
 }
 
-/* QSpinBox and QDoubleSpinBox Section*/
-QSpinBox,QDoubleSpinBox
-{
-background-color: rgb(30,30,30);
-color: white;
-border: 1px solid rgb(100,100,100);
-min-width: 50px;
-}
-
 QLabel:disabled
 {
 color: rgb(200,200,200);
@@ -169,89 +160,6 @@ color: rgb(200,200,200);
 border: 1px solid rgb(100,100,100);
 min-width: 50px;
 }
-
-QSpinBox::up-button,QDoubleSpinBox::up-button
-{
-background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(97, 97, 97, 255), stop:0.642045 rgba(30, 30, 30, 255), stop:1 rgba(48, 48, 48, 255));
-}
-
-QSpinBox::down-button,QDoubleSpinBox::down-button
-{
-background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(97, 97, 97, 255), stop:0.642045 rgba(30, 30, 30, 255), stop:1 rgba(48, 48, 48, 255));
-}
-
-QSpinBox::up-button:hover,QDoubleSpinBox::up-button:hover
-{
-background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(236, 100, 0, 255), stop:0.625 rgba(255, 118, 18, 255), stop:1 rgba(196, 66, 0, 255));
-}
-
-QSpinBox::down-button:hover,QDoubleSpinBox::down-button:hover
-{
-background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(236, 100, 0, 255), stop:0.625 rgba(255, 118, 18, 255), stop:1 rgba(196, 66, 0, 255));
-}
-
-QSpinBox::up-button:pressed,QDoubleSpinBox::up-button:pressed
-{
-background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(124, 52, 0, 255), stop:0.625 rgba(36, 16, 2, 255), stop:1 rgba(97, 32, 0, 255));
-}
-
-QSpinBox::down-button:pressed,QDoubleSpinBox::down-button:pressed
-{
-background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(124, 52, 0, 255), stop:0.625 rgba(36, 16, 2, 255), stop:1 rgba(97, 32, 0, 255));
-}
-
-QSpinBox::up-button:disabled,QDoubleSpinBox::up-button:disabled
-{
-background-color: rgb(150,150,150);
-}
-
-QSpinBox::down-button:disabled,QDoubleSpinBox::down-button:disabled
-{
-background-color: rgb(150,150,150);
-}
-
-QSpinBox::up-arrow,QDoubleSpinBox::up-arrow
-{
-image: url(:/VecTB/icons/toolbars/Up_Arrow.png);
-width: 6px;
-height: 6px; 
-}
-
-QSpinBox::down-arrow,QDoubleSpinBox::down-arrow
-{
-image: url(:/VecTB/icons/toolbars/Down_Arrow.png);
-width: 6px;
-height: 6px; 
-}
-
-QSpinBox::up-arrow:hover,QDoubleSpinBox::up-arrow:hover
-{
-image: url(:/VecTB/icons/toolbars/Up_Arrow.png);
-width: 6px;
-height: 6px; 
-}
-
-QSpinBox::down-arrow:hover,QDoubleSpinBox::down-arrow:hover
-{
-image: url(:/VecTB/icons/toolbars/Down_Arrow.png);
-width: 6px;
-height: 6px; 
-}
-
-QSpinBox::up-arrow:disabled,QDoubleSpinBox::up-arrow:disabled
-{
-image: url(:/VecTB/icons/toolbars/Up_Arrow.png);
-width: 6px;
-height: 6px; 
-}
-
-QSpinBox::down-arrow:disabled,QDoubleSpinBox::down-arrow:disabled
-{
-image: url(:/VecTB/icons/toolbars/Down_Arrow.png);
-width: 6px;
-height: 6px; 
-}
-/* End of code for QSpinBox and QDoubleSpinBox*/
 
 
 QMenuBar::item {
@@ -368,28 +276,6 @@ QMainWindow::separator {
    <property name="focusPolicy">
     <enum>Qt::StrongFocus</enum>
    </property>
-   <widget class="QCheckBox" name="checkBox">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>300</y>
-      <width>85</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>CheckBox</string>
-    </property>
-    <property name="checked">
-     <bool>false</bool>
-    </property>
-    <property name="autoRepeat">
-     <bool>false</bool>
-    </property>
-    <property name="tristate">
-     <bool>true</bool>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
