@@ -19,14 +19,6 @@ color: white;
 background-color: rgb(55,55,55);
 }
 
-QComboBox
-{
-background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(97, 97, 97, 255), stop:0.642045 rgba(30, 30, 30, 255), stop:1 rgba(48, 48, 48, 255));
-border: 1px solid rgb(30,30,30);
-border-radius: 5px;
-min-width: 6em;
-padding: 1px 18px 1px 3px;
-}
 
 QStatusBar
 {
@@ -37,46 +29,6 @@ QListView
 {
 background-color: rgb(30,30,30);
 }
-
-QComboBox:hover
-{
-background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(82, 82, 82, 255), stop:0.642045 rgba(14, 14, 14, 255), stop:1 rgba(61, 61, 61, 255));
-border: 1px solid rgb(30,30,30);
-border-radius: 5px;
-min-width: 80px;
-}
-
- QComboBox:!editable:on, QComboBox::drop-down:editable:on 
-{
-	background-color: qlineargradient(spread:reflect, x1:0, y1:0.051, x2:0, y2:1, stop:0 rgba(18, 18, 18, 255), stop:0.642045 rgba(84, 84, 84, 255), stop:0.994318 rgba(14, 14, 14, 255));
-border: 1px solid rgb(30,30,30);
- }
-
-QComboBox:down-arrow
-{
-background-color: transparent;
-image: url(:/VecTB/icons/toolbars/Down_Arrow.png);
-width: 7px;
-height: 7px;
-}
-
-QComboBox:disabled
-{
-background-color: rgb(100,100,100);
-color: rgb(200,200,200);
-border: 1px solid rgb(100,100,100);
-}
-
- QComboBox::drop-down 
-{
-     border-left: none; 
- }
-
- QComboBox QAbstractItemView 
-{
-selection-background-color:  rgb(90, 90, 90);
-border: 1px solid rgb(100,100,100);
- }
 
 QGroupBox {
 border: 1px solid rgb(100,100,100);

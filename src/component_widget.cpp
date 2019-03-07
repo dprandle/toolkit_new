@@ -389,6 +389,9 @@ QWidget * Component_Widget::create_string_widget_item(Create_Widget_Params param
 
     cb_desc fd(params.attrib_name_, params.nested_attrib_names_, params.serz_);
     fd.set_widget_value = [=](const Urho3D::Variant & var) {
+        if (item->hasFocus())
+            return;
+        
         item->blockSignals(true);
         if (var.IsEmpty())
         {
@@ -402,8 +405,8 @@ QWidget * Component_Widget::create_string_widget_item(Create_Widget_Params param
     updaters[item] = fd;
     do_set_widget(&fd, params.values_);
  
-    auto func = [=](const QString & txt) { Slot_Callback(params.serz_, params.nested_attrib_names_, params.attrib_name_, txt.toStdString().c_str()); };
-    QObject::connect(item, &QLineEdit::textEdited, func);
+    auto func = [=]() { Slot_Callback(params.serz_, params.nested_attrib_names_, params.attrib_name_, item->text().toStdString().c_str()); };
+    QObject::connect(item, &QLineEdit::editingFinished, func);
     return item;
 }
 
