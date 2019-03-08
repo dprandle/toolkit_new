@@ -97,35 +97,71 @@ void Component_Widget::create_tw_item(const Urho3D::Vector<Urho3D::Serializable 
     {
     case (Urho3D::VAR_VARIANTVECTOR):
     {
-        // const Urho3D::VariantVector & vv = value.GetVariantVector();
-        // tw_item->setText(
-        //     0, tw_item->text(0) + QString(" (") + QString::number(vv.Size()) + QString(" Items)"));
-        // for (int i = 0; i < vv.Size(); ++i)
-        // {
-        //     nested_attrib_names.Push(i);
-        //     std::stringstream ss;
-        //     ss << attrib_name.CString() << "[" << i << "]";
-        //     create_tw_item(ser, attrib_name, ss.str().c_str(), nested_attrib_names, vv[i], tw_item);
-        // }
+        const Urho3D::VariantVector & fvv = values[0].GetVariantVector();
+        int size = fvv.Size();
+        for (int i = 1; i < values.Size(); ++i)
+        {
+            const Urho3D::VariantVector & vv = values[i].GetVariantVector();
+            if (vv.Size() < size)
+                size = vv.Size();
+        }
+
+        tw_item->setText(
+            0, tw_item->text(0) + QString(" (") + QString::number(size) + QString(" Items)"));
+        for (int i = 0; i < size; ++i)
+        {
+            Urho3D::VariantVector vals;
+            for (int j = 0; j < values.Size(); ++j)
+            {
+                const Urho3D::VariantVector & vv = values[j].GetVariantVector();
+                vals.Push(vv[i]);
+            }
+            nested_attrib_names.Push(i);
+            std::stringstream ss;
+            ss << attrib_name.CString() << "[" << i << "]";
+            create_tw_item(serz, attrib_name, ss.str().c_str(), nested_attrib_names, vals, tw_item, Urho3D::AttributeInfo());
+        }
         break;
     }
     case (Urho3D::VAR_VARIANTMAP):
     {
-        // const Urho3D::VariantMap & vm = value.GetVariantMap();
-        // tw_item->setText(
-        //     0, tw_item->text(0) + QString(" (") + QString::number(vm.Size()) + QString(" Items)"));
-        // auto vm_iter = vm.Begin();
-        // while (vm_iter != vm.End())
-        // {
-        //     nested_attrib_names.Push(vm_iter->first_);
-        //     create_tw_item(ser,
-        //                    attrib_name,
-        //                    vm_iter->first_.Reverse(),
-        //                    nested_attrib_names,
-        //                    vm_iter->second_,
-        //                    tw_item);
-        //     ++vm_iter;
-        // }
+        Urho3D::VariantMap fvm = values[0].GetVariantMap();
+        for (int i = 1; i < values.Size(); ++i)
+        {
+            const Urho3D::VariantMap & vm = values[i].GetVariantMap();
+            auto fvm_iter = fvm.Begin();
+            while (fvm_iter != fvm.End())
+            {
+                auto find_iter = vm.Find(fvm_iter->first_);
+                if (find_iter == fvm.End())
+                    fvm_iter = fvm.Erase(fvm_iter);
+                else
+                    ++fvm_iter;
+            }
+
+        }
+        tw_item->setText(
+            0, tw_item->text(0) + QString(" (") + QString::number(fvm.Size()) + QString(" Items)"));
+        auto vm_iter = fvm.Begin();
+        while (vm_iter != fvm.End())
+        {
+            Urho3D::VariantVector vals;
+            for (int i = 0; i < values.Size(); ++i)
+            {
+                const Urho3D::VariantMap & vm = values[i].GetVariantMap();
+                auto fiter = vm.Find(vm_iter->first_);
+                vals.Push(fiter->second_);
+            }
+            nested_attrib_names.Push(vm_iter->first_);
+            create_tw_item(serz,
+                           attrib_name,
+                           vm_iter->first_.Reverse(),
+                           nested_attrib_names,
+                           vals,
+                           tw_item,
+                           Urho3D::AttributeInfo());
+            ++vm_iter;
+        }
         break;
     }
     case (Urho3D::VAR_INT):
@@ -262,7 +298,7 @@ void Component_Widget::add_node_to_treewidget(const Urho3D::Vector<Urho3D::Node 
         for (int att_ind = 0; att_ind < node_attribs->Size(); ++att_ind)
         {
             Urho3D::String var_name = (*node_attribs)[att_ind].name_;
-            if (var_name == "Name" || var_name == "Is Enabled")
+            if (var_name == "Name" || var_name == "Is Enabled" || var_name == "Network Position" || var_name == "Network Rotation")
                 continue;
             Urho3D::VariantVector nested_names;
             Urho3D::Vector<Urho3D::Variant> values;
@@ -286,7 +322,6 @@ void Component_Widget::add_node_to_treewidget(const Urho3D::Vector<Urho3D::Node 
     tw_->addTopLevelItem(node_info_root);
     tw_->setItemWidget(node_info_root, 0, name_widget);
     tw_->setItemWidget(node_info_root, 1, enabled_widget);
-    node_info_root->setExpanded(true);
 
     // Add the components to the tree widget
     const Urho3D::Vector<Urho3D::SharedPtr<Urho3D::Component>> & all_comps = nodes[0]->GetComponents();
@@ -346,13 +381,45 @@ void Component_Widget::add_node_to_treewidget(const Urho3D::Vector<Urho3D::Node 
             tw_->setItemWidget(tw_item, 1, comp_widget);
         }
     }
+    node_info_root->setExpanded(true);
 }
 
 void Component_Widget::do_set_widget(cb_desc * fd, const Urho3D::Vector<Urho3D::Variant> & values)
 {
     bool pass_value = true;
     Urho3D::Variant val(values[0]);
-    if (val.GetType() == Urho3D::VAR_VECTOR3)
+
+    if (val.GetType() == Urho3D::VAR_VECTOR2)
+    {
+        Urho3D::Vector2 val_vec = val.GetVector2();
+        float max_f = std::numeric_limits<float>::max();
+        for (int i = 1; i < values.Size(); ++i)
+        {
+            Urho3D::Vector2 cur_vec = values[i].GetVector2();
+            Urho3D::Vector2 prev_vec = values[i - 1].GetVector2();
+            if (cur_vec.x_ != max_f && cur_vec.x_ != prev_vec.x_)
+                val_vec.x_ = max_f;
+            if (cur_vec.y_ != max_f && cur_vec.y_ != prev_vec.y_)
+                val_vec.y_ = max_f;
+        }
+        val = val_vec;
+    }
+    else if (val.GetType() == Urho3D::VAR_INTVECTOR2)
+    {
+        Urho3D::IntVector2 val_vec = val.GetIntVector2();
+        int max_f = std::numeric_limits<int>::max();
+        for (int i = 1; i < values.Size(); ++i)
+        {
+            Urho3D::IntVector2 cur_vec = values[i].GetIntVector2();
+            Urho3D::IntVector2 prev_vec = values[i - 1].GetIntVector2();
+            if (cur_vec.x_ != max_f && cur_vec.x_ != prev_vec.x_)
+                val_vec.x_ = max_f;
+            if (cur_vec.y_ != max_f && cur_vec.y_ != prev_vec.y_)
+                val_vec.y_ = max_f;
+        }
+        val = val_vec;
+    }
+    else if (val.GetType() == Urho3D::VAR_VECTOR3)
     {
         Urho3D::Vector3 val_vec = val.GetVector3();
         float max_f = std::numeric_limits<float>::max();
@@ -366,6 +433,61 @@ void Component_Widget::do_set_widget(cb_desc * fd, const Urho3D::Vector<Urho3D::
                 val_vec.y_ = max_f;
             if (cur_vec.z_ != max_f && cur_vec.z_ != prev_vec.z_)
                 val_vec.z_ = max_f;
+        }
+        val = val_vec;
+    }
+    else if (val.GetType() == Urho3D::VAR_INTVECTOR3)
+    {
+        Urho3D::IntVector3 val_vec = val.GetIntVector3();
+        int max_f = std::numeric_limits<int>::max();
+        for (int i = 1; i < values.Size(); ++i)
+        {
+            Urho3D::IntVector3 cur_vec = values[i].GetIntVector3();
+            Urho3D::IntVector3 prev_vec = values[i - 1].GetIntVector3();
+            if (cur_vec.x_ != max_f && cur_vec.x_ != prev_vec.x_)
+                val_vec.x_ = max_f;
+            if (cur_vec.y_ != max_f && cur_vec.y_ != prev_vec.y_)
+                val_vec.y_ = max_f;
+            if (cur_vec.z_ != max_f && cur_vec.z_ != prev_vec.z_)
+                val_vec.z_ = max_f;
+        }
+        val = val_vec;
+    }
+    else if (val.GetType() == Urho3D::VAR_VECTOR4)
+    {
+        Urho3D::Vector4 val_vec = val.GetVector4();
+        float max_f = std::numeric_limits<float>::max();
+        for (int i = 1; i < values.Size(); ++i)
+        {
+            Urho3D::Vector4 cur_vec = values[i].GetVector4();
+            Urho3D::Vector4 prev_vec = values[i - 1].GetVector4();
+            if (cur_vec.x_ != max_f && cur_vec.x_ != prev_vec.x_)
+                val_vec.x_ = max_f;
+            if (cur_vec.y_ != max_f && cur_vec.y_ != prev_vec.y_)
+                val_vec.y_ = max_f;
+            if (cur_vec.z_ != max_f && cur_vec.z_ != prev_vec.z_)
+                val_vec.z_ = max_f;
+            if (cur_vec.w_ != max_f && cur_vec.w_ != prev_vec.w_)
+                val_vec.w_ = max_f;
+        }
+        val = val_vec;
+    }
+    else if (val.GetType() == Urho3D::VAR_INTRECT)
+    {
+        Urho3D::IntRect val_vec = val.GetIntRect();
+        int max_f = std::numeric_limits<int>::max();
+        for (int i = 1; i < values.Size(); ++i)
+        {
+            Urho3D::IntRect cur_vec = values[i].GetIntRect();
+            Urho3D::IntRect prev_vec = values[i - 1].GetIntRect();
+            if (cur_vec.left_ != max_f && cur_vec.left_ != prev_vec.left_)
+                val_vec.left_ = max_f;
+            if (cur_vec.bottom_ != max_f && cur_vec.bottom_ != prev_vec.bottom_)
+                val_vec.bottom_ = max_f;
+            if (cur_vec.right_ != max_f && cur_vec.right_ != prev_vec.right_)
+                val_vec.right_ = max_f;
+            if (cur_vec.top_ != max_f && cur_vec.top_ != prev_vec.top_)
+                val_vec.top_ = max_f;
         }
         val = val_vec;
     }
@@ -459,12 +581,13 @@ QWidget * Component_Widget::create_int_widget_item(Create_Widget_Params params)
         QSpinBox * item = new QSpinBox;
         item->setMaximum(std::numeric_limits<int>::max());
         item->setMinimum(std::numeric_limits<int>::min());
+        item->setSpecialValueText("-- --");
 
         cb_desc fd(params.attrib_name_, params.nested_attrib_names_, params.serz_);
         fd.set_widget_value = [=](const Urho3D::Variant & var) {
             item->blockSignals(true);
             if (var.IsEmpty())
-                item->setSpecialValueText("-- --");
+                item->setValue(item->minimum());
             else
                 item->setValue(var.GetInt());
             item->blockSignals(false);
@@ -575,8 +698,12 @@ QWidget * Component_Widget::create_vec2_widget_item(Create_Widget_Params params)
     QDoubleSpinBox * sb_y = new QDoubleSpinBox();
     sb_y->setMaximum(std::numeric_limits<float>::max());
     sb_y->setMinimum(-1.0 * std::numeric_limits<float>::max());
+    sb_y->setMinimumWidth(10);
     sb_y->setSingleStep(0.1);
     sb_y->setSizePolicy(pc);
+
+    sb_x->setMinimumWidth(10);
+    sb_y->setMinimumWidth(10);
 
     layout->addWidget(lbl_x);
     layout->addWidget(sb_x);
@@ -586,23 +713,31 @@ QWidget * Component_Widget::create_vec2_widget_item(Create_Widget_Params params)
     layout->addStretch();
     item->setLayout(layout);
 
-    sb_x->setSpecialValueText("-- --");
-    sb_y->setSpecialValueText("-- --");
+    sb_x->setSpecialValueText("-");
+    sb_y->setSpecialValueText("-");
 
     cb_desc fd(params.attrib_name_, params.nested_attrib_names_, params.serz_);
-    fd.set_widget_value = [=](const Urho3D::Variant & var) {
+    fd.set_widget_value = [=](const Urho3D::Variant & var)
+    {            
         Urho3D::Vector2 vec = var.GetVector2();
         sb_x->blockSignals(true);
         sb_y->blockSignals(true);
+        float max_f = std::numeric_limits<float>::max();
         if (var.IsEmpty())
         {
             sb_x->setValue(sb_x->minimum());
             sb_y->setValue(sb_y->minimum());
         }
-        else
+        else 
         {
-            sb_x->setValue(vec.x_);
-            sb_y->setValue(vec.y_);
+            if (vec.x_ == max_f)
+                sb_x->setValue(sb_x->minimum());
+            else
+                sb_x->setValue(vec.x_);
+            if (vec.y_ == max_f)
+                sb_y->setValue(sb_y->minimum());
+            else
+                sb_y->setValue(vec.y_);
         }
         sb_x->blockSignals(false);
         sb_y->blockSignals(false);
@@ -610,15 +745,41 @@ QWidget * Component_Widget::create_vec2_widget_item(Create_Widget_Params params)
     updaters[item] = fd;
     fd.set_widget_value(params.values_);
 
-    auto func = [=](double new_val) {
-        Urho3D::Vector2 val;
-        val.x_ = sb_x->value();
-        val.y_ = sb_y->value();
-        Slot_Callback(params.serz_, params.nested_attrib_names_, params.attrib_name_, val);
+    auto func_x = [=](double new_val) mutable {
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_x->value() == sb_x->minimum())
+                return;
+            
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::Vector2 vec = final_attrib->GetVector2();
+            vec.x_ = new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
     };
 
-    QObject::connect(sb_x, qOverload<double>(&QDoubleSpinBox::valueChanged), func);
-    QObject::connect(sb_y, qOverload<double>(&QDoubleSpinBox::valueChanged), func);
+    auto func_y = [=](double new_val) mutable
+    {
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_y->value() == sb_y->minimum())
+                return;
+            
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::Vector2 vec = final_attrib->GetVector2();
+            vec.y_ = new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
+    };
+
+    QObject::connect(sb_x, qOverload<double>(&QDoubleSpinBox::valueChanged), func_x);
+    QObject::connect(sb_y, qOverload<double>(&QDoubleSpinBox::valueChanged), func_y);
 
     return item;
 }
@@ -710,7 +871,6 @@ QWidget * Component_Widget::create_vec3_widget_item(Create_Widget_Params params)
     fd.set_widget_value(params.values_);
 
     auto func_x = [=](double new_val) mutable {
-        Urho3D::Vector3 val;
         for (int i = 0; i < params.serz_.Size(); ++i)
         {
             if (sb_x->value() == sb_x->minimum())
@@ -744,7 +904,6 @@ QWidget * Component_Widget::create_vec3_widget_item(Create_Widget_Params params)
     };
 
     auto func_z = [=](double new_val) mutable {
-        Urho3D::Vector3 val;
         for (int i = 0; i < params.serz_.Size(); ++i)
         {
             if (sb_z->value() == sb_z->minimum())
@@ -778,15 +937,19 @@ QWidget * Component_Widget::create_ivec2_widget_item(Create_Widget_Params params
 
     QSpinBox * sb_x = new QSpinBox();
     QSizePolicy pc = sb_x->sizePolicy();
-    pc.setHorizontalPolicy(QSizePolicy::Minimum);
+    pc.setHorizontalPolicy(QSizePolicy::Maximum);
     sb_x->setMaximum(std::numeric_limits<int>::max());
-    sb_x->setMinimum(std::numeric_limits<int>::min());
+    sb_x->setMinimum(-1.0 * std::numeric_limits<int>::max());
     sb_x->setSizePolicy(pc);
 
     QSpinBox * sb_y = new QSpinBox();
     sb_y->setMaximum(std::numeric_limits<int>::max());
-    sb_y->setMinimum(std::numeric_limits<int>::min());
+    sb_y->setMinimum(-1.0 * std::numeric_limits<int>::max());
+    sb_y->setMinimumWidth(10);
     sb_y->setSizePolicy(pc);
+
+    sb_x->setMinimumWidth(10);
+    sb_y->setMinimumWidth(10);
 
     layout->addWidget(lbl_x);
     layout->addWidget(sb_x);
@@ -796,23 +959,31 @@ QWidget * Component_Widget::create_ivec2_widget_item(Create_Widget_Params params
     layout->addStretch();
     item->setLayout(layout);
 
-    sb_x->setSpecialValueText("-- --");
-    sb_y->setSpecialValueText("-- --");
+    sb_x->setSpecialValueText("-");
+    sb_y->setSpecialValueText("-");
 
     cb_desc fd(params.attrib_name_, params.nested_attrib_names_, params.serz_);
-    fd.set_widget_value = [=](const Urho3D::Variant & var) {
+    fd.set_widget_value = [=](const Urho3D::Variant & var)
+    {            
         Urho3D::IntVector2 vec = var.GetIntVector2();
         sb_x->blockSignals(true);
         sb_y->blockSignals(true);
+        int max_f = std::numeric_limits<int>::max();
         if (var.IsEmpty())
         {
             sb_x->setValue(sb_x->minimum());
             sb_y->setValue(sb_y->minimum());
         }
-        else
+        else 
         {
-            sb_x->setValue(vec.x_);
-            sb_y->setValue(vec.y_);
+            if (vec.x_ == max_f)
+                sb_x->setValue(sb_x->minimum());
+            else
+                sb_x->setValue(vec.x_);
+            if (vec.y_ == max_f)
+                sb_y->setValue(sb_y->minimum());
+            else
+                sb_y->setValue(vec.y_);
         }
         sb_x->blockSignals(false);
         sb_y->blockSignals(false);
@@ -820,15 +991,41 @@ QWidget * Component_Widget::create_ivec2_widget_item(Create_Widget_Params params
     updaters[item] = fd;
     fd.set_widget_value(params.values_);
 
-    auto func = [=](int new_val) {
-        Urho3D::IntVector2 val;
-        val.x_ = sb_x->value();
-        val.y_ = sb_y->value();
-        Slot_Callback(params.serz_, params.nested_attrib_names_, params.attrib_name_, val);
+    auto func_x = [=](int new_val) mutable {
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_x->value() == sb_x->minimum())
+                return;
+            
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::IntVector2 vec = final_attrib->GetIntVector2();
+            vec.x_ = new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
     };
 
-    QObject::connect(sb_x, qOverload<int>(&QSpinBox::valueChanged), func);
-    QObject::connect(sb_y, qOverload<int>(&QSpinBox::valueChanged), func);
+    auto func_y = [=](int new_val) mutable
+    {
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_y->value() == sb_y->minimum())
+                return;
+            
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::IntVector2 vec = final_attrib->GetIntVector2();
+            vec.y_ = new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
+    };
+
+    QObject::connect(sb_x, qOverload<int>(&QSpinBox::valueChanged), func_x);
+    QObject::connect(sb_y, qOverload<int>(&QSpinBox::valueChanged), func_y);
 
     return item;
 }
@@ -847,18 +1044,22 @@ QWidget * Component_Widget::create_ivec3_widget_item(Create_Widget_Params params
     QSizePolicy pc = sb_x->sizePolicy();
     pc.setHorizontalPolicy(QSizePolicy::Maximum);
     sb_x->setMaximum(std::numeric_limits<int>::max());
-    sb_x->setMinimum(std::numeric_limits<int>::min());
+    sb_x->setMinimum(-1.0 * std::numeric_limits<int>::max());
     sb_x->setSizePolicy(pc);
 
     QSpinBox * sb_y = new QSpinBox();
     sb_y->setMaximum(std::numeric_limits<int>::max());
-    sb_y->setMinimum(std::numeric_limits<int>::min());
+    sb_y->setMinimum(-1.0 * std::numeric_limits<int>::max());
     sb_y->setSizePolicy(pc);
 
     QSpinBox * sb_z = new QSpinBox();
     sb_z->setMaximum(std::numeric_limits<int>::max());
-    sb_z->setMinimum(std::numeric_limits<int>::min());
+    sb_z->setMinimum(-1.0 * std::numeric_limits<int>::max());
     sb_z->setSizePolicy(pc);
+
+    sb_x->setMinimumWidth(10);
+    sb_y->setMinimumWidth(10);
+    sb_z->setMinimumWidth(10);
 
     layout->addWidget(lbl_x);
     layout->addWidget(sb_x);
@@ -871,27 +1072,38 @@ QWidget * Component_Widget::create_ivec3_widget_item(Create_Widget_Params params
     layout->addStretch();
     item->setLayout(layout);
 
-    sb_x->setSpecialValueText("-- --");
-    sb_y->setSpecialValueText("-- --");
-    sb_z->setSpecialValueText("-- --");
+    sb_x->setSpecialValueText("-");
+    sb_y->setSpecialValueText("-");
+    sb_z->setSpecialValueText("-");
 
     cb_desc fd(params.attrib_name_, params.nested_attrib_names_, params.serz_);
-    fd.set_widget_value = [=](const Urho3D::Variant & var) {
+    fd.set_widget_value = [=](const Urho3D::Variant & var)
+    {            
         Urho3D::IntVector3 vec = var.GetIntVector3();
         sb_x->blockSignals(true);
         sb_y->blockSignals(true);
         sb_z->blockSignals(true);
+        int max_f = std::numeric_limits<int>::max();
         if (var.IsEmpty())
         {
             sb_x->setValue(sb_x->minimum());
             sb_y->setValue(sb_y->minimum());
             sb_z->setValue(sb_z->minimum());
         }
-        else
+        else 
         {
-            sb_x->setValue(vec.x_);
-            sb_y->setValue(vec.y_);
-            sb_z->setValue(vec.z_);
+            if (vec.x_ == max_f)
+                sb_x->setValue(sb_x->minimum());
+            else
+                sb_x->setValue(vec.x_);
+            if (vec.y_ == max_f)
+                sb_y->setValue(sb_y->minimum());
+            else
+                sb_y->setValue(vec.y_);
+            if (vec.z_ == max_f)
+                sb_z->setValue(sb_z->minimum());
+            else
+                sb_z->setValue(vec.z_);
         }
         sb_x->blockSignals(false);
         sb_y->blockSignals(false);
@@ -900,17 +1112,59 @@ QWidget * Component_Widget::create_ivec3_widget_item(Create_Widget_Params params
     updaters[item] = fd;
     fd.set_widget_value(params.values_);
 
-    auto func = [=](int new_val) {
-        Urho3D::IntVector3 val;
-        val.x_ = sb_x->value();
-        val.y_ = sb_y->value();
-        val.z_ = sb_z->value();
-        Slot_Callback(params.serz_ , params.nested_attrib_names_, params.attrib_name_, val);
+    auto func_x = [=](int new_val) mutable {
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_x->value() == sb_x->minimum())
+                return;
+            
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::IntVector3 vec = final_attrib->GetIntVector3();
+            vec.x_ = new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
     };
 
-    QObject::connect(sb_x, qOverload<int>(&QSpinBox::valueChanged), func);
-    QObject::connect(sb_y, qOverload<int>(&QSpinBox::valueChanged), func);
-    QObject::connect(sb_z, qOverload<int>(&QSpinBox::valueChanged), func);
+    auto func_y = [=](int new_val) mutable
+    {
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_y->value() == sb_y->minimum())
+                return;
+            
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::IntVector3 vec = final_attrib->GetIntVector3();
+            vec.y_ = new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
+    };
+
+    auto func_z = [=](int new_val) mutable {
+        Urho3D::Vector3 val;
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_z->value() == sb_z->minimum())
+                return;
+
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::IntVector3 vec = final_attrib->GetIntVector3();
+            vec.z_ = new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
+    };
+
+    QObject::connect(sb_x, qOverload<int>(&QSpinBox::valueChanged), func_x);
+    QObject::connect(sb_y, qOverload<int>(&QSpinBox::valueChanged), func_y);
+    QObject::connect(sb_z, qOverload<int>(&QSpinBox::valueChanged), func_z);
 
     return item;
 }
@@ -978,37 +1232,109 @@ QWidget * Component_Widget::create_vec4_widget_item(Create_Widget_Params params)
         sb_y->blockSignals(true);
         sb_z->blockSignals(true);
         sb_w->blockSignals(true);
+        float max_f = std::numeric_limits<float>::max();
         if (var.IsEmpty())
         {
             sb_x->setValue(sb_x->minimum());
             sb_y->setValue(sb_y->minimum());
             sb_z->setValue(sb_z->minimum());
-            sb_z->setValue(sb_w->minimum());
+            sb_w->setValue(sb_w->minimum());
         }
-        else
+        else 
         {
-            sb_x->blockSignals(false);
-            sb_y->blockSignals(false);
-            sb_z->blockSignals(false);
-            sb_w->blockSignals(false);
+            if (vec.x_ == max_f)
+                sb_x->setValue(sb_x->minimum());
+            else
+                sb_x->setValue(vec.x_);
+            if (vec.y_ == max_f)
+                sb_y->setValue(sb_y->minimum());
+            else
+                sb_y->setValue(vec.y_);
+            if (vec.z_ == max_f)
+                sb_z->setValue(sb_z->minimum());
+            else
+                sb_z->setValue(vec.z_);
+            if (vec.w_ == max_f)
+                sb_w->setValue(sb_w->minimum());
+            else
+                sb_w->setValue(vec.w_);
         }
+        sb_x->blockSignals(false);
+        sb_y->blockSignals(false);
+        sb_z->blockSignals(false);
+        sb_w->blockSignals(false);
     };
     updaters[item] = fd;
     fd.set_widget_value(params.values_);
 
-    auto func = [=](double new_val) {
-        Urho3D::Vector4 val;
-        val.x_ = sb_x->value();
-        val.y_ = sb_y->value();
-        val.z_ = sb_z->value();
-        val.w_ = sb_w->value();
-        Slot_Callback(params.serz_ , params.nested_attrib_names_, params.attrib_name_, val);
+    auto func_x = [=](double new_val) mutable {
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_x->value() == sb_x->minimum())
+                return;
+
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::Vector4 vec = final_attrib->GetVector4();
+            vec.x_ = new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
     };
 
-    QObject::connect(sb_x, qOverload<double>(&QDoubleSpinBox::valueChanged), func);
-    QObject::connect(sb_y, qOverload<double>(&QDoubleSpinBox::valueChanged), func);
-    QObject::connect(sb_z, qOverload<double>(&QDoubleSpinBox::valueChanged), func);
-    QObject::connect(sb_w, qOverload<double>(&QDoubleSpinBox::valueChanged), func);
+    auto func_y = [=](double new_val) mutable {
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_x->value() == sb_x->minimum())
+                return;
+
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::Vector4 vec = final_attrib->GetVector4();
+            vec.y_ = new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
+    };
+
+    auto func_z = [=](double new_val) mutable {
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_x->value() == sb_x->minimum())
+                return;
+
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::Vector4 vec = final_attrib->GetVector4();
+            vec.z_ = new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
+    };
+
+    auto func_w = [=](double new_val) mutable {
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_x->value() == sb_x->minimum())
+                return;
+
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::Vector4 vec = final_attrib->GetVector4();
+            vec.w_ = new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
+    };
+
+    QObject::connect(sb_x, qOverload<double>(&QDoubleSpinBox::valueChanged), func_x);
+    QObject::connect(sb_y, qOverload<double>(&QDoubleSpinBox::valueChanged), func_y);
+    QObject::connect(sb_z, qOverload<double>(&QDoubleSpinBox::valueChanged), func_z);
+    QObject::connect(sb_w, qOverload<double>(&QDoubleSpinBox::valueChanged), func_w);
 
     return item;
 }
@@ -1026,25 +1352,31 @@ QWidget * Component_Widget::create_irect_widget_item(Create_Widget_Params params
 
     QSpinBox * sb_x = new QSpinBox();
     QSizePolicy pc = sb_x->sizePolicy();
-    pc.setHorizontalPolicy(QSizePolicy::Preferred);
+    pc.setHorizontalPolicy(QSizePolicy::Maximum);
     sb_x->setMaximum(std::numeric_limits<int>::max());
-    sb_x->setMinimum(std::numeric_limits<int>::min());
+    sb_x->setMinimum(-1.0 * std::numeric_limits<int>::max());
     sb_x->setSizePolicy(pc);
 
     QSpinBox * sb_y = new QSpinBox();
     sb_y->setMaximum(std::numeric_limits<int>::max());
-    sb_y->setMinimum(std::numeric_limits<int>::min());
+    sb_y->setMinimum(-1.0 * std::numeric_limits<int>::max());
+    sb_y->setMinimumWidth(10);
     sb_y->setSizePolicy(pc);
 
     QSpinBox * sb_w = new QSpinBox();
     sb_w->setMaximum(std::numeric_limits<int>::max());
-    sb_w->setMinimum(std::numeric_limits<int>::min());
+    sb_w->setMinimum(-1.0 * std::numeric_limits<int>::max());
     sb_w->setSizePolicy(pc);
 
     QSpinBox * sb_h = new QSpinBox();
     sb_h->setMaximum(std::numeric_limits<int>::max());
-    sb_h->setMinimum(std::numeric_limits<int>::min());
+    sb_h->setMinimum(-1.0 * std::numeric_limits<int>::max());
     sb_h->setSizePolicy(pc);
+
+    sb_x->setMinimumWidth(10);
+    sb_y->setMinimumWidth(10);
+    sb_w->setMinimumWidth(10);
+    sb_h->setMinimumWidth(10);
 
     layout->addWidget(lbl_x);
     layout->addWidget(sb_x);
@@ -1060,32 +1392,45 @@ QWidget * Component_Widget::create_irect_widget_item(Create_Widget_Params params
     layout->addStretch();
     item->setLayout(layout);
 
-
-    sb_x->setSpecialValueText("-- --");
-    sb_y->setSpecialValueText("-- --");
-    sb_w->setSpecialValueText("-- --");
-    sb_h->setSpecialValueText("-- --");
+    sb_x->setSpecialValueText("-");
+    sb_y->setSpecialValueText("-");
+    sb_w->setSpecialValueText("-");
+    sb_h->setSpecialValueText("-");
 
     cb_desc fd(params.attrib_name_, params.nested_attrib_names_, params.serz_);
-    fd.set_widget_value = [=](const Urho3D::Variant & var) {
+    fd.set_widget_value = [=](const Urho3D::Variant & var)
+    {            
         Urho3D::IntRect vec = var.GetIntRect();
         sb_x->blockSignals(true);
         sb_y->blockSignals(true);
         sb_w->blockSignals(true);
         sb_h->blockSignals(true);
+        int max_f = std::numeric_limits<int>::max();
         if (var.IsEmpty())
         {
             sb_x->setValue(sb_x->minimum());
             sb_y->setValue(sb_y->minimum());
             sb_w->setValue(sb_w->minimum());
-            sb_h->setValue(sb_h->minimum());
+            sb_h->setValue(sb_w->minimum());
         }
-        else
+        else 
         {
-            sb_x->setValue(vec.left_);
-            sb_y->setValue(vec.bottom_);
-            sb_w->setValue(vec.Width());
-            sb_h->setValue(vec.Height());
+            if (vec.left_ == max_f)
+                sb_x->setValue(sb_x->minimum());
+            else
+                sb_x->setValue(vec.left_);
+            if (vec.bottom_ == max_f)
+                sb_y->setValue(sb_y->minimum());
+            else
+                sb_y->setValue(vec.bottom_);
+            if (vec.right_ == max_f)
+                sb_w->setValue(sb_w->minimum());
+            else
+                sb_w->setValue(vec.right_-vec.left_);
+            if (vec.top_ == max_f)
+                sb_w->setValue(sb_w->minimum());
+            else
+                sb_w->setValue(vec.top_-vec.bottom_);
         }
         sb_x->blockSignals(false);
         sb_y->blockSignals(false);
@@ -1095,19 +1440,77 @@ QWidget * Component_Widget::create_irect_widget_item(Create_Widget_Params params
     updaters[item] = fd;
     fd.set_widget_value(params.values_);
 
-    auto func = [=](int new_val) {
-        Urho3D::IntRect val;
-        val.left_ = sb_x->value();
-        val.bottom_ = sb_y->value();
-        val.top_ = val.bottom_ + sb_h->value();
-        val.right_ = val.left_ + sb_w->value();
-        Slot_Callback(params.serz_ , params.nested_attrib_names_, params.attrib_name_, val);
+    auto func_x = [=](int new_val) mutable {
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_x->value() == sb_x->minimum())
+                return;
+            
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::IntRect vec = final_attrib->GetIntRect();
+            vec.left_ = new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
     };
 
-    QObject::connect(sb_x, qOverload<int>(&QSpinBox::valueChanged), func);
-    QObject::connect(sb_y, qOverload<int>(&QSpinBox::valueChanged), func);
-    QObject::connect(sb_w, qOverload<int>(&QSpinBox::valueChanged), func);
-    QObject::connect(sb_h, qOverload<int>(&QSpinBox::valueChanged), func);
+    auto func_y = [=](int new_val) mutable
+    {
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_y->value() == sb_y->minimum())
+                return;
+            
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::IntRect vec = final_attrib->GetIntRect();
+            vec.bottom_ = new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
+    };
+
+    auto func_w = [=](int new_val) mutable {
+        Urho3D::Vector3 val;
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_w->value() == sb_w->minimum())
+                return;
+
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::IntRect vec = final_attrib->GetIntRect();
+            vec.right_ = vec.left_ + new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
+    };
+
+    auto func_h = [=](int new_val) mutable {
+        Urho3D::Vector3 val;
+        for (int i = 0; i < params.serz_.Size(); ++i)
+        {
+            if (sb_h->value() == sb_h->minimum())
+                return;
+
+            Urho3D::Variant attrib = params.serz_[i]->GetAttribute(params.attrib_name_);
+            Urho3D::Variant * final_attrib =
+                Get_Attrib_Variant(attrib, params.nested_attrib_names_);
+            Urho3D::IntRect vec = final_attrib->GetIntRect();
+            vec.top_ = vec.bottom_ + new_val;
+            *final_attrib = vec;
+            params.serz_[i]->SetAttribute(params.attrib_name_, attrib);
+        }
+    };
+
+    QObject::connect(sb_x, qOverload<int>(&QSpinBox::valueChanged), func_x);
+    QObject::connect(sb_y, qOverload<int>(&QSpinBox::valueChanged), func_y);
+    QObject::connect(sb_w, qOverload<int>(&QSpinBox::valueChanged), func_w);
+    QObject::connect(sb_h, qOverload<int>(&QSpinBox::valueChanged), func_h);
 
     return item;
 }
