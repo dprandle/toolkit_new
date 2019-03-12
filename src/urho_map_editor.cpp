@@ -283,7 +283,12 @@ void Urho_Map_Editor::create_visuals()
                 tile_node->SetPosition(Hex_Tile_Grid::grid_to_world(ivec3(x, y, z)));
                 tile_node->SetRotation(Urho3D::Quaternion(90.0f, fvec3(1.0f, 0.0f, 0.0f)));
 
-                //lastGroup->AddInstanceNode(tile_node);
+                tile_node->AddTag("Scooby");
+                tile_node->SetVar("Steve", Urho3D::IntVector2(1,2));
+                tile_node->SetVar("Smackem", Urho3D::Vector3(1.1,2.2,3.3));
+                tile_node->SetVar("Super", Urho3D::Vector4(1.1,2.2,3.3,4.4));
+
+
                 ++cnt;
             }
         }

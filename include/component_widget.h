@@ -5,6 +5,8 @@
 #include <QMap>
 #include <QSet>
 
+const int SB_MIN_WIDTH = 40;
+const int SB_FIXED_WIDTH = 70;
 namespace Urho3D
 {
 class String;
