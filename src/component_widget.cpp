@@ -133,6 +133,7 @@ void Component_Widget::create_tw_item(const Urho3D::Vector<Urho3D::Serializable 
                            vals,
                            tw_item,
                            Urho3D::AttributeInfo());
+            nested_attrib_names.Pop();
         }
         break;
     }
