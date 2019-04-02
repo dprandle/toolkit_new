@@ -505,6 +505,18 @@ void Component_Widget::do_set_widget(cb_desc * fd, const Urho3D::Vector<Urho3D::
     fd->set_widget_value(val);
 }
 
+void Component_Widget::create_component_on_selected_node(const Urho3D::StringHash & comp_type)
+{
+    if (selection_.Empty())
+        return;
+
+    dout << "Creating" << comp_type.Reverse();
+    for (int i = 0; i < selection_.Size(); ++i)
+        selection_[i]->CreateComponent(comp_type);
+    
+    reset_table();
+}
+
 QWidget * Component_Widget::create_string_widget_item(Create_Widget_Params params)
 {
     QLineEdit * item = new QLineEdit;
@@ -1568,12 +1580,8 @@ void Component_Widget::recursive_tree_widget_check(QTreeWidgetItem * item, bool 
         recursive_tree_widget_check(item->child(i), restoring);
 }
 
-void Component_Widget::setup_ui(const Urho3D::Vector<Urho3D::Node *> & nodes)
+void Component_Widget::reset_table()
 {
-    if (selection_ == nodes || nodes.Empty())
-        return;
-    
-    selection_ = nodes;
     prev_expanded_items.clear();
 
     // Cache the expanded items
@@ -1591,7 +1599,7 @@ void Component_Widget::setup_ui(const Urho3D::Vector<Urho3D::Node *> & nodes)
     // Otherwise we need to go through and add only components that exist on all nodes
     // If the attribute values are the same for that component or node, then show the value
     // otherwise show a dash like unity. If edits are made, it should change all "serializable's" to that value
-    add_node_to_treewidget(nodes);
+    add_node_to_treewidget(selection_);
 
     // Restore expanded items
     for (int i = 0; i < tw_->topLevelItemCount(); ++i)
@@ -1599,4 +1607,13 @@ void Component_Widget::setup_ui(const Urho3D::Vector<Urho3D::Node *> & nodes)
         QTreeWidgetItem * cur_item = tw_->topLevelItem(i);
         recursive_tree_widget_check(cur_item, true);
     }
+}
+
+void Component_Widget::setup_ui(const Urho3D::Vector<Urho3D::Node *> & nodes)
+{
+    if (selection_ == nodes || nodes.Empty())
+        return;
+    
+    selection_ = nodes;
+    reset_table();
 }

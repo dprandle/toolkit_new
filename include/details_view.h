@@ -23,7 +23,12 @@ class Details_View : public QMainWindow
    void set_nodes(const Urho3D::Vector<Urho3D::Node *> & nodes);
 
    void update_node();
-   
+
+   public slots:
+
+   void urho_init_complete();
+
   private:
    Ui::Details_View * ui;
+   
 };

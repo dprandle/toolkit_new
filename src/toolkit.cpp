@@ -66,7 +66,8 @@ Toolkit::~Toolkit()
 void Toolkit::init()
 {
     ui->map_editor->init(toolkit_context_);
-    QTimer::singleShot(10,this,&Toolkit::on_actionLoad_View_triggered);
+    emit urho_init_complete();
+    QTimer::singleShot(100,this,&Toolkit::on_actionLoad_View_triggered);
 }
 
 void Toolkit::remove_dock_widgets()
@@ -97,6 +98,11 @@ void Toolkit::dock_widget_floating_changed(bool floating)
 
 void Toolkit::dock_widget_area_changed(Qt::DockWidgetArea area)
 {}
+
+Urho3D::Context * Toolkit::get_urho_toolkit_context()
+{
+    return toolkit_context_;
+}
 
 Toolkit & Toolkit::inst()
 {

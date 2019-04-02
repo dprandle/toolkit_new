@@ -101,6 +101,11 @@ class Component_Widget : public QWidget
 
     void update_tw_from_node();
 
+    void reset_table();
+
+  public slots:
+    void create_component_on_selected_node(const Urho3D::StringHash & comp_type);
+
   private:
 
     void do_set_widget(cb_desc * fd, const Urho3D::Vector<Urho3D::Variant> & values);

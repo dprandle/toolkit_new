@@ -44,6 +44,11 @@ class MTDebug_Print
     MTDebug_Print(bool auto_spacing, bool auto_newline, Urho_Log_Type logtype);
     ~MTDebug_Print();
 
+    MTDebug_Print & operator<<(const Urho3D::String & rhs)
+    {
+        return *this << rhs.CString();
+    }
+    
     template<class T>
     MTDebug_Print & operator<<(const T & rhs)
     {

@@ -8,7 +8,7 @@
 #include <math_utils.h>
 
 #define bbtk Toolkit::inst()
-
+#define bbtk_ctxt bbtk.get_urho_toolkit_context()
 #define LAYER_ABOVE_TEXT "Above"
 #define LAYER_BELOW_TEXT "Below"
 #define LAYER_ALL_TEXT "All Except"
@@ -53,6 +53,8 @@ class Toolkit : public QMainWindow
 
     static Toolkit & inst();
 
+    Urho3D::Context * get_urho_toolkit_context();
+
     Ui::Toolkit * ui;
 
   public slots:
@@ -64,6 +66,10 @@ class Toolkit : public QMainWindow
   void dock_widget_floating_changed(bool floating);
 
   void dock_widget_area_changed(Qt::DockWidgetArea area);
+
+  signals:
+
+  void urho_init_complete();
 
   protected:
   

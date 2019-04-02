@@ -7,6 +7,9 @@
 #include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Physics/PhysicsEvents.h>
 
+#include <Urho3D/LuaScript/LuaScript.h>
+#include <Urho3D/AngelScript/Script.h>
+
 #include <Urho3D/Resource/XMLFile.h>
 #include <Urho3D/Resource/ResourceCache.h>
 
@@ -88,6 +91,9 @@ Urho_Map_Editor::Urho_Map_Editor(Urho3D::Context * context, void * window_id)
         return;
     }
 
+    context_->RegisterSubsystem(new Urho3D::Script(context_));
+    context_->RegisterSubsystem(new Urho3D::LuaScript(context_));
+
     input_translator_->init();
     camera_controller_->init();
 
@@ -158,7 +164,7 @@ void Urho_Map_Editor::create_visuals()
 {
     Urho3D::Graphics * graphics = GetSubsystem<Urho3D::Graphics>();
     graphics->SetWindowTitle("Build and Battle");
-
+    
     // Get default style
     Urho3D::ResourceCache * cache = GetSubsystem<Urho3D::ResourceCache>();
     Urho3D::XMLFile * xmlFile = cache->GetResource<Urho3D::XMLFile>("UI/DefaultStyle.xml");

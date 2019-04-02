@@ -52,7 +52,7 @@ const Urho3D::Vector<ivec3> & Tile_Occupier::tile_spaces()
 
 void Tile_Occupier::register_context(Urho3D::Context * context)
 {
-    context->RegisterFactory<Tile_Occupier>();
+    context->RegisterFactory<Tile_Occupier>("Geometry");
     URHO3D_ACCESSOR_ATTRIBUTE(
         "Spaces", get_spaces, set_spaces, VariantVector, Variant::emptyVariantVector, AM_FILE);
     URHO3D_ACCESSOR_ATTRIBUTE("Is Enabled", IsEnabled, SetEnabled, bool, true, AM_DEFAULT);
