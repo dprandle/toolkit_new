@@ -8,7 +8,7 @@
 
 Scene_View::Scene_View(QWidget * parent) : QWidget(parent), me_(nullptr)
 {
-    setFocusPolicy(Qt::ClickFocus);
+    setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
 }
 
@@ -21,7 +21,7 @@ void Scene_View::_start_timer()
 {
     QTimer * timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(run()));
-    timer->start();
+    timer->start(16);
 }
 
 void Scene_View::release_editor()

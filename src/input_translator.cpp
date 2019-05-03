@@ -13,6 +13,7 @@
 #include <QWheelEvent>
 #include <QResizeEvent>
 #include <SDL/SDL.h>
+#include <QTimer>
 #endif
 
 using namespace Urho3D;
@@ -201,7 +202,26 @@ bool Input_Map::rename_context(const Urho3D::StringHash & old_name,
 }
 
 Input_Translator::Input_Translator(Urho3D::Context * context) : Object(context)
-{}
+    #ifdef QT_BUILD
+    ,resize_timer_(new QTimer),
+    win_width_(0),
+    win_height_(0)
+{
+    resize_timer_->setSingleShot(true);
+    auto resize_fun = [=]()
+    {
+        if (GetSubsystem<Engine>()->IsInitialized())
+        {
+            Graphics * graphics = GetSubsystem<Graphics>();
+
+            SDL_Window * win = (SDL_Window *)graphics->GetWindow();
+            SDL_SetWindowSize(win, win_width_, win_height_);
+        }
+    };
+    QObject::connect(resize_timer_, &QTimer::timeout, resize_fun);
+
+    #endif
+}
 
 Input_Translator::~Input_Translator()
 {}
@@ -547,7 +567,7 @@ void Input_Translator::pop_context()
     context_stack_.Pop();
 }
 
-//#ifdef QT_BUILD
+#ifdef QT_BUILD
 void Input_Translator::qt_key_press(QKeyEvent * e)
 {
     SDL_Event sdl_event;
@@ -626,16 +646,14 @@ void Input_Translator::qt_mouse_release(QMouseEvent * e)
 
 void Input_Translator::qt_window_resize(QResizeEvent * e)
 {
-    if (GetSubsystem<Engine>()->IsInitialized())
-    {
-        int width = e->size().width();
-        int height = e->size().height();
+    win_width_ = e->size().width();
+    win_height_ = e->size().height();
+    resize_timer_->start(100);
+}
 
-        Graphics * graphics = GetSubsystem<Graphics>();
-
-        SDL_Window * win = (SDL_Window *)graphics->GetWindow();
-        SDL_SetWindowSize(win, width, height);
-    }
+bool Input_Translator::is_resizing()
+{
+    return resize_timer_->isActive();
 }
 
 void Input_Translator::_init_key_map()
@@ -751,4 +769,4 @@ int Input_Translator::_convert_Qtmb_to_SDL(int qtbutton)
         return iter->second_;
     return 0;
 }
-//#endif
+#endif

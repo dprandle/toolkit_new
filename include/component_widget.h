@@ -55,31 +55,36 @@ Urho3D::Variant * Get_Attrib_Variant(Urho3D::Variant & attrib_value,
 
 struct cb_desc
 {
-    cb_desc(const Urho3D::String att_name=Urho3D::String(), const Urho3D::VariantVector & nest_names=Urho3D::Variant::emptyVariantVector, const Urho3D::Vector<Urho3D::Serializable*> & serializables = Urho3D::Vector<Urho3D::Serializable*>()):
-        attrib_name(att_name),
-        nested_names(nest_names),
-        serz(serializables)
+    cb_desc(const Urho3D::String att_name = Urho3D::String(),
+            const Urho3D::VariantVector & nest_names = Urho3D::Variant::emptyVariantVector,
+            const Urho3D::Vector<Urho3D::Serializable *> & serializables =
+                Urho3D::Vector<Urho3D::Serializable *>(),
+            const Urho3D::VariantVector & attrib_values_ = Urho3D::Variant::emptyVariantVector)
+        : attrib_name(att_name),
+          nested_names(nest_names),
+          serz(serializables),
+          attrib_values(attrib_values_)
     {}
 
     std::function<void(const Urho3D::Variant &)> set_widget_value;
     Urho3D::String attrib_name;
     Urho3D::VariantVector nested_names;
-    Urho3D::Vector<Urho3D::Serializable*> serz;
+    Urho3D::Vector<Urho3D::Serializable *> serz;
+    Urho3D::VariantVector attrib_values;
 };
 
 struct Create_Widget_Params
 {
-    Create_Widget_Params( const Urho3D::Vector<Urho3D::Serializable *> & serz,
-                        const Urho3D::String & attrib_name,
-                        const Urho3D::VariantVector & nested_attrib_names,
-                        const Urho3D::Vector<Urho3D::Variant> & values,
-                        const Urho3D::AttributeInfo & att_inf
-    ):
-    serz_(serz),
-    attrib_name_(attrib_name),
-    nested_attrib_names_(nested_attrib_names),
-    values_(values),
-    att_inf_(att_inf)
+    Create_Widget_Params(const Urho3D::Vector<Urho3D::Serializable *> & serz,
+                         const Urho3D::String & attrib_name,
+                         const Urho3D::VariantVector & nested_attrib_names,
+                         const Urho3D::Vector<Urho3D::Variant> & values,
+                         const Urho3D::AttributeInfo & att_inf)
+        : serz_(serz),
+          attrib_name_(attrib_name),
+          nested_attrib_names_(nested_attrib_names),
+          values_(values),
+          att_inf_(att_inf)
     {}
 
     Urho3D::Vector<Urho3D::Serializable *> serz_;
@@ -107,7 +112,6 @@ class Component_Widget : public QWidget
     void create_component_on_selected_node(const Urho3D::StringHash & comp_type);
 
   private:
-
     void do_set_widget(cb_desc * fd, const Urho3D::Vector<Urho3D::Variant> & values);
 
     void add_node_to_treewidget(const Urho3D::Vector<Urho3D::Node *> nodes);
@@ -138,16 +142,16 @@ class Component_Widget : public QWidget
 
     QWidget * create_vec3_widget_item(Create_Widget_Params params);
 
-
     QWidget * create_ivec3_widget_item(Create_Widget_Params params);
 
     QWidget * create_vec4_widget_item(Create_Widget_Params params);
 
-
     QWidget * create_irect_widget_item(Create_Widget_Params params);
 
+    QWidget * create_quat_widget_item(Create_Widget_Params params);
+
     QTreeWidget * tw_;
-    Urho3D::Vector<Urho3D::Node*> selection_;
-    QMap<QWidget*, cb_desc> updaters;
+    Urho3D::Vector<Urho3D::Node *> selection_;
+    QMap<QWidget *, cb_desc> updaters;
     QSet<QString> prev_expanded_items;
 };

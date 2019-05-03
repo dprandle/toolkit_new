@@ -15,6 +15,7 @@ class QKeyEvent;
 class QWheelEvent;
 class QResizeEvent;
 class QMouseEvent;
+class QTimer;
 #endif
 
 enum Trigger_State
@@ -135,6 +136,7 @@ class Input_Translator : public Urho3D::Object
     void qt_mouse_press(QMouseEvent * e);
     void qt_mouse_release(QMouseEvent * e);
     void qt_window_resize(QResizeEvent * e);
+    bool is_resizing();
 #endif
 
     void init();
@@ -167,6 +169,9 @@ class Input_Translator : public Urho3D::Object
     int _convert_Qtkey_to_SDL(int qtKey);
     Urho3D::HashMap<int, int> keymap_;
     Urho3D::HashMap<int, int> mouse_button_map_;
+    QTimer * resize_timer_;
+    int win_width_;
+    int win_height_;
 #endif
 
     Urho3D::Vector<Input_Context *> context_stack_;

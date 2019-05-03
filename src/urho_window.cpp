@@ -28,16 +28,16 @@ Urho_Window::~Urho_Window()
 void Urho_Window::update(bool focus)
 {
     make_current();
-    // if (focus)
-    // {
+    if (focus && !input_translator_->is_resizing())
+    {
         if (!engine_->IsExiting())
             engine_->RunFrame();
-    // }
-    // else
-    // {
-    //     if (!engine_->IsExiting())
-    //         engine_->Render();
-    // }
+    }
+    else
+    {
+        if (!engine_->IsExiting())
+            engine_->Render();
+    }
 }
 
 void Urho_Window::make_current()
