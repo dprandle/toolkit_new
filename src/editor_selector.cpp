@@ -19,13 +19,13 @@ void Editor_Selector::set_selected(bool select)
         return;
 
     Urho3D::StaticModel * comp = node_->GetComponent<StaticModel>();
-    if (comp == nullptr)
-        return;
 
     if ((select && is_selected()) || (!select && !is_selected()))
         return;
 
-    comp->SetEnabled(!select);
+    if (comp != nullptr)
+        comp->SetEnabled(!select);
+
     SetEnabled(select);
 }
 

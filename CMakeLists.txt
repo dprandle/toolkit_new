@@ -68,7 +68,7 @@ add_executable(${EXEC_NAME} ${SRC_FILES} ${SRC_MOC_FILES} ${UI_HEADERS} ${SRC_RE
 
 # copy all the files in the deploy folder to bin
 add_custom_target(deploy_files ALL
-  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/deploy ${CMAKE_SOURCE_DIR}/build
+  COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/deploy ${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/bin
   DEPENDS ${TARGET_NAME}
   )
 

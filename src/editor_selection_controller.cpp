@@ -146,7 +146,7 @@ void Editor_Selection_Controller::clear_selection()
 void Editor_Selection_Controller::handle_component_added(Urho3D::StringHash event_type,
                                                          Urho3D::VariantMap & event_data)
 {
-    Scene * scn = static_cast<Scene *>(event_data[NodeRemoved::P_SCENE].GetPtr());
+    Scene * scn = static_cast<Scene *>(event_data[ComponentRemoved::P_SCENE].GetPtr());
     if (scene_ != scn)
         return;
     Component * comp = static_cast<Component *>(event_data[ComponentRemoved::P_COMPONENT].GetPtr());
@@ -162,7 +162,16 @@ void Editor_Selection_Controller::handle_component_removed(Urho3D::StringHash ev
         return;
     Component * comp = static_cast<Component *>(event_data[ComponentRemoved::P_COMPONENT].GetPtr());
     if (comp->IsInstanceOf<Editor_Selector>())
-        scene_sel_comps_.Erase(static_cast<Editor_Selector *>(comp));
+    {
+        Editor_Selector * escomp = static_cast<Editor_Selector*>(comp);
+        escomp->set_selected(false);
+        selection_.Erase(escomp->GetNode());
+        scene_sel_comps_.Erase(escomp);
+    }
+    else if (comp->IsInstanceOf<StaticModel>() && comp->GetNode()->HasComponent<Editor_Selector>())
+    {
+        comp->GetNode()->RemoveComponent<Editor_Selector>();
+    }
 }
 
 void Editor_Selection_Controller::DrawDebugGeometry(bool depth_test)

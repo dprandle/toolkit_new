@@ -6,6 +6,7 @@
     <file>icons/toolbars/nav_back.png</file>
   </qresource>
   <qresource prefix="/VecTB">
+    <file alias="trash_icon">icons/toolbars/trash_icon.png</file>
     <file>icons/toolbars/Particle_Icon.png</file>
     <file>icons/toolbars/xfbIcon.png</file>
     <file>icons/toolbars/Mirror_Build_Mode.png</file>

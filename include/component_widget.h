@@ -20,8 +20,6 @@ const QString TW_STYLE =
 QWidget
 {
     background-color: rgb(30,30,30);
-    padding: 0px;
-    margin: 0px;
 }
 
 QTreeView::item
