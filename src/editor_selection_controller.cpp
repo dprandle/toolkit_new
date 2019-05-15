@@ -290,6 +290,15 @@ void Editor_Selection_Controller::handle_update(Urho3D::StringHash event_type,
                 tg->occupied(occ->tile_spaces(), (*iter)->GetPosition(), allowed_items);
             mat_map[mat] = mat_map[mat] && occ_tiles.Empty();
         }
+
+        // If a node that has a light component attached is selected, draw the light debug geometry
+        Light * lcomp = (*iter)->GetComponent<Light>();
+        if (lcomp != nullptr)
+        {
+            Urho3D::DebugRenderer * deb = scene_->GetComponent<DebugRenderer>();
+            if (deb != nullptr)
+                lcomp->DrawDebugGeometry(deb, true);
+        }
         ++iter;
     }
     total_drag_translation_ += frame_translation_;
@@ -460,15 +469,15 @@ void Editor_Selection_Controller::_add_to_selection_from_rect()
                                         near_z,
                                         1000.0f);
     f.Define(moved_proj * cam_comp_->GetView());
-    PODVector<Drawable *> res;
+    PODVector<Drawable *> res_first;
     Octree * octree = scene_->GetComponent<Octree>();
-    FrustumOctreeQuery fq(res, f, DRAWABLE_GEOMETRY);
+    FrustumOctreeQuery fq(res_first, f, DRAWABLE_GEOMETRY);
     octree->GetDrawables(fq);
     sel_rect_selection_.Clear();
-    for (int i = 0; i < res.Size(); ++i)
+    for (int i = 0; i < res_first.Size(); ++i)
     {
-        Node * nd = res[i]->GetNode();
-        StaticModel * sm = static_cast<StaticModel *>(res[i]);
+        Node * nd = res_first[i]->GetNode();
+        StaticModel * sm = static_cast<StaticModel *>(res_first[i]);
         Editor_Selector * es = nd->GetComponent<Editor_Selector>();
 
         if (es == nullptr)
@@ -476,35 +485,37 @@ void Editor_Selection_Controller::_add_to_selection_from_rect()
 
         const BoundingBox & bb = sm->GetWorldBoundingBox();
 
-        PhysicsWorld * phys = scene_->GetComponent<PhysicsWorld>();
-
         bool left_drag = (norm_sel_pos.x_ < selection_rect_.z_);
 
-        bool res = false;
+        bool ray_success = false;
         auto fiter = cached_raycasts_.Find(nd);
-        if (left_drag || f.IsInside(bb) == Intersection::INSIDE)
+
+        // Go through all objects in frustum and check the raycast
+        // If dragging left, include the object no matter what (similar to autocad)
+        // Otherwise only include if it is the closest one to the camera
+        // Use OBB for these checks
+        if (fiter == cached_raycasts_.End())
         {
-            if (fiter == cached_raycasts_.End())
-            {
-                // Do a raycast to the center and each point of the objects bounding box
-                PhysicsRaycastResult ray_result;
-                fvec3 cam_pos = cam_comp_->GetNode()->GetWorldPosition();
-                fvec3 direction = nd->GetWorldPosition() - cam_pos;
-                direction.Normalize();
-                Ray cast_ray(cam_pos, direction);
-                // Get the closest object for selection
-                phys->RaycastSingle(ray_result, cast_ray, 100.0f);
-                if (ray_result.body_ != nullptr)
-                    res = (ray_result.body_->GetNode() == nd);
-                cached_raycasts_[nd] = res;
-            }
-            else
-            {
-                res = fiter->second_;
-            }
+
+            fvec3 cam_pos = cam_comp_->GetNode()->GetWorldPosition();
+            fvec3 direction = nd->GetWorldPosition() - cam_pos;
+            direction.Normalize();
+            Ray cast_ray(cam_pos, direction);
+
+            Octree * oct = scene_->GetComponent<Octree>();
+            PODVector<RayQueryResult> res;
+            RayOctreeQuery q(res, cast_ray, RAY_OBB, M_INFINITY, DRAWABLE_GEOMETRY);
+            oct->RaycastSingle(q);
+
+            ray_success = left_drag || (res.Size() == 1 && res[0].node_ == nd);
+            cached_raycasts_[nd] = ray_success;
+        }
+        else
+        {
+            ray_success = fiter->second_;
         }
 
-        if (res)
+        if (ray_success)
         {
             sel_rect_selection_.Insert(nd);
         }
@@ -663,8 +674,9 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
     {
         Octree * oct = scene_->GetComponent<Octree>();
         PODVector<RayQueryResult> res;
+
         // Get the closest object for selection
-        RayOctreeQuery q(res, cam_comp_->GetScreenRay(norm_mpos.x_, norm_mpos.y_));
+        RayOctreeQuery q(res, cam_comp_->GetScreenRay(norm_mpos.x_, norm_mpos.y_), RAY_TRIANGLE, M_INFINITY, DRAWABLE_GEOMETRY);
         oct->RaycastSingle(q);
 
         // Go through the results from the query - there really should only be one result since we are only doing
@@ -675,7 +687,6 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
 
             Node * nd = cr.node_;
 
-            StaticModelGroup * smg = nullptr;
             StaticModel * sm = nullptr;
 
             // If the object hit is a static model group then get the instance node
