@@ -36,7 +36,7 @@ class Context;
 
 namespace Ui
 {
-  class Toolkit;
+class Toolkit;
 }
 
 class Toolkit : public QMainWindow
@@ -44,12 +44,13 @@ class Toolkit : public QMainWindow
     Q_OBJECT
 
   public:
-
     Toolkit(QWidget * parent = 0);
 
     ~Toolkit();
 
     void init();
+
+    bool is_init();
 
     static Toolkit & inst();
 
@@ -59,21 +60,22 @@ class Toolkit : public QMainWindow
 
   public slots:
 
-  void on_actionSave_View_triggered();
+    void on_actionSave_View_triggered();
 
-  void on_actionLoad_View_triggered();
+    void on_actionLoad_View_triggered();
 
-  void dock_widget_floating_changed(bool floating);
+    void dock_widget_floating_changed(bool floating);
 
-  void dock_widget_area_changed(Qt::DockWidgetArea area);
+    void dock_widget_area_changed(Qt::DockWidgetArea area);
 
   signals:
 
-  void urho_init_complete();
+    void urho_init_complete();
 
   protected:
-  
   private:
+
+    bool init_;
 
     void remove_dock_widgets();
 

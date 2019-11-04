@@ -1,8 +1,10 @@
 #pragma once
 #include <QMainWindow>
 
-namespace Ui {
-class Map_Editor;
+class Urho_Map_Editor;
+
+namespace Ui{
+   class Map_Editor;
 }
 
 namespace Urho3D {
@@ -19,6 +21,8 @@ class Map_Editor : public QMainWindow
    ~Map_Editor();
 
    void init(Urho3D::Context * ctxt);
+
+   Urho_Map_Editor * get_urho_editor();
 
   private:
    Ui::Map_Editor * ui;

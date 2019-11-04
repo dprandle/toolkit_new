@@ -158,11 +158,13 @@ class Input_Translator : public Urho3D::Object
 
     void _normalize_mpos(fvec2 & to_norm);
 
-    void _fill_vp_info(Urho3D::Vector<Viewport_Info> & vp_inf_vec, const fvec2 & norm_mpos, const fvec2 & norm_mdelta);    
+    void _fill_vp_info(Urho3D::Vector<Viewport_Info> & vp_inf_vec,
+                       const fvec2 & norm_mpos,
+                       const fvec2 & norm_mdelta);
 
 #ifdef QT_BUILD
-	void _init_key_map();
-	void _init_mouse_button_map();
+    void _init_key_map();
+    void _init_mouse_button_map();
     int _convert_Qtkey_modifier_to_SDL(Qt::KeyboardModifiers qtKeyModifiers);
     int _convert_Qtmb_modifier_to_SDL(Qt::MouseButtons buttons);
     int _convert_Qtmb_to_SDL(int qtbutton);
@@ -184,14 +186,14 @@ namespace Urho3D
 /// Input Trigger Event
 URHO3D_EVENT(E_INPUT_TRIGGER, InputTrigger)
 {
-    URHO3D_PARAM(P_TRIGGER_NAME, trigger_name);          // StringHash
-    URHO3D_PARAM(P_TRIGGER_STATE, trigger_state);        // int
-    URHO3D_PARAM(P_NORM_MPOS, normalized_mouse_pos);     // Vector2
-    URHO3D_PARAM(P_NORM_MDELTA, normalized_mouse_delta); // Vector2
-    URHO3D_PARAM(P_VIEWPORT_NORM_MPOS, viewport_normalized_mouse_pos); // Vector2
+    URHO3D_PARAM(P_TRIGGER_NAME, trigger_name);                            // StringHash
+    URHO3D_PARAM(P_TRIGGER_STATE, trigger_state);                          // int
+    URHO3D_PARAM(P_NORM_MPOS, normalized_mouse_pos);                       // Vector2
+    URHO3D_PARAM(P_NORM_MDELTA, normalized_mouse_delta);                   // Vector2
+    URHO3D_PARAM(P_VIEWPORT_NORM_MPOS, viewport_normalized_mouse_pos);     // Vector2
     URHO3D_PARAM(P_VIEWPORT_NORM_MDELTA, viewport_normalized_mouse_delta); // Vector2
-    URHO3D_PARAM(P_VIEWPORT_INDEX, viewport_index); // int
-    URHO3D_PARAM(P_MOUSE_WHEEL, mouse_wheel);            // int
+    URHO3D_PARAM(P_VIEWPORT_INDEX, viewport_index);                        // int
+    URHO3D_PARAM(P_MOUSE_WHEEL, mouse_wheel);                              // int
 }
 
 } // namespace Urho3D

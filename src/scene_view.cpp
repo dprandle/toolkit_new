@@ -4,6 +4,7 @@
 
 #include <map_editor.h>
 #include <scene_view.h>
+#include <mtdebug_print.h>
 #include <input_translator.h>
 
 Scene_View::Scene_View(QWidget * parent) : QWidget(parent), me_(nullptr)

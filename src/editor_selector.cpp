@@ -1,11 +1,5 @@
 #include <editor_selector.h>
-#include <Urho3D/Core/Context.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Scene/Scene.h>
-#include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Graphics/StaticModelGroup.h>
-#include <Urho3D/IO/Log.h>
+#include <urho_common.h>
 #include <string>
 
 Editor_Selector::Editor_Selector(Urho3D::Context * context)

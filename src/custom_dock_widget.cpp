@@ -17,7 +17,6 @@ bool Custom_Dock_Widget::manually_floating()
 
 void Custom_Dock_Widget::changeEvent(QEvent * e)
 {
-    iout << "type" << e->type();
     floating_ = isFloating();
     QDockWidget::changeEvent(e);
 }

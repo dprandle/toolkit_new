@@ -12,7 +12,8 @@
 #include <QToolButton>
 #include <QWidgetAction>
 
-#include <Urho3D/Engine/Application.h>
+#include <urho_common.h>
+#include <urho_map_editor.h>
 
 #include <mtdebug_print.h>
 #include <ui_toolkit.h>
@@ -22,9 +23,10 @@ Toolkit * Toolkit::toolkit_ptr_ = nullptr;
 
 Toolkit::Toolkit(QWidget * parent)
     : QMainWindow(parent),
-    ui(new Ui::Toolkit),
-      toolkit_context_(new Urho3D::Context()),
-      game_context_(new Urho3D::Context())
+      ui(new Ui::Toolkit),
+      init_(false),
+      toolkit_context_(new Context()),
+      game_context_(new Context())
 {
     QCoreApplication::setOrganizationName("Earth Banana Games");
     QCoreApplication::setOrganizationDomain("earthbanana.com");
@@ -38,23 +40,6 @@ Toolkit::Toolkit(QWidget * parent)
 
     setCentralWidget(nullptr);
     showMaximized();
-
-    connect(ui->dockWidget_map_editor, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
-    connect(ui->dockWidget_assets, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
-    connect(ui->dockWidget_game_view, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
-    connect(ui->dockWidget_prefab_view, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
-    connect(ui->dockWidget_console, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
-    connect(ui->dockWidget_details, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
-    connect(ui->dockWidget_graph, &QDockWidget::topLevelChanged, this, &Toolkit::dock_widget_floating_changed);
-
-    connect(ui->dockWidget_map_editor, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
-    connect(ui->dockWidget_assets, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
-    connect(ui->dockWidget_game_view, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
-    connect(ui->dockWidget_prefab_view, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
-    connect(ui->dockWidget_console, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
-    connect(ui->dockWidget_details, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
-    connect(ui->dockWidget_graph, &QDockWidget::dockLocationChanged, this, &Toolkit::dock_widget_area_changed);
-
 }
 
 Toolkit::~Toolkit()
@@ -67,7 +52,13 @@ void Toolkit::init()
 {
     ui->map_editor->init(toolkit_context_);
     emit urho_init_complete();
-    QTimer::singleShot(100,this,&Toolkit::on_actionLoad_View_triggered);
+    init_ = true;
+    QTimer::singleShot(100, this, &Toolkit::on_actionLoad_View_triggered);
+}
+
+bool Toolkit::is_init()
+{
+    return init_;
 }
 
 void Toolkit::remove_dock_widgets()
@@ -99,7 +90,7 @@ void Toolkit::dock_widget_floating_changed(bool floating)
 void Toolkit::dock_widget_area_changed(Qt::DockWidgetArea area)
 {}
 
-Urho3D::Context * Toolkit::get_urho_toolkit_context()
+Context * Toolkit::get_urho_toolkit_context()
 {
     return toolkit_context_;
 }

@@ -94,7 +94,6 @@ void Tile_Occupier::OnNodeSet(Urho3D::Node * node)
 void Tile_Occupier::OnSetEnabled()
 {
     bool enabled = IsEnabled();
-    dout << "Enable state changed to" << enabled;
     uint32_t node_id = node_->GetID();
 
     Scene * scn = GetScene();

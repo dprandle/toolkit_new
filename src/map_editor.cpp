@@ -14,6 +14,11 @@ Map_Editor::~Map_Editor()
     delete ui;
 }
 
+Urho_Map_Editor * Map_Editor::get_urho_editor()
+{
+    return ui->scene_view->get_editor<Urho_Map_Editor>();
+}
+
 void Map_Editor::init(Urho3D::Context * ctxt)
 {
     ui->scene_view->init_editor<Urho_Map_Editor>(ctxt);

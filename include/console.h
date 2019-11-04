@@ -5,14 +5,14 @@ namespace Ui {
 class Console;
 }
 
-class Console : public QMainWindow
+class QtConsole : public QMainWindow
 {
    Q_OBJECT
    
   public:
    
-   explicit Console(QWidget *parent = 0);
-   ~Console();
+   explicit QtConsole(QWidget *parent = 0);
+   ~QtConsole();
 
    void clear();
 

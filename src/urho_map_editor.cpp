@@ -1,50 +1,4 @@
-#include <Urho3D/UI/UI.h>
-#include <Urho3D/UI/Button.h>
-#include <Urho3D/UI/BorderImage.h>
-
-#include <Urho3D/Physics/RigidBody.h>
-#include <Urho3D/Physics/PhysicsWorld.h>
-#include <Urho3D/Physics/CollisionShape.h>
-#include <Urho3D/Physics/PhysicsEvents.h>
-
-#include <Urho3D/LuaScript/LuaScript.h>
-#include <Urho3D/AngelScript/Script.h>
-
-#include <Urho3D/Resource/XMLFile.h>
-#include <Urho3D/Resource/ResourceCache.h>
-
-#include <Urho3D/Engine/Application.h>
-#include <Urho3D/Engine/DebugHud.h>
-#include <Urho3D/Engine/Engine.h>
-#include <Urho3D/Engine/Console.h>
-#include <Urho3D/Engine/EngineDefs.h>
-
-#include <Urho3D/Input/Input.h>
-#include <Urho3D/Input/InputEvents.h>
-
-#include <Urho3D/Audio/Audio.h>
-
-#include <Urho3D/Scene/SceneEvents.h>
-#include <Urho3D/Scene/Scene.h>
-
-#include <Urho3D/IO/FileSystem.h>
-#include <Urho3D/IO/IOEvents.h>
-#include <Urho3D/IO/Log.h>
-
-#include <Urho3D/Core/Context.h>
-#include <Urho3D/Core/Timer.h>
-#include <Urho3D/Core/CoreEvents.h>
-
-#include <Urho3D/Graphics/Graphics.h>
-#include <Urho3D/Graphics/Octree.h>
-#include <Urho3D/Graphics/Renderer.h>
-#include <Urho3D/Graphics/RenderPath.h>
-#include <Urho3D/Graphics/Skybox.h>
-#include <Urho3D/Graphics/StaticModelGroup.h>
-#include <Urho3D/Graphics/DebugRenderer.h>
-#include <Urho3D/Graphics/Camera.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/Technique.h>
+#include <urho_common.h>
 
 #include <urho_map_editor.h>
 #include <mtdebug_print.h>
@@ -58,21 +12,21 @@
 #include <console.h>
 #include <ui_toolkit.h>
 
-Urho_Map_Editor::Urho_Map_Editor(Urho3D::Context * context, void * window_id)
+Urho_Map_Editor::Urho_Map_Editor(Context * context, void * window_id)
     : Urho_Window(context, window_id),
       scene_(nullptr),
       cam_node_(nullptr),
       camera_controller_(new Editor_Camera_Controller(context)),
       draw_debug_(false)
 {
-    Urho3D::VariantMap engine_params;
-    engine_params[Urho3D::EP_FRAME_LIMITER] = false;
-    engine_params[Urho3D::EP_LOG_NAME] = GetSubsystem<Urho3D::FileSystem>()->GetProgramDir() + "BBToolkit.log";
-    engine_params[Urho3D::EP_FULL_SCREEN] = false;
-    engine_params[Urho3D::EP_WINDOW_WIDTH] = 1280;
-    engine_params[Urho3D::EP_WINDOW_HEIGHT] = 720;
-    engine_params[Urho3D::EP_WINDOW_RESIZABLE] = true;
-    engine_params[Urho3D::EP_EXTERNAL_WINDOW] = window_id;
+    VariantMap engine_params;
+    engine_params[EP_FRAME_LIMITER] = false;
+    engine_params[EP_LOG_NAME] = GetSubsystem<FileSystem>()->GetProgramDir() + "BBToolkit.log";
+    engine_params[EP_FULL_SCREEN] = false;
+    engine_params[EP_WINDOW_WIDTH] = 1280;
+    engine_params[EP_WINDOW_HEIGHT] = 720;
+    engine_params[EP_WINDOW_RESIZABLE] = true;
+    engine_params[EP_EXTERNAL_WINDOW] = window_id;
 
     // Register custom systems
     context_->RegisterSubsystem(camera_controller_);
@@ -91,16 +45,16 @@ Urho_Map_Editor::Urho_Map_Editor(Urho3D::Context * context, void * window_id)
         return;
     }
 
-    context_->RegisterSubsystem(new Urho3D::Script(context_));
-    context_->RegisterSubsystem(new Urho3D::LuaScript(context_));
+    context_->RegisterSubsystem(new Script(context_));
+    context_->RegisterSubsystem(new LuaScript(context_));
 
     input_translator_->init();
     camera_controller_->init();
 
-    SubscribeToEvent(Urho3D::E_SCENEUPDATE, URHO3D_HANDLER(Urho_Map_Editor, handle_scene_update));
-    SubscribeToEvent(Urho3D::E_INPUT_TRIGGER, URHO3D_HANDLER(Urho_Map_Editor, handle_input_event));
-    SubscribeToEvent(Urho3D::E_POSTRENDERUPDATE, URHO3D_HANDLER(Urho_Map_Editor, handle_post_render_update));
-    SubscribeToEvent(Urho3D::E_LOGMESSAGE, URHO3D_HANDLER(Urho_Map_Editor, handle_log_message));
+    SubscribeToEvent(E_SCENEUPDATE, URHO3D_HANDLER(Urho_Map_Editor, handle_scene_update));
+    SubscribeToEvent(E_INPUT_TRIGGER, URHO3D_HANDLER(Urho_Map_Editor, handle_input_event));
+    SubscribeToEvent(E_POSTRENDERUPDATE, URHO3D_HANDLER(Urho_Map_Editor, handle_post_render_update));
+    SubscribeToEvent(E_LOGMESSAGE, URHO3D_HANDLER(Urho_Map_Editor, handle_log_message));
 
     create_visuals();
 }
@@ -111,26 +65,26 @@ Urho_Map_Editor::~Urho_Map_Editor()
     context_->RemoveSubsystem<Editor_Camera_Controller>();
 }
 
-void Urho_Map_Editor::handle_log_message(Urho3D::StringHash event_type, Urho3D::VariantMap & event_data)
+void Urho_Map_Editor::handle_log_message(StringHash event_type, VariantMap & event_data)
 {
-    String msg = event_data[Urho3D::LogMessage::P_MESSAGE].GetString();
-    int state = event_data[Urho3D::LogMessage::P_LEVEL].GetInt();
+    String msg = event_data[LogMessage::P_MESSAGE].GetString();
+    int state = event_data[LogMessage::P_LEVEL].GetInt();
     QString color;
     switch(state)
     {
-        case(Urho3D::LOG_TRACE):
+        case(LOG_TRACE):
             color = "blue";
             break;
-        case(Urho3D::LOG_WARNING):
+        case(LOG_WARNING):
             color = "yellow";
             break;
-        case(Urho3D::LOG_ERROR):
+        case(LOG_ERROR):
             color = "red";
             break;
-        case(Urho3D::LOG_DEBUG):
+        case(LOG_DEBUG):
             color = "white";
             break;
-        case(Urho3D::LOG_INFO):
+        case(LOG_INFO):
             color = "green";
             break;
     }
@@ -138,16 +92,16 @@ void Urho_Map_Editor::handle_log_message(Urho3D::StringHash event_type, Urho3D::
     bbtk.ui->console->append(formatted_str);
 }
 
-void Urho_Map_Editor::handle_post_render_update(Urho3D::StringHash event_type, Urho3D::VariantMap & event_data)
+void Urho_Map_Editor::handle_post_render_update(StringHash event_type, VariantMap & event_data)
 {
     if (draw_debug_)
     {
         if (scene_ != nullptr)
         {
-            Urho3D::PhysicsWorld * pw = scene_->GetComponent<Urho3D::PhysicsWorld>();
+            PhysicsWorld * pw = scene_->GetComponent<PhysicsWorld>();
             if (pw != nullptr)
                 pw->DrawDebugGeometry(false);
-            Urho3D::Octree * oc = scene_->GetComponent<Urho3D::Octree>();
+            Octree * oc = scene_->GetComponent<Octree>();
             if (oc != nullptr)
                 oc->DrawDebugGeometry(true);
             Editor_Selection_Controller * esc = scene_->GetComponent<Editor_Selection_Controller>();
@@ -160,58 +114,69 @@ void Urho_Map_Editor::handle_post_render_update(Urho3D::StringHash event_type, U
     }
 }
 
+Scene * Urho_Map_Editor::get_active_scene()
+{
+    return scene_;
+}   
+
+void Urho_Map_Editor::set_active_scene(Scene * scene)
+{
+    scene_ = scene;
+}
+
+
 void Urho_Map_Editor::create_visuals()
 {
-    Urho3D::Graphics * graphics = GetSubsystem<Urho3D::Graphics>();
+    Graphics * graphics = GetSubsystem<Graphics>();
     graphics->SetWindowTitle("Build and Battle");
     
     // Get default style
-    Urho3D::ResourceCache * cache = GetSubsystem<Urho3D::ResourceCache>();
-    Urho3D::XMLFile * xmlFile = cache->GetResource<Urho3D::XMLFile>("UI/DefaultStyle.xml");
+    ResourceCache * cache = GetSubsystem<ResourceCache>();
+    XMLFile * xmlFile = cache->GetResource<XMLFile>("UI/DefaultStyle.xml");
 
     // Create console
-    Urho3D::Console * console = engine_->CreateConsole();
+    Console * console = engine_->CreateConsole();
     console->SetDefaultStyle(xmlFile);
     console->GetBackground()->SetOpacity(0.8f);
     console->GetBackground()->SetOpacity(0.8f);
 
     // Create debug HUD.
-    Urho3D::DebugHud * debugHud = engine_->CreateDebugHud();
+    DebugHud * debugHud = engine_->CreateDebugHud();
     debugHud->SetDefaultStyle(xmlFile);
 
-    Urho3D::UI * usi = GetSubsystem<Urho3D::UI>();
-    Urho3D::UIElement * root = usi->GetRoot();
-    Urho3D::Button * btn = new Urho3D::Button(context_);
+    UI * usi = GetSubsystem<UI>();
+    UIElement * root = usi->GetRoot();
+    Button * btn = new Button(context_);
     btn->SetName("Button1");
-    btn->SetSize(Urho3D::IntVector2(200, 200));
+    btn->SetSize(IntVector2(200, 200));
     btn->SetColor(Color(0.7f, 0.6f, 0.1f, 0.4f));
     root->AddChild(btn);
 
     //Button *
-    Urho3D::Context * ctxt = GetContext();
-    scene_ = new Urho3D::Scene(ctxt);
-    scene_->CreateComponent<Urho3D::DebugRenderer>();
-    scene_->CreateComponent<Urho3D::Octree>();
-    Urho3D::PhysicsWorld * phys = scene_->CreateComponent<Urho3D::PhysicsWorld>();
+    Context * ctxt = GetContext();
+    scene_ = new Scene(ctxt);
+    scene_->CreateComponent<DebugRenderer>();
+    scene_->CreateComponent<Octree>();
+    PhysicsWorld * phys = scene_->CreateComponent<PhysicsWorld>();
     Hex_Tile_Grid * tg = scene_->CreateComponent<Hex_Tile_Grid>();
     Editor_Selection_Controller * editor_selection =
         scene_->CreateComponent<Editor_Selection_Controller>();
     phys->SetGravity(fvec3(0.0f, 0.0f, -9.81f));
 
-    Urho3D::Node * editor_cam_node = new Urho3D::Node(ctxt);
-    Urho3D::Camera * editor_cam = editor_cam_node->CreateComponent<Urho3D::Camera>();
-    editor_cam_node->SetPosition(Urho3D::Vector3(8, -8, 5));
-    editor_cam_node->SetDirection(Urho3D::Vector3(0, 0, -1));
+    Node * editor_cam_node = new Node(ctxt);
+    Camera * editor_cam = editor_cam_node->CreateComponent<Camera>();
+    editor_cam_node->SetPosition(Vector3(8, -8, 5));
+    editor_cam_node->SetDirection(Vector3(0, 0, -1));
     editor_cam_node->Pitch(-70.0f);
 
-    Urho3D::Renderer * rnd = GetSubsystem<Urho3D::Renderer>();
+    Renderer * rnd = GetSubsystem<Renderer>();
 
-    Urho3D::Viewport * vp = new Urho3D::Viewport(ctxt, scene_, editor_cam);
+    Viewport * vp = new Viewport(ctxt, scene_, editor_cam);
     vp->SetDrawDebug(true);
     rnd->SetViewport(0, vp);
 
-    Urho3D::RenderPath * rp = new Urho3D::RenderPath;
-    rp->Load(cache->GetResource<Urho3D::XMLFile>("RenderPaths/DeferredWithOutlines.xml"));
+    RenderPath * rp = new RenderPath;
+    rp->Load(cache->GetResource<XMLFile>("RenderPaths/DeferredWithOutlines.xml"));
     vp->SetRenderPath(rp);
 
     camera_controller_->add_viewport(0);
@@ -219,34 +184,34 @@ void Urho_Map_Editor::create_visuals()
     camera_controller_->set_camera(editor_cam);
     editor_selection->set_camera(editor_cam);
 
-    Urho3D::Node * skyNode = scene_->CreateChild("Sky");
-    skyNode->Rotate(Urho3D::Quaternion(90.0f, Urho3D::Vector3(1, 0, 0)));
-    Urho3D::Skybox * skybox = skyNode->CreateComponent<Urho3D::Skybox>();
-    skybox->SetModel(cache->GetResource<Urho3D::Model>("Models/Box.mdl"));
-    skybox->SetMaterial(cache->GetResource<Urho3D::Material>("Materials/Skybox.xml"));
+    Node * skyNode = scene_->CreateChild("Sky");
+    skyNode->Rotate(Quaternion(90.0f, Vector3(1, 0, 0)));
+    Skybox * skybox = skyNode->CreateComponent<Skybox>();
+    skybox->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+    skybox->SetMaterial(cache->GetResource<Material>("Materials/Skybox.xml"));
 
     // Create a directional light
-    Urho3D::Node * light_node = scene_->CreateChild("Dir_Light");
-    light_node->SetDirection(Urho3D::Vector3(-0.0f, -0.5f, -1.0f));
-    Urho3D::Light * light = light_node->CreateComponent<Urho3D::Light>();
-    light->SetLightType(Urho3D::LIGHT_DIRECTIONAL);
+    Node * light_node = scene_->CreateChild("Dir_Light");
+    light_node->SetDirection(Vector3(-0.0f, -0.5f, -1.0f));
+    Light * light = light_node->CreateComponent<Light>();
+    light->SetLightType(LIGHT_DIRECTIONAL);
     light->SetColor(Color(1.0f, 1.0f, 1.0f));
     light->SetSpecularIntensity(5.0f);
     light->SetBrightness(1.0f);
 
-    Urho3D::Technique * tech = cache->GetResource<Urho3D::Technique>("Techniques/DiffNormal.xml");
-    Urho3D::Technique * tech_outline = cache->GetResource<Urho3D::Technique>("Techniques/DiffNormalOutline.xml");
+    Technique * tech = cache->GetResource<Technique>("Techniques/DiffNormal.xml");
+    Technique * tech_outline = cache->GetResource<Technique>("Techniques/DiffNormalOutline.xml");
 
     // Create StaticModelGroups in the scene
-    Urho3D::StaticModelGroup * lastGroup = nullptr;
-    Urho3D::Material * grass_tile = cache->GetResource<Urho3D::Material>("Materials/Tiles/Grass.xml");
-    Urho3D::Material * grass_tile_selected =
-        cache->GetResource<Urho3D::Material>("Materials/Tiles/GrassSelected.xml");
+    StaticModelGroup * lastGroup = nullptr;
+    Material * grass_tile = cache->GetResource<Material>("Materials/Tiles/Grass.xml");
+    Material * grass_tile_selected =
+        cache->GetResource<Material>("Materials/Tiles/GrassSelected.xml");
     grass_tile_selected->SetShaderParameter("OutlineEnable", true);
 
     //<parameter name="OutlineWidth" value="0.01" />
     //<parameter name="OutlineColor" value="1 1 0 1" />
-    Urho3D::Model * mod = cache->GetResource<Urho3D::Model>("Models/Tiles/Grass.mdl");
+    Model * mod = cache->GetResource<Model>("Models/Tiles/Grass.mdl");
 
     Input_Context * in_context = input_map_->create_context("global_context");
     camera_controller_->setup_input_context(in_context);
@@ -261,9 +226,9 @@ void Urho_Map_Editor::create_visuals()
         {
             for (int z = 0; z < 2; ++z)
             {
-                Urho3D::Node * tile_node = scene_->CreateChild("Grass_Tile_" + String(cnt));
+                Node * tile_node = scene_->CreateChild("Grass_Tile");
 
-                Urho3D::StaticModel * modc = tile_node->CreateComponent<Urho3D::StaticModel>();
+                StaticModel * modc = tile_node->CreateComponent<StaticModel>();
                 modc->SetModel(mod);
                 modc->SetMaterial(grass_tile);
 
@@ -272,12 +237,12 @@ void Urho_Map_Editor::create_visuals()
                 sel->SetMaterial(grass_tile_selected);
                 sel->set_selected(false);
 
-                Urho3D::CollisionShape * cs = tile_node->CreateComponent<Urho3D::CollisionShape>();
-                const Urho3D::BoundingBox & bb = modc->GetBoundingBox();
+                CollisionShape * cs = tile_node->CreateComponent<CollisionShape>();
+                const BoundingBox & bb = modc->GetBoundingBox();
                 cs->SetBox(bb.Size());
 
-                Urho3D::RigidBody * rb = tile_node->CreateComponent<Urho3D::RigidBody>();
-                rb->SetMass(0.0f);
+                // RigidBody * rb = tile_node->CreateComponent<RigidBody>();
+                // rb->SetMass(0.0f);
                 // if (z == 1)
                 //     rb->SetMass(10.0f);
                 // rb->SetFriction(0.1f);
@@ -287,12 +252,12 @@ void Urho_Map_Editor::create_visuals()
                 tile_node->AddListener(occ);
 
                 tile_node->SetPosition(Hex_Tile_Grid::grid_to_world(ivec3(x, y, z)));
-                tile_node->SetRotation(Urho3D::Quaternion(90.0f, fvec3(1.0f, 0.0f, 0.0f)));
+                tile_node->SetRotation(Quaternion(90.0f, fvec3(1.0f, 0.0f, 0.0f)));
 
                 tile_node->AddTag("Scooby");
-                tile_node->SetVar("Steve", Urho3D::IntVector2(1,2));
-                tile_node->SetVar("Smackem", Urho3D::Vector3(1.1,2.2,3.3));
-                tile_node->SetVar("Super", Urho3D::Vector4(1.1,2.2,3.3,4.4));
+                tile_node->SetVar("Steve", IntVector2(1,2));
+                tile_node->SetVar("Smackem", Vector3(1.1,2.2,3.3));
+                tile_node->SetVar("Super", Vector4(1.1,2.2,3.3,4.4));
 
 
                 ++cnt;
@@ -312,47 +277,56 @@ void Urho_Map_Editor::setup_global_keys(Input_Context * ctxt)
 
     it.condition_.mouse_button_ = 0;
     it.mb_required_ = 0;
-    it.mb_allowed_ = Urho3D::MOUSEB_ANY;
+    it.mb_allowed_ = MOUSEB_ANY;
     it.qual_required_ = 0;
-    it.qual_allowed_ = Urho3D::QUAL_ANY;
-    it.condition_.key_ = Urho3D::KEY_F1;
+    it.qual_allowed_ = QUAL_ANY;
+    it.condition_.key_ = KEY_F1;
     it.name_ = "ToggleConsole";
     it.trigger_state_ = T_BEGIN;
     ctxt->create_trigger(it);
 
-    it.condition_.key_ = Urho3D::KEY_F2;
+    it.condition_.key_ = KEY_F2;
     it.name_ = "ToggleDebugHUD";
     ctxt->create_trigger(it);
 
-    it.condition_.key_ = Urho3D::KEY_F9;
+    it.condition_.key_ = KEY_F9;
     it.name_ = "TakeScreenshot";
     ctxt->create_trigger(it);
 
-    it.condition_.key_ = Urho3D::KEY_F3;
+    it.condition_.key_ = KEY_F3;
     it.name_ = "ToggleDebugGeometry";
+    ctxt->create_trigger(it);
+
+    it.condition_.key_ = KEY_DELETE;
+    it.name_ = "DeleteSelection";
     ctxt->create_trigger(it);
 }
 
-void Urho_Map_Editor::handle_scene_update(Urho3D::StringHash /*event_type*/, Urho3D::VariantMap & event_data)
+void Urho_Map_Editor::handle_scene_update(StringHash /*event_type*/, VariantMap & event_data)
 {
     bbtk.ui->details->update_node();
 }
 
-void Urho_Map_Editor::handle_input_event(Urho3D::StringHash event_type, Urho3D::VariantMap & event_data)
+void Urho_Map_Editor::handle_input_event(StringHash event_type, VariantMap & event_data)
 {
-    StringHash name = event_data[Urho3D::InputTrigger::P_TRIGGER_NAME].GetStringHash();
-    int state = event_data[Urho3D::InputTrigger::P_TRIGGER_STATE].GetInt();
-    Urho3D::Vector2 norm_mpos = event_data[Urho3D::InputTrigger::P_NORM_MPOS].GetVector2();
-    Urho3D::Vector2 norm_mdelta = event_data[Urho3D::InputTrigger::P_NORM_MDELTA].GetVector2();
-    int wheel = event_data[Urho3D::InputTrigger::P_MOUSE_WHEEL].GetInt();
+    StringHash name = event_data[InputTrigger::P_TRIGGER_NAME].GetStringHash();
+    int state = event_data[InputTrigger::P_TRIGGER_STATE].GetInt();
+    Vector2 norm_mpos = event_data[InputTrigger::P_NORM_MPOS].GetVector2();
+    Vector2 norm_mdelta = event_data[InputTrigger::P_NORM_MDELTA].GetVector2();
+    int wheel = event_data[InputTrigger::P_MOUSE_WHEEL].GetInt();
 
     if (name == StringHash("ToggleDebugHUD"))
     {
-        GetSubsystem<Urho3D::DebugHud>()->ToggleAll();
+        GetSubsystem<DebugHud>()->ToggleAll();
+    }
+    else if (name == StringHash("DeleteSelection"))
+    {
+        bbtk.ui->details->clear_selection();
+        scene_->GetComponent<Editor_Selection_Controller>()->delete_selection();
     }
     else if (name == StringHash("ToggleConsole"))
     {
-        GetSubsystem<Urho3D::Console>()->Toggle();
+        GetSubsystem<Console>()->Toggle();
     }
     else if (name == StringHash("ToggleDebugGeometry"))
     {
@@ -360,12 +334,12 @@ void Urho_Map_Editor::handle_input_event(Urho3D::StringHash event_type, Urho3D::
     }
     else if (name == StringHash("TakeScreenshot"))
     {
-        Urho3D::Graphics * graphics = GetSubsystem<Urho3D::Graphics>();
-        Urho3D::Image screenshot(context_);
+        Graphics * graphics = GetSubsystem<Graphics>();
+        Image screenshot(context_);
         graphics->TakeScreenShot(screenshot);
         // Here we save in the Data folder with date and time appended
         screenshot.SavePNG(
-            GetSubsystem<Urho3D::FileSystem>()->GetProgramDir() + "Data/Screenshot_" +
-            Urho3D::Time::GetTimeStamp().Replaced(':', '_').Replaced('.', '_').Replaced(' ', '_') + ".png");
+            GetSubsystem<FileSystem>()->GetProgramDir() + "Data/Screenshot_" +
+            Time::GetTimeStamp().Replaced(':', '_').Replaced('.', '_').Replaced(' ', '_') + ".png");
     }
 }

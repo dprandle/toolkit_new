@@ -3,52 +3,16 @@
 #include <mtdebug_print.h>
 #include <hex_tile_grid.h>
 #include <tile_occupier.h>
-#include <Urho3D/Scene/SceneEvents.h>
-
-#include <Urho3D/Graphics/DebugRenderer.h>
-
-#include <Urho3D/Physics/PhysicsWorld.h>
-#include <Urho3D/Physics/RigidBody.h>
-#include <Urho3D/Physics/CollisionShape.h>
-
-#include <Urho3D/Resource/ResourceCache.h>
-#include <Urho3D/Graphics/Material.h>
-
-#include <Urho3D/Scene/Node.h>
-#include <Urho3D/Scene/Component.h>
-#include <Urho3D/Scene/Scene.h>
-
-#include <Urho3D/Math/Frustum.h>
-
-#include <Urho3D/Resource/ResourceCache.h>
-
-#include <Urho3D/Graphics/View.h>
-#include <Urho3D/Graphics/Viewport.h>
-#include <Urho3D/IO/Log.h>
-#include <Urho3D/Graphics/Renderer.h>
-#include <Urho3D/Graphics/Texture2D.h>
-#include <Urho3D/Graphics/Model.h>
-#include <Urho3D/Graphics/Camera.h>
-#include <Urho3D/Graphics/StaticModelGroup.h>
-#include <Urho3D/Graphics/Octree.h>
-#include <Urho3D/Graphics/OctreeQuery.h>
-
-#include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Core/Context.h>
-
-#include <Urho3D/UI/UI.h>
-#include <Urho3D/UI/UIElement.h>
-#include <Urho3D/UI/BorderImage.h>
-
 #include <toolkit.h>
 #include <ui_toolkit.h>
 #include <details_view.h>
 #include <editor_selector.h>
 #include <string>
+#include <graph_view.h>
 
-using namespace Urho3D;
+#include <urho_common.h>
 
-Editor_Selection_Controller::Editor_Selection_Controller(Urho3D::Context * context)
+Editor_Selection_Controller::Editor_Selection_Controller(Context * context)
     : Component(context),
       cam_comp_(nullptr),
       scene_(nullptr),
@@ -131,7 +95,7 @@ Editor_Selection_Controller::Editor_Selection_Controller(Urho3D::Context * conte
 Editor_Selection_Controller::~Editor_Selection_Controller()
 {}
 
-void Editor_Selection_Controller::OnSceneSet(Urho3D::Scene * scene)
+void Editor_Selection_Controller::OnSceneSet(Scene * scene)
 {
     scene_ = scene;
     Component::OnSceneSet(scene_);
@@ -143,8 +107,8 @@ void Editor_Selection_Controller::clear_selection()
     sel_rect_selection_.Clear();
 }
 
-void Editor_Selection_Controller::handle_component_added(Urho3D::StringHash event_type,
-                                                         Urho3D::VariantMap & event_data)
+void Editor_Selection_Controller::handle_component_added(StringHash event_type,
+                                                         VariantMap & event_data)
 {
     Scene * scn = static_cast<Scene *>(event_data[ComponentRemoved::P_SCENE].GetPtr());
     if (scene_ != scn)
@@ -154,8 +118,8 @@ void Editor_Selection_Controller::handle_component_added(Urho3D::StringHash even
         scene_sel_comps_.Insert(static_cast<Editor_Selector *>(comp));
 }
 
-void Editor_Selection_Controller::handle_component_removed(Urho3D::StringHash event_type,
-                                                           Urho3D::VariantMap & event_data)
+void Editor_Selection_Controller::handle_component_removed(StringHash event_type,
+                                                           VariantMap & event_data)
 {
     Scene * scn = static_cast<Scene *>(event_data[ComponentRemoved::P_SCENE].GetPtr());
     if (scene_ != scn)
@@ -179,7 +143,7 @@ void Editor_Selection_Controller::DrawDebugGeometry(bool depth_test)
     if (scene_ == nullptr)
         return;
 
-    Urho3D::DebugRenderer * deb = scene_->GetComponent<DebugRenderer>();
+    DebugRenderer * deb = scene_->GetComponent<DebugRenderer>();
     if (deb == nullptr)
         return;
 
@@ -209,6 +173,20 @@ void Editor_Selection_Controller::translate_selection(const fvec3 & translation)
     }
 }
 
+void Editor_Selection_Controller::delete_selection()
+{
+    auto sel_iter = selection_.Begin();
+    while (sel_iter != selection_.End())
+    {
+        (*sel_iter)->RemoveAllComponents();
+        (*sel_iter)->Remove();
+        ++sel_iter;
+    }
+    selection_.Clear();
+    bbtk.ui->graph->rebuild();
+}
+
+
 void Editor_Selection_Controller::toggle_occ_debug_selection()
 {
     auto sel_iter = selection_.Begin();
@@ -221,7 +199,7 @@ void Editor_Selection_Controller::toggle_occ_debug_selection()
     }
 }
 
-void Editor_Selection_Controller::remove_from_selection(Urho3D::Node * node)
+void Editor_Selection_Controller::remove_from_selection(Node * node)
 {
     auto iter = selection_.Begin();
     while (iter != selection_.End())
@@ -235,67 +213,81 @@ void Editor_Selection_Controller::remove_from_selection(Urho3D::Node * node)
     }
 }
 
-void Editor_Selection_Controller::set_camera(Urho3D::Camera * cam)
+void Editor_Selection_Controller::set_camera(Camera * cam)
 {
     cam_comp_ = cam;
 }
 
-Urho3D::Camera * Editor_Selection_Controller::get_camera()
+Camera * Editor_Selection_Controller::get_camera()
 {
     return cam_comp_;
 }
 
-void Editor_Selection_Controller::handle_update(Urho3D::StringHash event_type,
-                                                Urho3D::VariantMap & event_data)
+void Editor_Selection_Controller::handle_update(StringHash event_type,
+                                                VariantMap & event_data)
 {
     ResourceCache * cache = GetSubsystem<ResourceCache>();
     static HashMap<Material *, bool> mat_map;
-    Urho3D::Vector<Hex_Tile_Grid::Tile_Item> allowed_items;
-    Urho3D::Vector<Urho3D::Node*> sel_vec;
+    Vector<Hex_Tile_Grid::Tile_Item> allowed_items;
+
+    static VariantVector sel_vec;
+    static VariantVector prev_sel_vec;
+    prev_sel_vec = sel_vec;
 
     allowed_items.Resize(selection_.Size());
+    sel_vec.Resize(selection_.Size());
+
     int i = 0;
     auto sel_iter_al = selection_.Begin();
     while (sel_iter_al != selection_.End())
     {
         int node_id = (*sel_iter_al)->GetID();
         allowed_items[i].node_id_ = node_id;
-        sel_vec.Push(*sel_iter_al);
+        sel_vec[i] = static_cast<void*>(*sel_iter_al);
         ++i;
         ++sel_iter_al;
     }
 
+    if (prev_sel_vec != sel_vec)
+    {
+        VariantMap event_data;
+        using namespace SelectionChanged;
+        event_data[P_PREV_SELECTION] = prev_sel_vec;
+        event_data[P_CUR_SELECTION] = sel_vec;
+        SendEvent(E_SELECTION_CHANGED, event_data);
+    }
 
-    bbtk.ui->details->set_nodes(sel_vec);
+
+    bbtk.ui->details->set_selected_data(sel_vec, Node::GetTypeStatic());
 
     auto iter = selection_.Begin();
     while (iter != selection_.End())
     {
         Editor_Selector * es = (*iter)->GetComponent<Editor_Selector>();
-        Material * mat = es->GetMaterial();
-
-        auto fiter = mat_map.Find(mat);
-        if (fiter == mat_map.End())
-            mat_map[mat] = true;
-
-        Hex_Tile_Grid * tg = scene_->GetComponent<Hex_Tile_Grid>();
-        Tile_Occupier * occ = (*iter)->GetComponent<Tile_Occupier>();
-
-        uint32_t node_id = (*iter)->GetID();
-        (*iter)->Translate(frame_translation_, TS_WORLD);
-
-        if (occ != nullptr && occ->IsEnabled())
+        if (es != nullptr)
         {
-            auto occ_tiles =
-                tg->occupied(occ->tile_spaces(), (*iter)->GetPosition(), allowed_items);
-            mat_map[mat] = mat_map[mat] && occ_tiles.Empty();
+            Material * mat = es->GetMaterial();
+            auto fiter = mat_map.Find(mat);
+            if (fiter == mat_map.End())
+                mat_map[mat] = true;
+
+            Hex_Tile_Grid * tg = scene_->GetComponent<Hex_Tile_Grid>();
+            Tile_Occupier * occ = (*iter)->GetComponent<Tile_Occupier>();
+            if (occ != nullptr && occ->IsEnabled())
+            {
+                auto occ_tiles =
+                    tg->occupied(occ->tile_spaces(), (*iter)->GetPosition(), allowed_items);
+                mat_map[mat] = mat_map[mat] && occ_tiles.Empty();
+            }
         }
+
+        (*iter)->Translate(frame_translation_, TS_WORLD);
 
         // If a node that has a light component attached is selected, draw the light debug geometry
         Light * lcomp = (*iter)->GetComponent<Light>();
         if (lcomp != nullptr)
         {
-            Urho3D::DebugRenderer * deb = scene_->GetComponent<DebugRenderer>();
+            DebugRenderer * deb = scene_->GetComponent<DebugRenderer>();
             if (deb != nullptr)
                 lcomp->DrawDebugGeometry(deb, true);
         }
@@ -418,7 +410,7 @@ void Editor_Selection_Controller::setup_input_context(Input_Context * ctxt)
     ctxt->create_trigger(it);
 }
 
-bool Editor_Selection_Controller::is_selected(Urho3D::Node * obj_node)
+bool Editor_Selection_Controller::is_selected(Node * obj_node)
 {
     auto fiter = selection_.Find(obj_node);
     if (fiter != selection_.End())
@@ -522,8 +514,16 @@ void Editor_Selection_Controller::_add_to_selection_from_rect()
     }
 }
 
-void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_type,
-                                                     Urho3D::VariantMap & event_data)
+void Editor_Selection_Controller::add_to_selection(Urho3D::Node * obj_node)
+{
+    if (obj_node == nullptr)
+        return;
+    
+    selection_.Insert(obj_node);
+}
+
+void Editor_Selection_Controller::handle_input_event(StringHash event_type,
+                                                     VariantMap & event_data)
 {
     StringHash name = event_data[InputTrigger::P_TRIGGER_NAME].GetStringHash();
     int state = event_data[InputTrigger::P_TRIGGER_STATE].GetInt();
@@ -641,7 +641,7 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
                 auto sel_iter = sel_rect_selection_.Begin();
                 while (sel_iter != sel_rect_selection_.End())
                 {
-                    selection_.Insert(*sel_iter);
+                    add_to_selection(*sel_iter);
                     ++sel_iter;
                 }
                 cached_raycasts_.Clear();
@@ -701,7 +701,7 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
                     if (!es->is_selected())
                     {
                         clear_selection();
-                        selection_.Insert(cr.node_);
+                        add_to_selection(cr.node_);
                     }
                 }
                 else if (name == hashes_[1])
@@ -717,7 +717,7 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
                             auto sel_iter = sel_rect_selection_.Begin();
                             while (sel_iter != sel_rect_selection_.End())
                             {
-                                selection_.Insert(*sel_iter);
+                                add_to_selection(*sel_iter);
                                 ++sel_iter;
                             }
 
@@ -740,7 +740,7 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
                     }
                     else
                     {
-                        selection_.Insert(cr.node_);
+                        add_to_selection(cr.node_);
                     }
                 }
             }
@@ -779,7 +779,7 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
                     auto sel_iter = sel_rect_selection_.Begin();
                     while (sel_iter != sel_rect_selection_.End())
                     {
-                        selection_.Insert(*sel_iter);
+                        add_to_selection(*sel_iter);
                         ++sel_iter;
                     }
 
@@ -791,7 +791,7 @@ void Editor_Selection_Controller::handle_input_event(Urho3D::StringHash event_ty
     }
 }
 
-void Editor_Selection_Controller::register_context(Urho3D::Context * ctxt)
+void Editor_Selection_Controller::register_context(Context * ctxt)
 {
     ctxt->RegisterFactory<Editor_Selection_Controller>();
 }

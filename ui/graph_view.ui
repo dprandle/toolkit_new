@@ -14,6 +14,46 @@
    <string>Graph View</string>
   </property>
   <widget class="QWidget" name="widget_graph"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::TopToolBarArea</set>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <action name="actionStatic_Object">
+   <property name="text">
+    <string>Static Object</string>
+   </property>
+  </action>
+  <action name="actionTile">
+   <property name="text">
+    <string>Tile</string>
+   </property>
+  </action>
+  <action name="actionCharacter">
+   <property name="text">
+    <string>Character</string>
+   </property>
+  </action>
+  <action name="actionGlyph">
+   <property name="text">
+    <string>Glyph</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

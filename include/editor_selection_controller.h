@@ -49,9 +49,13 @@ class Editor_Selection_Controller : public Urho3D::Component
 
     void add_viewport(int vp_ind);
 
+    void add_to_selection(Urho3D::Node * obj_node);
+
     void remove_viewport(int vp_ind);
 
     void translate_selection(const fvec3 & translation);
+
+    void delete_selection();
 
     void toggle_occ_debug_selection();
 
@@ -64,8 +68,11 @@ class Editor_Selection_Controller : public Urho3D::Component
     void DrawDebugGeometry(bool depth);
 
     void handle_update(Urho3D::StringHash event_type, Urho3D::VariantMap & event_data);
+
     void handle_input_event(Urho3D::StringHash event_type, Urho3D::VariantMap & event_data);
+
     void handle_component_added(Urho3D::StringHash event_type, Urho3D::VariantMap & event_data);
+
     void handle_component_removed(Urho3D::StringHash event_type, Urho3D::VariantMap & event_data);
 
     void setup_input_context(Input_Context * ctxt);
@@ -111,4 +118,15 @@ class Editor_Selection_Controller : public Urho3D::Component
     bool do_snap_;
 
     int movement_flag_;
+};
+
+namespace Urho3D
+{
+/// Input Trigger Event
+URHO3D_EVENT(E_SELECTION_CHANGED, SelectionChanged)
+{
+    URHO3D_PARAM(P_PREV_SELECTION, prev_selection); // VariantVector
+    URHO3D_PARAM(P_CUR_SELECTION, cur_selection); // VariantVector
+}
+
 };

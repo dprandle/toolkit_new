@@ -1,19 +1,15 @@
 #include <details_view.h>
 #include <ui_details_view.h>
+#include <toolkit.h>
+#include <mtdebug_print.h>
+
+#include <urho_common.h>
 
 #include <QMessageBox>
 #include <QMenu>
 #include <QToolButton>
 #include <QToolBar>
 
-#include <toolkit.h>
-
-#include <mtdebug_print.h>
-#include <Urho3D/Core/Context.h>
-#include <Urho3D/Container/HashMap.h>
-#include <Urho3D/Container/Vector.h>
-#include <Urho3D/Scene/Component.h>
-#include <Urho3D/Scene/Node.h>
 
 Details_View::Details_View(QWidget * parent) : QMainWindow(parent), ui(new Ui::Details_View)
 {
@@ -51,7 +47,7 @@ void Details_View::urho_init_complete()
             if (find_iter != vals.End())
             {
                 QAction * comp_action = new QAction(find_iter->second_->GetTypeName().CString(),this);
-                Urho3D::StringHash type(find_iter->first_);
+                StringHash type(find_iter->first_);
                 auto func = [=]()
                 {
                     ui->comp_widget->create_component_on_selected_node(type);
@@ -64,9 +60,24 @@ void Details_View::urho_init_complete()
     }
 }
 
-void Details_View::set_nodes(const Urho3D::Vector<Urho3D::Node *> & nodes)
+void Details_View::set_selected_data(const VariantVector & data, const StringHash & type)
 {
-    ui->comp_widget->setup_ui(nodes);
+    if (type == Node::GetTypeStatic())
+    {
+        Vector<Node*> nodes;
+        nodes.Resize(data.Size());
+        for (int i = 0; i < data.Size(); ++i)
+        {
+            Node * nd = static_cast<Node*>(data[i].GetVoidPtr());
+            nodes[i] = nd;
+        }
+        ui->comp_widget->setup_ui(nodes);
+    }
+}
+
+void Details_View::clear_selection()
+{
+    ui->comp_widget->clear_selection();
 }
 
 Details_View::~Details_View()
